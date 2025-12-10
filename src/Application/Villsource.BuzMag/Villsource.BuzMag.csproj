@@ -23,6 +23,12 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0-rc.1.25451.107"/>
+        <PackageReference Include="Scalar.AspNetCore" Version="2.11.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Villsource.BuzMag.Application\Villsource.BuzMag.Application.csproj" />
+      <ProjectReference Include="..\Villsource.BuzMag.Infrastructure\Villsource.BuzMag.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

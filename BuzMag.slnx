@@ -9,5 +9,7 @@
   <Folder Name="/src/Kernel/">
     <Project Path="src/Kernel/Villsource.BuzMag.Sdk/Villsource.BuzMag.Sdk.csproj" />
   </Folder>
-  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/Villsource.BuzMag.User/Villsource.BuzMag.User.csproj" />
+  </Folder>
 </Solution>
