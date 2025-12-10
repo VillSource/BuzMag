@@ -1,1 +1,13 @@
-<Solution />
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Application/">
+    <Project Path="src/Application/Villsource.BuzMag.Application/Villsource.BuzMag.Application.csproj" />
+    <Project Path="src/Application/Villsource.BuzMag.Core/Villsource.BuzMag.Core.csproj" />
+    <Project Path="src/Application/Villsource.BuzMag.Infrastructure/Villsource.BuzMag.Infrastructure.csproj" />
+    <Project Path="src/Application/Villsource.BuzMag/Villsource.BuzMag.csproj" />
+  </Folder>
+  <Folder Name="/src/Kernel/">
+    <Project Path="src/Kernel/Villsource.BuzMag.Sdk/Villsource.BuzMag.Sdk.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+</Solution>
