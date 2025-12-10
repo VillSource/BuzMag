@@ -1,5 +1,5 @@
-using Villsource.BuzMag.Infrastructure.ModuleLoader;
 using Scalar.AspNetCore;
+using Villsource.BuzMag.Infrastructure.ModuleLoader;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,9 +7,9 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-app.UseStaticFiles();
-app.UseDefaultFiles();
-app.MapFallbackToFile("index.html");
+// app.UseStaticFiles();
+// app.UseDefaultFiles();
+// app.MapFallbackToFile("index.html");
 
 if (app.Environment.IsDevelopment())
 {
@@ -20,6 +20,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.LoadModules(options =>
-    options.ModulePath = "/home/pandora/Desktop/BuzMag/src/Modules/Villsource.BuzMag.User/bin/Release/net10.0/Villsource.BuzMag.User//");
+    options.ModulePath = "/home/pandora/Desktop/BuzMag/src/Modules/UserModule/Villsource.BuzMag.User/bin/Release/net10.0/Villsource.BuzMag.User//");
 
 app.Run();
