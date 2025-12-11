@@ -1,3 +1,3 @@
 {
-	"mfe1": "http://localhost:3000/remoteEntry.json"
+	"user": "https://localhost:7113/Modules/Users/ui/remoteEntry.json"
 }
