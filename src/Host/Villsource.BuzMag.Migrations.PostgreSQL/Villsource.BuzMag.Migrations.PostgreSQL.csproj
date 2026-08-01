@@ -20,6 +20,7 @@
 	  <ProjectReference Include="..\..\Modules\Chat\Modules.Chat\Modules.Chat.csproj" />
 	  <ProjectReference Include="..\..\Modules\Notifications\Modules.Notifications\Modules.Notifications.csproj" />
 	  <ProjectReference Include="..\..\Modules\Files\Modules.Files\Modules.Files.csproj" />
+	  <ProjectReference Include="..\..\VillsourceModules\BuzMag\BuzMag.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -27,6 +28,7 @@
 	  <Folder Include="MultiTenancy\" />
 	  <Folder Include="Billing\" />
 	  <Folder Include="Catalog\" />
+	  <Folder Include="Organization\" />
 	  <Folder Include="Tickets\" />
 	  <Folder Include="Chat\" />
 	  <Folder Include="Notifications\" />

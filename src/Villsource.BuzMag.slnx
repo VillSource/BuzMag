@@ -87,6 +87,9 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
   </Folder>
+  <Folder Name="/VillsourceModules/">
+    <Project Path="VillsourceModules/BuzMag/BuzMag.csproj" />
+  </Folder>
     
   <Folder Name="/VillsourceModules/Organization/">
     <Project Path="VillsourceModules/Organization/Villsource.FSH.Modules.Organization.Contracts/Villsource.FSH.Modules.Organization.Contracts.csproj" />

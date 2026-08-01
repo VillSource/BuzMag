@@ -101,6 +101,8 @@ builder.Services.AddMediator(o =>
         typeof(FSH.Modules.Chat.ChatModule),
         typeof(FSH.Modules.Notifications.Contracts.v1.Commands.MarkNotificationReadCommand),
         typeof(FSH.Modules.Notifications.NotificationsModule),
+        ..BuzMag.BuzMagModuleAssemblies.ContractAssemblies,
+        ..BuzMag.BuzMagModuleAssemblies.RuntimeAssemblies,
     ];
 });
 
@@ -117,6 +119,9 @@ var moduleAssemblies = new Assembly[]
     typeof(FSH.Modules.Chat.ChatModule).Assembly,
     typeof(FSH.Modules.Notifications.NotificationsModule).Assembly,
 };
+moduleAssemblies = moduleAssemblies
+    .Union(BuzMag.BuzMagModuleAssemblies.RuntimeAssemblies)
+    .ToArray();
 
 // Disable runtime-only concerns; persistence + multitenancy stay on so DbInitializers resolve. Caching
 // stays on because some modules' ctor wiring touches IDistributedCache (in-memory fallback if no Redis).

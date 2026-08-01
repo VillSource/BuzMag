@@ -47,6 +47,7 @@
     <ProjectReference Include="..\..\Modules\Tickets\Modules.Tickets\Modules.Tickets.csproj" />
     <ProjectReference Include="..\..\Modules\Tickets\Modules.Tickets.Contracts\Modules.Tickets.Contracts.csproj" />
     <ProjectReference Include="..\..\Modules\Webhooks\Modules.Webhooks\Modules.Webhooks.csproj" />
+    <ProjectReference Include="..\..\VillsourceModules\BuzMag\BuzMag.csproj" />
     <ProjectReference Include="..\Villsource.BuzMag.Migrations.PostgreSQL\Villsource.BuzMag.Migrations.PostgreSQL.csproj" />
   </ItemGroup>
 
