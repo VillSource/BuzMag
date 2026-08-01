@@ -13,6 +13,7 @@ public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftD
     public DateTimeOffset? DeletedOnUtc { get; private set; }
     public string? DeletedBy { get; private set; }
 
+    public ICollection<OrganizationUnit> Units { get; private set; } = [];
     public Organization() { }
 
     public static Organization Create(string? createBy = null)

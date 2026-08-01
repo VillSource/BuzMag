@@ -13,9 +13,13 @@ internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<O
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
         
+        builder.Property(x=>x.Path).IsRequired();
         builder.Property(x=>x.Name).HasMaxLength(50).IsRequired();
         builder.Property(x=>x.Code).HasMaxLength(10).IsRequired();
         builder.Property(x => x.Description).HasMaxLength(150);
+        
+        builder.HasMany(x=>x.Children).WithOne().HasForeignKey(x=>x.ParenId);
+        builder.HasMany(x=>x.Positions).WithOne();
 
         builder.Ignore(x => x.DomainEvents);
     }

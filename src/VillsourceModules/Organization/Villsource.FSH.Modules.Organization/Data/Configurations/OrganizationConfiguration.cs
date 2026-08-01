@@ -10,6 +10,8 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Domai
         builder.ToTable("Organization");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
+        
+        builder.HasMany(x=>x.Units).WithOne();
 
         builder.Ignore(x => x.DomainEvents);
     }

@@ -5,6 +5,7 @@ using FSH.Framework.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Villsource.FSH.Modules.Organization.Domain;
 
 namespace Villsource.FSH.Modules.Organization.Data;
 
@@ -18,6 +19,8 @@ public sealed class OrganizationDbContext(
     public const string Schema = "organization";
 
     public DbSet<Domain.Organization> Organizations => Set<Domain.Organization>();
+    public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
+    public DbSet<Position> Positions => Set<Position>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
