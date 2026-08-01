@@ -1,0 +1,52 @@
+﻿using FSH.Framework.Core.Domain;
+using Villsource.FSH.Modules.Organization.Domain.Events;
+
+namespace Villsource.FSH.Modules.Organization.Domain;
+
+public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable
+{
+    public string Name { get; private set; } = string.Empty;
+    public string Code { get; private set; } = string.Empty;
+    public string? Description { get; private set; }
+    public DateTimeOffset CreatedOnUtc { get; private set; }
+    public string? CreatedBy { get; private set; }
+    public DateTimeOffset? LastModifiedOnUtc { get; private set; }
+    public string? LastModifiedBy { get; private set; }
+    public bool IsDeleted { get; private set; }
+    public DateTimeOffset? DeletedOnUtc { get; private set; }
+    public string? DeletedBy { get; private set; }
+
+    public OrganizationUnit() { }
+
+    public static OrganizationUnit Create(string code, string name, string? description = null, string? createBy = null)
+    {
+        var model = new OrganizationUnit
+        {
+            Code = code,
+            Name = name,
+            Description =  description,
+            Id =  Guid.CreateVersion7(),
+            CreatedOnUtc =  DateTimeOffset.UtcNow,
+            CreatedBy = createBy,
+        };
+        model.AddDomainEvent(DomainEvent.Create((id,ts)=>
+            new OrganizationCreatedDomainEvent(id, ts)));
+        return model;
+    }
+
+    public void Modify(string code, string name, string? description = null, string? modifiedBy = null)
+    {
+        Code = code;
+        Name = name;
+        Description =  description;
+        LastModifiedOnUtc = DateTimeOffset.UtcNow;
+        LastModifiedBy = modifiedBy;
+    }
+
+    public void Delete(string? deletedBy = null)
+    {
+        DeletedOnUtc = DateTimeOffset.UtcNow;
+        DeletedBy = deletedBy;
+        IsDeleted = true;
+    }
+}
