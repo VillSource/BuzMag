@@ -1,4 +1,5 @@
 using FSH.Framework.Core.Domain;
+using Villsource.FSH.Modules.Organization.Domain.Events;
 
 namespace Villsource.FSH.Modules.Organization.Domain;
 
