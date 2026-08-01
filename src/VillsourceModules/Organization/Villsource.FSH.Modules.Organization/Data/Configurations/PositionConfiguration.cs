@@ -4,12 +4,11 @@ using Villsource.FSH.Modules.Organization.Domain;
 
 namespace Villsource.FSH.Modules.Organization.Data.Configurations;
 
-
-internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<OrganizationUnit>
+internal sealed class PositionConfiguration : IEntityTypeConfiguration<Position>
 {
-    public void Configure(EntityTypeBuilder<OrganizationUnit> builder)
+    public void Configure(EntityTypeBuilder<Position> builder)
     {
-        builder.ToTable("OrganizationUnits");
+        builder.ToTable("Positions");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
         

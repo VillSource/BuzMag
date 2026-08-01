@@ -3,8 +3,7 @@ using Villsource.FSH.Modules.Organization.Domain.Events;
 
 namespace Villsource.FSH.Modules.Organization.Domain;
 
-
-public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable
+public sealed class Position : BaseEntity<Guid>, IAuditableEntity, ISoftDeletable
 {
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
@@ -17,11 +16,11 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     public DateTimeOffset? DeletedOnUtc { get; private set; }
     public string? DeletedBy { get; private set; }
 
-    public OrganizationUnit() { }
+    public Position() { }
 
-    public static OrganizationUnit Create(string code, string name, string? description = null, string? createBy = null)
+    public static Position Create(string code, string name, string? description = null, string? createBy = null)
     {
-        var model = new OrganizationUnit
+        var model = new Position
         {
             Code = code,
             Name = name,
