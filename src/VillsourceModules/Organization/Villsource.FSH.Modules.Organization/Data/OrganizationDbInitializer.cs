@@ -17,5 +17,15 @@ public sealed class OrganizationDbInitializer(
         }
     }
 
-    public Task SeedAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+    public async Task SeedAsync(CancellationToken cancellationToken)
+    {
+        if (await dbContext.Organizations.AnyAsync(cancellationToken).ConfigureAwait(false))
+            return;
+
+        dbContext.Organizations.Add(Domain.Organization.Create());
+        
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        
+        logger.LogInformation("[Organization] seeded default organization");
+    }
 }

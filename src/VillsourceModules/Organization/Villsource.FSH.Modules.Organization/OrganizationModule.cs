@@ -3,6 +3,7 @@ using FluentValidation;
 using FSH.Framework.Persistence;
 using FSH.Framework.Shared.Constants;
 using FSH.Framework.Web.Modules;
+using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -49,7 +50,13 @@ public sealed class OrganizationModule : IModule
             .WithTags("Organization")
             .WithApiVersionSet(versionSet)
             .RequireAuthorization();
-        
+
         group.MapGet("/", () => "Welcome to Villsource Organization!");
+        group.MapGet("/TEST", async (OrganizationDbContext dbContext) =>
+        {
+            dbContext.Organizations.Add(Domain.Organization.Create());
+
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
+        });
     }
 }

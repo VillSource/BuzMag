@@ -12,9 +12,9 @@ internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<O
         builder.ToTable("OrganizationUnits");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
-        builder.Property(x => x.CreatedBy).HasMaxLength(32).IsRequired();
-        builder.Property(x => x.LastModifiedBy).HasMaxLength(32).IsRequired();
-        builder.Property(x => x.DeletedBy).HasMaxLength(32).IsRequired();
+        builder.Property(x => x.CreatedBy).HasMaxLength(36).IsRequired();
+        builder.Property(x => x.LastModifiedBy).HasMaxLength(36);
+        builder.Property(x => x.DeletedBy).HasMaxLength(36);
         
         builder.Property(x=>x.Path).HasMaxLength(4000).IsRequired();
         builder.Property(x=>x.Name).HasMaxLength(50).IsRequired();

@@ -6,13 +6,19 @@ namespace BuzMag;
 
 public static class BuzMagModuleAssemblies
 {
-    public static IReadOnlyList<Assembly> RuntimeAssemblies { get; } =
+    public static IReadOnlyCollection<Type> RuntimeType { get; } =
     [
-        typeof(OrganizationModule).Assembly
+        typeof(OrganizationModule)
     ];
-    
-    public static IReadOnlyList<Assembly> ContractAssemblies { get; } =
+
+    public static IReadOnlyCollection<Type> ContractType { get; } =
     [
-        typeof(OrganizationContractsMarker).Assembly
+        typeof(OrganizationContractsMarker)
     ];
+
+    public static IReadOnlyCollection<Assembly> RuntimeAssemblies { get; } =
+        [.. RuntimeType.Select(t => t.Assembly)];
+
+    public static IReadOnlyCollection<Assembly> ContractAssemblies { get; } =
+        [.. ContractType.Select(t => t.Assembly)];
 }

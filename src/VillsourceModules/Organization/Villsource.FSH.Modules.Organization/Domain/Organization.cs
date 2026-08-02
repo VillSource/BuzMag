@@ -16,11 +16,12 @@ public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftD
     public ICollection<OrganizationUnit> Units { get; private set; } = [];
     public Organization() { }
 
-    public static Organization Create(string? createBy = null)
+    public static Organization Create(string? createBy = null) => Create(Guid.CreateVersion7(), createBy);
+    public static Organization Create(Guid id, string? createBy = null)
     {
         var model = new Organization
         {
-            Id =  Guid.CreateVersion7(),
+            Id =  id,
             CreatedOnUtc =  DateTimeOffset.UtcNow,
             CreatedBy = createBy,
         };
