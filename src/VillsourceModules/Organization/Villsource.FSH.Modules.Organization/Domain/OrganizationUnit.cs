@@ -13,8 +13,8 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
     public string? Description { get; private set; }
-    public DateTimeOffset CreatedOnUtc { get; private set; }
-    public string? CreatedBy { get; private set; }
+    public DateTimeOffset CreatedOnUtc { get; private init; }
+    public string? CreatedBy { get; private init; }
     public DateTimeOffset? LastModifiedOnUtc { get; private set; }
     public string? LastModifiedBy { get; private set; }
     public bool IsDeleted { get; private set; }
@@ -54,6 +54,15 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         Description =  description;
         LastModifiedOnUtc = DateTimeOffset.UtcNow;
         LastModifiedBy = modifiedBy;
+    }
+
+    public void Move(OrganizationUnit? parent)
+    {
+        if (parent is { Path.Length: < 1 })
+            throw new ArgumentException("Parent must have a valid Path.");
+        
+        ParenId = parent?.Id;
+        Path = parent == null ? "/" : string.Concat(parent.Path.TrimEnd('/'), "/", parent.Id.ToString("N"));
     }
 
     public void Delete(string? deletedBy = null)

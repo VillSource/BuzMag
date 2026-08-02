@@ -8,8 +8,8 @@ public sealed class Position : BaseEntity<Guid>, IAuditableEntity, ISoftDeletabl
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
     public string? Description { get; private set; }
-    public DateTimeOffset CreatedOnUtc { get; private set; }
-    public string? CreatedBy { get; private set; }
+    public DateTimeOffset CreatedOnUtc { get; private init; }
+    public string? CreatedBy { get; private init; }
     public DateTimeOffset? LastModifiedOnUtc { get; private set; }
     public string? LastModifiedBy { get; private set; }
     public bool IsDeleted { get; private set; }

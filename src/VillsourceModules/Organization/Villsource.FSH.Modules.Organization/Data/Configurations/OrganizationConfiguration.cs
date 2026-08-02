@@ -10,6 +10,9 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Domai
         builder.ToTable("Organization");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
+        builder.Property(x => x.CreatedBy).HasMaxLength(32).IsRequired();
+        builder.Property(x => x.LastModifiedBy).HasMaxLength(32).IsRequired();
+        builder.Property(x => x.DeletedBy).HasMaxLength(32).IsRequired();
         
         builder.HasMany(x=>x.Units).WithOne();
 

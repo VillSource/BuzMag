@@ -5,8 +5,8 @@ namespace Villsource.FSH.Modules.Organization.Domain;
 
 public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable
 {
-    public DateTimeOffset CreatedOnUtc { get; private set; }
-    public string? CreatedBy { get; private set; }
+    public DateTimeOffset CreatedOnUtc { get; private init; }
+    public string? CreatedBy { get; private init; }
     public DateTimeOffset? LastModifiedOnUtc { get; private set; }
     public string? LastModifiedBy { get; private set; }
     public bool IsDeleted { get; private set; }
