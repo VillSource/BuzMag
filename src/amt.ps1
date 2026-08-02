@@ -18,7 +18,6 @@ $StartupProjectPath = ".\Host\Villsource.BuzMag.Api\"
 # ==========================================
 # 1. PRE-PROCESS CHECK: EF CORE & GIT VERIFICATION
 # ==========================================
-Write-Host "--- Pre-process System Check ---" -ForegroundColor Cyan
 
 # Check Git Version
 $gitCmd = Get-Command git -ErrorAction SilentlyContinue
@@ -52,7 +51,6 @@ if ($efCheck) {
 # ==========================================
 # 2. LIST ALL DBCONTEXTS FOUND (GIT ONLY)
 # ==========================================
-Write-Host "`n--- Searching for DbContexts ---" -ForegroundColor Cyan
 
 $extractedContexts = [System.Collections.Generic.List[string]]::new()
 
@@ -68,19 +66,13 @@ $allContexts = $extractedContexts | Select-Object -Unique | Sort-Object
 
 if ($allContexts.Count -eq 0) {
     Write-Host "[WARN] No *DbContext.cs files found by Git." -ForegroundColor Yellow
-} else {
-    Write-Host "Found $($allContexts.Count) DbContext(s):" -ForegroundColor Yellow
-    foreach ($ctx in $allContexts) {
-        Write-Host " - $ctx" -ForegroundColor White
-    }
 }
 
 # ==========================================
 # 3. CONTEXT & MIGRATION RESOLUTION
 # ==========================================
-Write-Host "`n--- Context & Migration Selection ---" -ForegroundColor Cyan
 
-# Interactive Live Search + Fixed Height Window + Ctrl+C Trap
+# Interactive Live Search + Fixed Height Window + Clear UI on Select + Ctrl+C Trap
 function Select-SearchableArrowMenu {
     param (
         [string[]]$Options,
@@ -95,6 +87,15 @@ function Select-SearchableArrowMenu {
     $firstRun = $true
 
     $totalFixedLines = 3 + $MaxVisibleItems + 2
+
+    # Helper script block to clear rendered menu lines completely
+    $clearMenuUi = {
+        for ($i = 0; $i -lt $totalFixedLines; $i++) {
+            [Console]::SetCursorPosition(0, [Console]::CursorTop - 1)
+            Write-Host (" " * [Console]::WindowWidth) -NoNewline
+            [Console]::SetCursorPosition(0, [Console]::CursorTop)
+        }
+    }
 
     try {
         while ($true) {
@@ -160,7 +161,8 @@ function Select-SearchableArrowMenu {
             $isControlPressed = [bool]($key.Modifiers -band [ConsoleModifiers]::Control)
             
             if (($isControlPressed -and $key.Key -eq [ConsoleKey]::C) -or $key.Key -eq [ConsoleKey]::Escape) {
-                Write-Host "`n`n[WARN] Operation canceled by user." -ForegroundColor Yellow
+                & $clearMenuUi
+                Write-Host "[WARN] Operation canceled by user." -ForegroundColor Yellow
                 exit 0
             }
             elseif ($key.Key -eq [ConsoleKey]::UpArrow) {
@@ -177,7 +179,10 @@ function Select-SearchableArrowMenu {
             }
             elseif ($key.Key -eq [ConsoleKey]::Enter) {
                 if ($filteredOptions.Count -gt 0) {
-                    return $filteredOptions[$selectedIndex]
+                    $selection = $filteredOptions[$selectedIndex]
+                    & $clearMenuUi
+                    Write-Host "[INFO] Selected DbContext: $selection" -ForegroundColor Cyan
+                    return $selection
                 }
             }
             elseif ($key.Key -eq [ConsoleKey]::Backspace) {
@@ -206,7 +211,7 @@ if ([string]::IsNullOrWhiteSpace($Context)) {
 }
 # Case 2: Exact Match
 elseif ($allContexts -contains $Context) {
-    Write-Host "[OK] Context matched: $Context" -ForegroundColor Green
+    Write-Host "[INFO] Selected DbContext: $Context" -ForegroundColor Cyan
     $selectedContext = $Context
 }
 # Case 3: Fuzzy Match
