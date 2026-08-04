@@ -28,7 +28,6 @@
 	  <Folder Include="MultiTenancy\" />
 	  <Folder Include="Billing\" />
 	  <Folder Include="Catalog\" />
-	  <Folder Include="Organization\" />
 	  <Folder Include="Tickets\" />
 	  <Folder Include="Chat\" />
 	  <Folder Include="Notifications\" />

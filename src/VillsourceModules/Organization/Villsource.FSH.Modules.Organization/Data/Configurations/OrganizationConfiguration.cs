@@ -7,15 +7,16 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Domai
 {
     public void Configure(EntityTypeBuilder<Domain.Organization> builder)
     {
-        builder.ToTable("Organization");
+        builder.ToTable("Organizations");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
         builder.Property(x => x.CreatedBy).HasMaxLength(36);
         builder.Property(x => x.LastModifiedBy).HasMaxLength(36);
         builder.Property(x => x.DeletedBy).HasMaxLength(36);
+        builder.Property(x => x.IsDefault).HasDefaultValue(false);
         
-        builder.HasMany(x=>x.Units).WithOne();
-
+        builder.HasMany(x=>x.Units).WithOne().HasForeignKey(x => x.OrganizationUnitId);
+        
         builder.Ignore(x => x.DomainEvents);
     }
 }

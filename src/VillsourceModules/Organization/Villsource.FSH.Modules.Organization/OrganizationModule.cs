@@ -12,6 +12,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Villsource.FSH.Modules.Organization.Contracts.Authorization;
 using Villsource.FSH.Modules.Organization.Data;
+using Villsource.FSH.Modules.Organization.Features.v1.Structures.OrganizationUnits;
 
 namespace Villsource.FSH.Modules.Organization;
 
@@ -46,17 +47,11 @@ public sealed class OrganizationModule : IModule
             .ReportApiVersions()
             .Build();
 
-        var group = endpoints.MapGroup("api/v{version:apiVersion}/organization")
-            .WithTags("Organization")
+        var group = endpoints.MapGroup("api/v{version:apiVersion}/organizations")
+            .WithTags("Organizations")
             .WithApiVersionSet(versionSet)
             .RequireAuthorization();
 
-        group.MapGet("/", () => "Welcome to Villsource Organization!");
-        group.MapGet("/TEST", async (OrganizationDbContext dbContext) =>
-        {
-            dbContext.Organizations.Add(Domain.Organization.Create());
-
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
-        });
+        group.MapCreateOrganizationUnitEndpoint();
     }
 }

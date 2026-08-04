@@ -42,6 +42,11 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Property<DateTimeOffset?>("DeletedOnUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -58,7 +63,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.HasKey("Id");
 
-                    b.ToTable("Organization", "organization");
+                    b.ToTable("Organizations", "organization");
 
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
@@ -107,7 +112,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid?>("OrganizationId")
+                    b.Property<Guid>("OrganizationUnitId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ParenId")
@@ -124,7 +129,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationUnitId");
 
                     b.HasIndex("ParenId");
 
@@ -199,7 +204,9 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                 {
                     b.HasOne("Villsource.FSH.Modules.Organization.Domain.Organization", null)
                         .WithMany("Units")
-                        .HasForeignKey("OrganizationId");
+                        .HasForeignKey("OrganizationUnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Villsource.FSH.Modules.Organization.Domain.OrganizationUnit", null)
                         .WithMany("Children")

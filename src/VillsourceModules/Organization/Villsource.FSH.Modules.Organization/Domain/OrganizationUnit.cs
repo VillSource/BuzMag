@@ -8,6 +8,7 @@ namespace Villsource.FSH.Modules.Organization.Domain;
 
 public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable
 {
+    public Guid OrganizationUnitId { get; private set; } = Guid.Empty;
     public Guid? ParenId { get; private set; }
     public string Path { get; private set; } = string.Empty;
     public string Name { get; private set; } = string.Empty;
@@ -26,15 +27,36 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     
     public OrganizationUnit() { }
 
-    public static OrganizationUnit Create(string code, string name, string? description = null, OrganizationUnit? parent = null, string? createBy = null)
+    public static OrganizationUnit Create(string code, string name, string? description = null, Organization? organization = null, string? createBy = null)
     {
-        if (parent is { Path.Length: < 1 })
+        ArgumentNullException.ThrowIfNull(organization);
+        
+        var model = new OrganizationUnit
+        {
+            OrganizationUnitId = organization.Id,
+            Path = "/",
+            ParenId = null,
+            Code = code,
+            Name = name,
+            Description =  description,
+            Id =  Guid.CreateVersion7(),
+            CreatedOnUtc =  DateTimeOffset.UtcNow,
+            CreatedBy = createBy,
+        };
+        model.AddDomainEvent(DomainEvent.Create((id,ts)=>
+            new OrganizationCreatedDomainEvent(id, ts)));
+        return model;
+    }
+    public OrganizationUnit CreateChild(string code, string name, string? description = null, string? createBy = null)
+    {
+        if ( Path.Length < 1 )
             throw new ArgumentException("Parent must have a valid Path.");
         
         var model = new OrganizationUnit
         {
-            Path = parent == null ? "/" : string.Concat(parent.Path.TrimEnd('/'), "/", parent.Id.ToString("N")),
-            ParenId =  parent?.Id,
+            OrganizationUnitId = OrganizationUnitId,
+            Path =  string.Concat(Path.TrimEnd('/'), "/", Id.ToString("N")),
+            ParenId =  Id,
             Code = code,
             Name = name,
             Description =  description,

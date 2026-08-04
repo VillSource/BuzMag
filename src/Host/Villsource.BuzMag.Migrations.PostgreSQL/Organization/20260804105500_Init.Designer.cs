@@ -12,8 +12,8 @@ using Villsource.FSH.Modules.Organization.Data;
 namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 {
     [DbContext(typeof(OrganizationDbContext))]
-    [Migration("20260802073845_NotRequireField")]
-    partial class NotRequireField
+    [Migration("20260804105500_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,25 +32,30 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasColumnType("uuid");
 
                     b.Property<string>("CreatedBy")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
 
                     b.Property<DateTimeOffset>("CreatedOnUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DeletedBy")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
 
                     b.Property<DateTimeOffset?>("DeletedOnUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastModifiedBy")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
 
                     b.Property<DateTimeOffset?>("LastModifiedOnUtc")
                         .HasColumnType("timestamp with time zone");
@@ -61,7 +66,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.HasKey("Id");
 
-                    b.ToTable("Organization", "organization");
+                    b.ToTable("Organizations", "organization");
 
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
@@ -78,15 +83,15 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
 
                     b.Property<DateTimeOffset>("CreatedOnUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DeletedBy")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
 
                     b.Property<DateTimeOffset?>("DeletedOnUtc")
                         .HasColumnType("timestamp with time zone");
@@ -99,8 +104,8 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastModifiedBy")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
 
                     b.Property<DateTimeOffset?>("LastModifiedOnUtc")
                         .HasColumnType("timestamp with time zone");
@@ -110,7 +115,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid?>("OrganizationId")
+                    b.Property<Guid>("OrganizationUnitId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ParenId")
@@ -127,7 +132,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationUnitId");
 
                     b.HasIndex("ParenId");
 
@@ -202,7 +207,9 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                 {
                     b.HasOne("Villsource.FSH.Modules.Organization.Domain.Organization", null)
                         .WithMany("Units")
-                        .HasForeignKey("OrganizationId");
+                        .HasForeignKey("OrganizationUnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Villsource.FSH.Modules.Organization.Domain.OrganizationUnit", null)
                         .WithMany("Children")

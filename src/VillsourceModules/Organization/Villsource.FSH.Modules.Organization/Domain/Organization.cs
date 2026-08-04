@@ -3,7 +3,7 @@ using Villsource.FSH.Modules.Organization.Domain.Events;
 
 namespace Villsource.FSH.Modules.Organization.Domain;
 
-public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable
+public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable 
 {
     public DateTimeOffset CreatedOnUtc { get; private init; }
     public string? CreatedBy { get; private init; }
@@ -12,7 +12,8 @@ public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftD
     public bool IsDeleted { get; private set; }
     public DateTimeOffset? DeletedOnUtc { get; private set; }
     public string? DeletedBy { get; private set; }
-
+    public bool IsDefault { get; }
+    
     public ICollection<OrganizationUnit> Units { get; private set; } = [];
     public Organization() { }
 

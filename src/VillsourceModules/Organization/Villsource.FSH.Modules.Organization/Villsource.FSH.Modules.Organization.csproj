@@ -11,4 +11,8 @@
       <ProjectReference Include="..\Villsource.FSH.Modules.Organization.Contracts\Villsource.FSH.Modules.Organization.Contracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Riok.Mapperly" />
+    </ItemGroup>
+
 </Project>

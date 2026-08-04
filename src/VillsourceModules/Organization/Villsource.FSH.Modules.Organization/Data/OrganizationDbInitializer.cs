@@ -22,7 +22,9 @@ public sealed class OrganizationDbInitializer(
         if (await dbContext.Organizations.AnyAsync(cancellationToken).ConfigureAwait(false))
             return;
 
-        dbContext.Organizations.Add(Domain.Organization.Create());
+        var org = Domain.Organization.Create();
+        dbContext.Organizations.Add(org);
+        dbContext.Entry(org).Property(x => x.IsDefault).CurrentValue = true;
         
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         
