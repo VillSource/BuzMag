@@ -41,7 +41,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    OrganizationUnitId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
                     ParenId = table.Column<Guid>(type: "uuid", nullable: true),
                     Path = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
                     Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
@@ -66,8 +66,8 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         principalTable: "OrganizationUnits",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_OrganizationUnits_Organizations_OrganizationUnitId",
-                        column: x => x.OrganizationUnitId,
+                        name: "FK_OrganizationUnits_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
                         principalSchema: "organization",
                         principalTable: "Organizations",
                         principalColumn: "Id",
@@ -105,10 +105,10 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrganizationUnits_OrganizationUnitId",
+                name: "IX_OrganizationUnits_OrganizationId",
                 schema: "organization",
                 table: "OrganizationUnits",
-                column: "OrganizationUnitId");
+                column: "OrganizationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrganizationUnits_ParenId",

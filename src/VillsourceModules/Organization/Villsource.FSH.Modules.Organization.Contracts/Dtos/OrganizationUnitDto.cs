@@ -2,6 +2,7 @@
 
 public sealed class OrganizationUnitDto
 {
+    public Guid Id { get; set; }
     public Guid? ParenId { get; set; }
     public string Path { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
@@ -16,5 +17,6 @@ public sealed class OrganizationUnitDto
     public string? DeletedBy { get; set; }
 
     public IReadOnlyCollection<OrganizationUnitDto> Children { get; set; } = [];
+    public IReadOnlyCollection<OrganizationUnitDto> Descendants { get; set; } = [];
     public IReadOnlyCollection<PositionDto> Positions { get; set; } = [];
 }

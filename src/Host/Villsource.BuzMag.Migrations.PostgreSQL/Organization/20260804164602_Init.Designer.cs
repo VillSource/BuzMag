@@ -12,7 +12,7 @@ using Villsource.FSH.Modules.Organization.Data;
 namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 {
     [DbContext(typeof(OrganizationDbContext))]
-    [Migration("20260804105500_Init")]
+    [Migration("20260804164602_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -115,7 +115,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid>("OrganizationUnitId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("ParenId")
@@ -132,7 +132,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrganizationUnitId");
+                    b.HasIndex("OrganizationId");
 
                     b.HasIndex("ParenId");
 
@@ -207,7 +207,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                 {
                     b.HasOne("Villsource.FSH.Modules.Organization.Domain.Organization", null)
                         .WithMany("Units")
-                        .HasForeignKey("OrganizationUnitId")
+                        .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

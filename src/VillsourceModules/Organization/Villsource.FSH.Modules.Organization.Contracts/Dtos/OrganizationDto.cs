@@ -2,6 +2,7 @@
 
 public sealed class OrganizationDto
 {
+    public Guid Id { get; set; }
     public DateTimeOffset CreatedOnUtc { get; set; }
     public string? CreatedBy { get; set; }
     public DateTimeOffset? LastModifiedOnUtc { get; set; }

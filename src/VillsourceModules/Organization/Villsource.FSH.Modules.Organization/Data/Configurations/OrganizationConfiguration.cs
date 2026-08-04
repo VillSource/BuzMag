@@ -15,7 +15,7 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Domai
         builder.Property(x => x.DeletedBy).HasMaxLength(36);
         builder.Property(x => x.IsDefault).HasDefaultValue(false);
         
-        builder.HasMany(x=>x.Units).WithOne().HasForeignKey(x => x.OrganizationUnitId);
+        builder.HasMany(x=>x.Units).WithOne().HasForeignKey(x => x.OrganizationId);
         
         builder.Ignore(x => x.DomainEvents);
     }

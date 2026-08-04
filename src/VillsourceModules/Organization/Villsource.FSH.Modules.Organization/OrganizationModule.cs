@@ -53,5 +53,6 @@ public sealed class OrganizationModule : IModule
             .RequireAuthorization();
 
         group.MapCreateOrganizationUnitEndpoint();
+        group.MapDeleteOrganizationUnitEndpoint();
     }
 }
