@@ -1,8 +1,9 @@
 ﻿using FSH.Framework.Core.Domain;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Villsource.FSH.Modules.Organization.Domain.Events;
 
-public sealed record OrganizationCreatedDomainEvent(
+public sealed record OrganizationUnitDeletedDomainEvent(
+    Guid OrganizationId,
+    Guid OrganizationUnitId,
     Guid EventId,
     DateTimeOffset OccurredOnUtc) : DomainEvent(EventId, OccurredOnUtc);
