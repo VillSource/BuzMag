@@ -3,9 +3,9 @@ using Villsource.FSH.Modules.Organization.Contracts.v1.Structures;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.OrganizationUnits;
 
-public sealed class CreateOrganizationUnitValidator : AbstractValidator<CreateOrganizationUnitCommand>
+public sealed class CreateOrganizationUnitCommandValidator : AbstractValidator<CreateOrganizationUnitCommand>
 {
-    public CreateOrganizationUnitValidator()
+    public CreateOrganizationUnitCommandValidator()
     {
         RuleFor(x => x.Code).NotEmpty().WithMessage("Code cannot be empty.");
         RuleFor(x => x.Code).MaximumLength(10).WithMessage("Code cannot exceed 10 characters.");

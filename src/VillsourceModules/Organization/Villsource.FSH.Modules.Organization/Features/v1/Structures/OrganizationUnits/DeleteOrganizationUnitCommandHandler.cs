@@ -9,7 +9,7 @@ using Villsource.FSH.Modules.Organization.Mappers;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.OrganizationUnits;
 
-public sealed class DeleteOrganizationUnitHandler(
+public sealed class DeleteOrganizationUnitCommandHandler(
     OrganizationDbContext dbContext) : ICommandHandler<DeleteOrganizationUnitCommand, OrganizationUnitDto>
 {
     public async ValueTask<OrganizationUnitDto> Handle(DeleteOrganizationUnitCommand command,

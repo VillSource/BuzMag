@@ -9,7 +9,7 @@ using Villsource.FSH.Modules.Organization.Mappers;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.OrganizationUnits;
 
-public sealed class CreateOrganizationUnitHandler(
+public sealed class CreateOrganizationUnitCommandHandler(
     OrganizationDbContext dbContext) : ICommandHandler<CreateOrganizationUnitCommand, OrganizationUnitDto>
 {
     public async ValueTask<OrganizationUnitDto> Handle(CreateOrganizationUnitCommand command,
