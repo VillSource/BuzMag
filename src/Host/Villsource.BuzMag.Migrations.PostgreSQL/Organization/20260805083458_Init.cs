@@ -43,6 +43,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
                     ParenId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ReferenceId = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     Path = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
                     Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),

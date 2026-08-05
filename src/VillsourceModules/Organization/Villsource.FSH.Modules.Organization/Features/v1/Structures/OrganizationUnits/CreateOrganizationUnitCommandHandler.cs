@@ -18,14 +18,15 @@ public sealed class CreateOrganizationUnitCommandHandler(
         ArgumentNullException.ThrowIfNull(command);
 
         var parent = command.ParentId is not null
-            ? await dbContext
-                .OrganizationUnits
+            ? await dbContext.OrganizationUnits
+                .AsNoTracking()
                 .FirstOrDefaultAsync(ou => ou.Id == command.ParentId, cancellationToken)
                 .ConfigureAwait(false) ?? throw new NotFoundException($"Parent with id '{command.ParentId}' not found.")
             : null;
 
         var org = parent is null
             ? await dbContext.Organizations
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.IsDefault, cancellationToken)
                 .ConfigureAwait(false) ?? throw new NotFoundException($"Organization not found.")
             : null;

@@ -13,6 +13,7 @@ internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<O
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
         builder.Property(x => x.CreatedBy).HasMaxLength(36).IsRequired();
+        builder.Property(x => x.ReferenceId).HasMaxLength(10).IsRequired();
         builder.Property(x => x.LastModifiedBy).HasMaxLength(36);
         builder.Property(x => x.DeletedBy).HasMaxLength(36);
         

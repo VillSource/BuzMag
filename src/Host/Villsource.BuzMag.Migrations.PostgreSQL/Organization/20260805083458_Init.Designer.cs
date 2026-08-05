@@ -12,7 +12,7 @@ using Villsource.FSH.Modules.Organization.Data;
 namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 {
     [DbContext(typeof(OrganizationDbContext))]
-    [Migration("20260804164602_Init")]
+    [Migration("20260805083458_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -125,6 +125,11 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<string>("TenantId")
                         .IsRequired()

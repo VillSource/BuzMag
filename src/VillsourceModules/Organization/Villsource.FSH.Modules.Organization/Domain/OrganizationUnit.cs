@@ -1,5 +1,6 @@
 ﻿using FSH.Framework.Core.Domain;
 using Microsoft.EntityFrameworkCore;
+using NanoidDotNet;
 using System.Collections.Frozen;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain.Events;
@@ -10,6 +11,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
 {
     public Guid OrganizationId { get; private set; } = Guid.Empty;
     public Guid? ParenId { get; private set; }
+    public string ReferenceId { get; } = Nanoid.Generate(size: 10);
     public string Path { get; private set; } = string.Empty;
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
@@ -35,7 +37,6 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         var model = new OrganizationUnit
         {
             OrganizationId = organization.Id,
-            Path = "/",
             ParenId = null,
             Code = code,
             Name = name,
@@ -44,6 +45,8 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
             CreatedOnUtc = DateTimeOffset.UtcNow,
             CreatedBy = createBy,
         };
+
+        model.Path = $"/{model.ReferenceId}";
         model.AddDomainEvent(DomainEvent.Create((id, ts) =>
             new OrganizationCreatedDomainEvent(id, ts)));
         return model;
@@ -57,7 +60,6 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         var model = new OrganizationUnit
         {
             OrganizationId = OrganizationId,
-            Path = string.Concat(Path.TrimEnd('/'), "/", Id.ToString("N")),
             ParenId = Id,
             Code = code,
             Name = name,
@@ -66,6 +68,8 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
             CreatedOnUtc = DateTimeOffset.UtcNow,
             CreatedBy = createBy,
         };
+
+        model.Path = string.Concat(Path.TrimEnd('/'), "/", model.ReferenceId);
         model.AddDomainEvent(DomainEvent.Create((id, ts) =>
             new OrganizationCreatedDomainEvent(id, ts)));
         return model;
@@ -94,7 +98,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         DeletedOnUtc = DateTimeOffset.UtcNow;
         DeletedBy = deletedBy;
         IsDeleted = true;
-        
+
         AddDomainEvent(DomainEvent.Create((id, ts) =>
             new OrganizationUnitDeletedDomainEvent(
                 OrganizationId: OrganizationId,
@@ -108,14 +112,12 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     {
         ArgumentNullException.ThrowIfNull(dbContext);
 
-        if (Path.Length < 1)
+        if (Path.Length < 11)
             throw new InvalidOperationException("Organization must have a valid Path.");
-
-        var rootPath = $"{Path.TrimEnd('/')}/{Id:N}";
 
         var descendants = dbContext.OrganizationUnits
             .Where(ou => ou.OrganizationId == OrganizationId)
-            .Where(ou => ou.Path.StartsWith(rootPath));
+            .Where(ou => ou.Path.StartsWith(Path));
 
         return await descendants.ToListAsync(ct).ConfigureAwait(false);
     }
@@ -124,8 +126,8 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     {
         var parentLookup = flatList.ToLookup(u => u.ParenId);
         var idSet = flatList.Select(u => u.Id).ToFrozenSet();
-        
-        var rootNodes = parentLookup 
+
+        var rootNodes = parentLookup
             .Where(l => !l.Key.HasValue || !idSet.Contains(l.Key.Value))
             .Select(l => l.Key);
 
