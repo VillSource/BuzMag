@@ -1,5 +1,6 @@
 ﻿using FSH.Framework.Core.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Frozen;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain.Events;
 
@@ -121,16 +122,18 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
 
     public static ICollection<OrganizationUnit> BuildTree(IReadOnlyCollection<OrganizationUnit> flatList)
     {
-        var lookup = flatList.ToLookup(u => u.ParenId);
+        var parentLookup = flatList.ToLookup(u => u.ParenId);
+        var idSet = flatList.Select(u => u.Id).ToFrozenSet();
+        
+        var rootNodes = parentLookup 
+            .Where(l => !l.Key.HasValue || !idSet.Contains(l.Key.Value))
+            .Select(l => l.Key);
 
-        var rootNodes = flatList
-            .Where(l => !lookup.Contains(l.Id));
-
-        return [.. rootNodes.SelectMany(x => BuildChildren(x.ParenId))];
+        return [.. rootNodes.SelectMany(BuildChildren)];
 
         List<OrganizationUnit> BuildChildren(Guid? parentId = null) =>
         [
-            .. lookup[parentId].Select(u =>
+            .. parentLookup[parentId].Select(u =>
             {
                 u.Children = BuildChildren(u.Id);
                 return u;

@@ -1,4 +1,6 @@
-﻿namespace Villsource.FSH.Modules.Organization.Contracts.Dtos;
+﻿using System.Collections.Frozen;
+
+namespace Villsource.FSH.Modules.Organization.Contracts.Dtos;
 
 public sealed class OrganizationUnitDto
 {
@@ -19,4 +21,25 @@ public sealed class OrganizationUnitDto
     public IReadOnlyCollection<OrganizationUnitDto> Children { get; set; } = [];
     public IReadOnlyCollection<OrganizationUnitDto> Descendants { get; set; } = [];
     public IReadOnlyCollection<PositionDto> Positions { get; set; } = [];
+    
+    public static ICollection<OrganizationUnitDto> BuildTree(IReadOnlyCollection<OrganizationUnitDto> flatList)
+    {
+        var parentLookup = flatList.ToLookup(u => u.ParenId);
+        var idSet = flatList.Select(u => u.Id).ToFrozenSet();
+
+        var rootNodes = parentLookup 
+            .Where(l => !l.Key.HasValue || !idSet.Contains(l.Key.Value))
+            .Select(l => l.Key);
+
+        return [.. rootNodes.SelectMany(BuildChildren)];
+
+        List<OrganizationUnitDto> BuildChildren(Guid? parentId = null) =>
+        [
+            .. parentLookup[parentId].Select(u =>
+            {
+                u.Children = BuildChildren(u.Id);
+                return u;
+            })
+        ];
+    }
 }

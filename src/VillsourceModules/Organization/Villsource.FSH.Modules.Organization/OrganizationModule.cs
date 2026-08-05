@@ -52,6 +52,8 @@ public sealed class OrganizationModule : IModule
             .WithApiVersionSet(versionSet)
             .RequireAuthorization();
 
+        group.MapGetAllDefaultOrganizationUnitEndpoint();
+        group.MapGetAllOrganizationUnitEndpoint();
         group.MapCreateOrganizationUnitEndpoint();
         group.MapDeleteOrganizationUnitEndpoint();
     }
