@@ -33,12 +33,14 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         Organization? organization = null, string? createBy = null)
     {
         ArgumentNullException.ThrowIfNull(organization);
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(name);
 
         var model = new OrganizationUnit
         {
             OrganizationId = organization.Id,
             ParenId = null,
-            Code = code,
+            Code = code.ToUpperInvariant(),
             Name = name,
             Description = description,
             Id = Guid.CreateVersion7(),
@@ -54,6 +56,9 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
 
     public OrganizationUnit CreateChild(string code, string name, string? description = null, string? createBy = null)
     {
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(name);
+
         if (Path.Length < 1)
             throw new ArgumentException("Parent must have a valid Path.");
 
@@ -61,7 +66,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         {
             OrganizationId = OrganizationId,
             ParenId = Id,
-            Code = code,
+            Code = code.ToUpperInvariant(),
             Name = name,
             Description = description,
             Id = Guid.CreateVersion7(),
@@ -77,20 +82,54 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
 
     public void Update(string code, string name, string? description, string? modifiedBy = null)
     {
-        Code = code;
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(Name);
+
+        Code = code.ToUpperInvariant();
         Name = name;
         Description = description;
         LastModifiedOnUtc = DateTimeOffset.UtcNow;
         LastModifiedBy = modifiedBy;
     }
 
+    private void ThrowIfInvalidPath()
+    {
+        if (Path.Length < 11)
+            throw new InvalidOperationException("The organization unit has an invalid path.");
+    }
+
     public void Move(OrganizationUnit? parent)
     {
-        if (parent is { Path.Length: < 1 })
-            throw new ArgumentException("Parent must have a valid Path.");
+        if (parent is null)
+        {
+            ParenId = null;
+            Path = $"/{ReferenceId}";
+            return;
+        }
+        parent.ThrowIfInvalidPath();
+        ParenId = parent.Id;
+        Path = string.Concat(parent.Path.TrimEnd('/'), "/", ReferenceId);
+    }
 
-        ParenId = parent?.Id;
-        Path = parent == null ? "/" : string.Concat(parent.Path.TrimEnd('/'), "/", parent.Id.ToString("N"));
+    public void Move(Organization organization, OrganizationUnit? parent = null)
+    {
+        ArgumentNullException.ThrowIfNull(organization);
+        OrganizationId = organization.Id;
+
+        if (parent is null)
+        {
+            ParenId =  null;
+            Path = $"/{ReferenceId}";
+            return;
+        }
+
+        parent.ThrowIfInvalidPath();
+        if (parent.OrganizationId != organization.Id)
+            throw new ArgumentException("The parent organization unit must belong to the same organization.",
+                nameof(parent));
+
+        ParenId = parent.Id;
+        Path = string.Concat(parent.Path.TrimEnd('/'), "/", ReferenceId);
     }
 
     public void Delete(string? deletedBy = null)

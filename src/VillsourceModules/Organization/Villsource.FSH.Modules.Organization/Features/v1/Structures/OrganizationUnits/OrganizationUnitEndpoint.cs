@@ -25,10 +25,10 @@ public static class OrganizationUnitEndpoint
             .RequirePermission(OrganizationPermissions.Structures.View);
 
     internal static RouteHandlerBuilder MapGetAllOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapGet("{id:guid}/units",
-                async (Guid id, IMediator mediator, CancellationToken cancellationToken) =>
+        => endpoints.MapGet("{organizationId:guid}/units",
+                async (Guid organizationId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.Send(new GetAllOrganizationUnitsQuery(id), cancellationToken);
+                    var result = await mediator.Send(new GetAllOrganizationUnitsQuery(organizationId), cancellationToken);
                     return Results.Ok(result);
                 })
             .Produces<ICollection<OrganizationUnitDto>>()
@@ -50,10 +50,10 @@ public static class OrganizationUnitEndpoint
             .RequirePermission(OrganizationPermissions.Structures.Create);
 
     internal static RouteHandlerBuilder MapDeleteOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapDelete("/units/{id:guid}",
-                async (Guid id, IMediator mediator, CancellationToken cancellationToken) =>
+        => endpoints.MapDelete("/units/{organizationUnitid:guid}",
+                async (Guid organizationUnitid, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.Send(new DeleteOrganizationUnitCommand(Id: id), cancellationToken);
+                    var result = await mediator.Send(new DeleteOrganizationUnitCommand(Id: organizationUnitid), cancellationToken);
                     return Results.Ok(result);
                 })
             .Produces<OrganizationUnitDto>()
@@ -64,12 +64,12 @@ public static class OrganizationUnitEndpoint
 
     public sealed record UpdateOrganizationUnitBody( string Code, string Name, string? Description);
     internal static RouteHandlerBuilder MapUpdateOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapPut("/units/{id:guid}",
-                async (Guid id, [FromBody] UpdateOrganizationUnitBody body, IMediator mediator,
+        => endpoints.MapPut("/units/{organizationUnitId:guid}",
+                async (Guid organizationUnitId, [FromBody] UpdateOrganizationUnitBody body, IMediator mediator,
                     CancellationToken cancellationToken) =>
                 {
                     var result = await mediator.Send(new UpdateOrganizationUnitCommand(
-                        OrganizationUnitId: id,
+                        OrganizationUnitId: organizationUnitId,
                         Code: body.Code,
                         Name: body.Name,
                         Description: body.Description), cancellationToken);
@@ -78,5 +78,22 @@ public static class OrganizationUnitEndpoint
             .Produces<OrganizationUnitDto>()
             .WithName("UpdateOrganizationUnit")
             .WithSummary("Update an organization unit.")
+            .RequirePermission(OrganizationPermissions.Structures.Update);
+    
+    public sealed record MoveOrganizationUnitBody(Guid? NewParentId, Guid? NewOrganizationId);
+    internal static RouteHandlerBuilder MapMoveOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
+        => endpoints.MapPost("/units/{organizationUnitId:guid}/move",
+                async (Guid organizationUnitId, [FromBody] MoveOrganizationUnitBody body, IMediator mediator,
+                    CancellationToken cancellationToken) =>
+                {
+                    var result = await mediator.Send(new MoveOrganizationUnitCommand(
+                        OrganizationUnitId: organizationUnitId,
+                        OrganizationId: body.NewOrganizationId,
+                        ParentId: body.NewParentId), cancellationToken);
+                    return Results.Ok(result);
+                })
+            .Produces<OrganizationUnitDto>()
+            .WithName("MoveOrganizationUnitToNewOrganization")
+            .WithSummary("Move an organization unit to new organization.")
             .RequirePermission(OrganizationPermissions.Structures.Update);
 }
