@@ -103,6 +103,10 @@ const RoleDetailPage = lazyNamed(
   "RoleDetailPage",
 );
 const GroupsPage = lazyNamed(() => import("@/pages/identity/groups"), "GroupsPage");
+const OrganizationUnitsPage = lazyNamed(
+  () => import("@/pages/organizations/organization-units"),
+  "OrganizationUnitsPage",
+);
 const GroupDetailPage = lazyNamed(
   () => import("@/pages/identity/group-detail"),
   "GroupDetailPage",
@@ -214,6 +218,7 @@ export const router = createBrowserRouter([
           { path: "identity/roles/:roleId", element: withSuspense(<RoleDetailPage />) },
           { path: "identity/groups", element: withSuspense(<GroupsPage />) },
           { path: "identity/groups/:groupId", element: withSuspense(<GroupDetailPage />) },
+          { path: "organizations/units", element: withSuspense(<OrganizationUnitsPage />) },
           { path: "catalog", element: <Navigate to="/catalog/brands" replace /> },
           { path: "catalog/brands", element: withSuspense(<BrandsPage />) },
           { path: "catalog/categories", element: withSuspense(<CategoriesPage />) },

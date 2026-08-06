@@ -1,5 +1,6 @@
 import {
   Activity,
+  Building2,
   CreditCard,
   FolderOpen,
   FolderTree,
@@ -106,6 +107,14 @@ export const sections: NavSection[] = [
       { to: "/identity/users", label: "Users", icon: Users, perm: "Permissions.Users.Update" },
       { to: "/identity/roles", label: "Roles", icon: ShieldCheck, perm: "Permissions.Roles.Update" },
       { to: "/identity/groups", label: "Groups", icon: UsersRound, perm: "Permissions.Groups.Update" },
+    ],
+  },
+  {
+    id: "organization",
+    caption: "Organization",
+    icon: Building2,
+    items: [
+      { to: "/organizations/units", label: "Structure", icon: Building2 },
     ],
   },
   {
