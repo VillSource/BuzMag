@@ -5,6 +5,7 @@ namespace Villsource.FSH.Modules.Organization.Contracts.Dtos;
 public sealed class OrganizationUnitDto
 {
     public Guid Id { get; set; }
+    public string ReferenceId { get; set; } = string.Empty;
     public Guid? ParenId { get; set; }
     public string Path { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;

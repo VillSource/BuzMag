@@ -20,12 +20,19 @@ public sealed class MoveOrganizationUnitCommandHandler(
 
         if (command.ParentId.HasValue == command.OrganizationId.HasValue)
             throw new CustomException("Parent or Organization id must be specified.", [], HttpStatusCode.Conflict);
+        
+        if (command.ParentId == command.OrganizationUnitId)
+            throw new CustomException("Organization unit can not be child of itself.", [], HttpStatusCode.Conflict);
 
         var target = await dbContext.OrganizationUnits
                          .FirstOrDefaultAsync(ou => ou.Id == command.OrganizationUnitId, cancellationToken)
                          .ConfigureAwait(false) ??
                      throw new NotFoundException(
                          $"Organization unit with id '{command.OrganizationUnitId}' not found.");
+        
+        var descendants = await target.GetDescendantsAsync(dbContext, cancellationToken).ConfigureAwait(false);
+        if (descendants.Any(x => x.Id == command.ParentId))
+            throw new CustomException("Circular parent detected.", [], HttpStatusCode.Conflict);
         
         OrganizationUnit? newParent = null;
         
@@ -48,6 +55,8 @@ public sealed class MoveOrganizationUnitCommandHandler(
                                   $"Organization with id '{command.OrganizationId}' not found.");
 
         target.Move(newOrganization, newParent);
+        target.MoveChildren(descendants);
+        
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return target.ToDto();
     }

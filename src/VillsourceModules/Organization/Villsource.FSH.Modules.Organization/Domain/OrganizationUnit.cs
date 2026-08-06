@@ -4,14 +4,16 @@ using NanoidDotNet;
 using System.Collections.Frozen;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain.Events;
+using static System.Text.RegularExpressions.Regex;
 
 namespace Villsource.FSH.Modules.Organization.Domain;
 
 public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable
 {
+    private const string ReferenceIdAlphabet = "abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ0123456789";
     public Guid OrganizationId { get; private set; } = Guid.Empty;
     public Guid? ParenId { get; private set; }
-    public string ReferenceId { get; } = Nanoid.Generate(size: 10);
+    public string ReferenceId { get; } = Nanoid.Generate(ReferenceIdAlphabet, size: 10);
     public string Path { get; private set; } = string.Empty;
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
@@ -77,6 +79,8 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         model.Path = string.Concat(Path.TrimEnd('/'), "/", model.ReferenceId);
         model.AddDomainEvent(DomainEvent.Create((id, ts) =>
             new OrganizationCreatedDomainEvent(id, ts)));
+        
+        Children.Add(model);
         return model;
     }
 
@@ -107,6 +111,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
             return;
         }
         parent.ThrowIfInvalidPath();
+        OrganizationId = parent.OrganizationId;
         ParenId = parent.Id;
         Path = string.Concat(parent.Path.TrimEnd('/'), "/", ReferenceId);
     }
@@ -114,22 +119,13 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     public void Move(Organization organization, OrganizationUnit? parent = null)
     {
         ArgumentNullException.ThrowIfNull(organization);
-        OrganizationId = organization.Id;
-
-        if (parent is null)
-        {
-            ParenId =  null;
-            Path = $"/{ReferenceId}";
-            return;
-        }
-
-        parent.ThrowIfInvalidPath();
-        if (parent.OrganizationId != organization.Id)
+        
+        if (parent is not null && parent.OrganizationId != organization.Id)
             throw new ArgumentException("The parent organization unit must belong to the same organization.",
                 nameof(parent));
-
-        ParenId = parent.Id;
-        Path = string.Concat(parent.Path.TrimEnd('/'), "/", ReferenceId);
+        
+        Move(parent);
+        OrganizationId = organization.Id;
     }
 
     public void Delete(string? deletedBy = null)
@@ -156,7 +152,8 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
 
         var descendants = dbContext.OrganizationUnits
             .Where(ou => ou.OrganizationId == OrganizationId)
-            .Where(ou => ou.Path.StartsWith(Path));
+            .Where(ou => ou.Path.StartsWith(Path))
+            .OrderBy(ou => ou.Path);
 
         return await descendants.ToListAsync(ct).ConfigureAwait(false);
     }
@@ -180,5 +177,16 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
                 return u;
             })
         ];
+    }
+
+
+    public void MoveChildren(IList<OrganizationUnit> descendants)
+    {
+        ArgumentNullException.ThrowIfNull(descendants);
+        foreach (var descendant in descendants)
+        {
+            descendant.OrganizationId = OrganizationId;
+            descendant.Path = Replace(descendant.Path, $"^.*{ReferenceId}", Path);
+        }
     }
 }
