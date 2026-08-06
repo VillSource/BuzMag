@@ -75,7 +75,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         return model;
     }
 
-    public void Modify(string code, string name, string? description = null, string? modifiedBy = null)
+    public void Update(string code, string name, string? description, string? modifiedBy = null)
     {
         Code = code;
         Name = name;

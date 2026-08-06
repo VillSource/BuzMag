@@ -23,7 +23,7 @@ public static class OrganizationUnitEndpoint
             .WithName("GetAllDefaultOrganizationUnit")
             .WithSummary("Get all default organization unit from default organization.")
             .RequirePermission(OrganizationPermissions.Structures.View);
-    
+
     internal static RouteHandlerBuilder MapGetAllOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
         => endpoints.MapGet("{id:guid}/units",
                 async (Guid id, IMediator mediator, CancellationToken cancellationToken) =>
@@ -35,7 +35,7 @@ public static class OrganizationUnitEndpoint
             .WithName("GetAllOrganizationUnit")
             .WithSummary("Get all organization unit from default organization.")
             .RequirePermission(OrganizationPermissions.Structures.View);
-    
+
     internal static RouteHandlerBuilder MapCreateOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
         => endpoints.MapPost("/units",
                 async ([FromBody] CreateOrganizationUnitCommand command, IMediator mediator,
@@ -60,4 +60,23 @@ public static class OrganizationUnitEndpoint
             .WithName("DeleteOrganizationUnit")
             .WithSummary("Delete an organization unit.")
             .RequirePermission(OrganizationPermissions.Structures.Delete);
+
+
+    public sealed record UpdateOrganizationUnitBody( string Code, string Name, string? Description);
+    internal static RouteHandlerBuilder MapUpdateOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
+        => endpoints.MapPut("/units/{id:guid}",
+                async (Guid id, [FromBody] UpdateOrganizationUnitBody body, IMediator mediator,
+                    CancellationToken cancellationToken) =>
+                {
+                    var result = await mediator.Send(new UpdateOrganizationUnitCommand(
+                        OrganizationUnitId: id,
+                        Code: body.Code,
+                        Name: body.Name,
+                        Description: body.Description), cancellationToken);
+                    return Results.Ok(result);
+                })
+            .Produces<OrganizationUnitDto>()
+            .WithName("UpdateOrganizationUnit")
+            .WithSummary("Update an organization unit.")
+            .RequirePermission(OrganizationPermissions.Structures.Update);
 }

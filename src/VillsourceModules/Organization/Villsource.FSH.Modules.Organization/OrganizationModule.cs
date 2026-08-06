@@ -56,5 +56,6 @@ public sealed class OrganizationModule : IModule
         group.MapGetAllOrganizationUnitEndpoint();
         group.MapCreateOrganizationUnitEndpoint();
         group.MapDeleteOrganizationUnitEndpoint();
+        group.MapUpdateOrganizationUnitEndpoint();
     }
 }
