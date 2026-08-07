@@ -12,7 +12,7 @@ using Villsource.FSH.Modules.Organization.Data;
 namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 {
     [DbContext(typeof(OrganizationDbContext))]
-    [Migration("20260805083458_Init")]
+    [Migration("20260807130603_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -59,6 +59,11 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.Property<DateTimeOffset?>("LastModifiedOnUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
@@ -128,8 +133,8 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.Property<string>("ReferenceId")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
@@ -192,16 +197,16 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid?>("OrganizationUnitId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrganizationUnitId");
 
                     b.ToTable("Positions", "organization");
 
@@ -221,13 +226,6 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasForeignKey("ParenId");
                 });
 
-            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Position", b =>
-                {
-                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.OrganizationUnit", null)
-                        .WithMany("Positions")
-                        .HasForeignKey("OrganizationUnitId");
-                });
-
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Organization", b =>
                 {
                     b.Navigation("Units");
@@ -236,8 +234,6 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.OrganizationUnit", b =>
                 {
                     b.Navigation("Children");
-
-                    b.Navigation("Positions");
                 });
 #pragma warning restore 612, 618
         }

@@ -4,16 +4,16 @@ using NanoidDotNet;
 using System.Collections.Frozen;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain.Events;
+using Villsource.Tool.UniqueKey;
 using static System.Text.RegularExpressions.Regex;
 
 namespace Villsource.FSH.Modules.Organization.Domain;
 
 public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable
 {
-    private const string ReferenceIdAlphabet = "abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ0123456789";
     public Guid OrganizationId { get; private set; } = Guid.Empty;
     public Guid? ParenId { get; private set; }
-    public string ReferenceId { get; } = Nanoid.Generate(ReferenceIdAlphabet, size: 10);
+    public string ReferenceId { get; } = VillsourceId.Key;
     public string Path { get; private set; } = string.Empty;
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
@@ -26,7 +26,6 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     public DateTimeOffset? DeletedOnUtc { get; private set; }
     public string? DeletedBy { get; private set; }
 
-    public ICollection<Position> Positions { get; private set; } = [];
     public ICollection<OrganizationUnit> Children { get; private set; } = [];
 
     public OrganizationUnit() { }

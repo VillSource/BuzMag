@@ -1,10 +1,12 @@
 ﻿using FSH.Framework.Core.Domain;
 using Villsource.FSH.Modules.Organization.Domain.Events;
+using Villsource.Tool.UniqueKey;
 
 namespace Villsource.FSH.Modules.Organization.Domain;
 
 public sealed class Position : BaseEntity<Guid>, IAuditableEntity, ISoftDeletable
 {
+    public string ReferenceId { get; } = VillsourceId.Key;
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
     public string? Description { get; private set; }

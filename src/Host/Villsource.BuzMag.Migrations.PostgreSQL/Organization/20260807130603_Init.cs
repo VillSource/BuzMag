@@ -20,6 +20,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ReferenceId = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
                     CreatedOnUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(36)", maxLength: 36, nullable: true),
                     LastModifiedOnUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -36,6 +37,30 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                 });
 
             migrationBuilder.CreateTable(
+                name: "Positions",
+                schema: "organization",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ReferenceId = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    Description = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
+                    CreatedOnUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    LastModifiedOnUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedOnUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    TenantId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Positions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OrganizationUnits",
                 schema: "organization",
                 columns: table => new
@@ -43,7 +68,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
                     ParenId = table.Column<Guid>(type: "uuid", nullable: true),
-                    ReferenceId = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    ReferenceId = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
                     Path = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
                     Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
@@ -75,36 +100,6 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "Positions",
-                schema: "organization",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    Description = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
-                    CreatedOnUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    LastModifiedOnUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    LastModifiedBy = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletedOnUtc = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    DeletedBy = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    OrganizationUnitId = table.Column<Guid>(type: "uuid", nullable: true),
-                    TenantId = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Positions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Positions_OrganizationUnits_OrganizationUnitId",
-                        column: x => x.OrganizationUnitId,
-                        principalSchema: "organization",
-                        principalTable: "OrganizationUnits",
-                        principalColumn: "Id");
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_OrganizationUnits_OrganizationId",
                 schema: "organization",
@@ -116,23 +111,17 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                 schema: "organization",
                 table: "OrganizationUnits",
                 column: "ParenId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Positions_OrganizationUnitId",
-                schema: "organization",
-                table: "Positions",
-                column: "OrganizationUnitId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Positions",
+                name: "OrganizationUnits",
                 schema: "organization");
 
             migrationBuilder.DropTable(
-                name: "OrganizationUnits",
+                name: "Positions",
                 schema: "organization");
 
             migrationBuilder.DropTable(

@@ -8,11 +8,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\BuildingBlocks\Web\Web.csproj" />
+      <ProjectReference Include="..\..\Core\Villsource.Tool.UniqueKey\Villsource.Tool.UniqueKey.csproj" />
       <ProjectReference Include="..\Villsource.FSH.Modules.Organization.Contracts\Villsource.FSH.Modules.Organization.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Nanoid" />
       <PackageReference Include="Riok.Mapperly" />
     </ItemGroup>
 

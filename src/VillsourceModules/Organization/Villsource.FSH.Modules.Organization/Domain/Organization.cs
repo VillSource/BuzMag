@@ -1,10 +1,12 @@
 using FSH.Framework.Core.Domain;
 using Villsource.FSH.Modules.Organization.Domain.Events;
+using Villsource.Tool.UniqueKey;
 
 namespace Villsource.FSH.Modules.Organization.Domain;
 
 public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable 
 {
+    public string ReferenceId { get; } = VillsourceId.Key;
     public DateTimeOffset CreatedOnUtc { get; private init; }
     public string? CreatedBy { get; private init; }
     public DateTimeOffset? LastModifiedOnUtc { get; private set; }
