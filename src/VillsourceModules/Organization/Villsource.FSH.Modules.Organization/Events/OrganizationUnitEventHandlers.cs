@@ -12,6 +12,7 @@ public sealed class OrganizationUnitEventHandlers(
     ILogger<OrganizationUnitEventHandlers> logger,
     OrganizationDbContext dbContext) :
     INotificationHandler<OrganizationCreatedDomainEvent>,
+    INotificationHandler<OrganizationUnitCreatedDomainEvent>,
     INotificationHandler<OrganizationUnitDeletedDomainEvent>
 {
     public ValueTask Handle(OrganizationCreatedDomainEvent notification, CancellationToken cancellationToken)
@@ -19,7 +20,18 @@ public sealed class OrganizationUnitEventHandlers(
         ArgumentNullException.ThrowIfNull(notification);
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Handling ProductCreatedDomainEvent for ProductId:");
+            logger.LogInformation("PlaceHolder for OrganizationCreatedDomainEvent Handler");
+        }
+
+        return default;
+    }
+
+    public ValueTask Handle(OrganizationUnitCreatedDomainEvent notification, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(notification);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("PlaceHolder for OrganizationUnitCreatedDomainEvent Handler");
         }
 
         return default;

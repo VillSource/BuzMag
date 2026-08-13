@@ -1,6 +1,5 @@
 ﻿using FSH.Framework.Core.Domain;
 using Microsoft.EntityFrameworkCore;
-using NanoidDotNet;
 using System.Collections.Frozen;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain.Events;
@@ -30,16 +29,13 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
 
     public OrganizationUnit() { }
 
-    public static OrganizationUnit Create(string code, string name, string? description = null,
-        Organization? organization = null, string? createBy = null)
+    public static OrganizationUnit Create(string code, string name, string? description = null, string? createBy = null)
     {
-        ArgumentNullException.ThrowIfNull(organization);
         ArgumentNullException.ThrowIfNull(code);
         ArgumentNullException.ThrowIfNull(name);
 
         var model = new OrganizationUnit
         {
-            OrganizationId = organization.Id,
             ParenId = null,
             Code = code.ToUpperInvariant(),
             Name = name,
@@ -50,35 +46,30 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         };
 
         model.Path = $"/{model.ReferenceId}";
-        model.AddDomainEvent(DomainEvent.Create((id, ts) =>
-            new OrganizationCreatedDomainEvent(id, ts)));
+        model.AddOrganizationUnitCreatedDomainEvent();
         return model;
     }
 
+    private void AddOrganizationUnitCreatedDomainEvent() => AddDomainEvent(DomainEvent.Create((id, ts) =>
+        new OrganizationUnitCreatedDomainEvent(
+            Id: Id,
+            ReferenceId: ReferenceId,
+            Code: Code,
+            Name: Name,
+            EventId: id,
+            OccurredOnUtc: ts)));
+
     public OrganizationUnit CreateChild(string code, string name, string? description = null, string? createBy = null)
     {
-        ArgumentNullException.ThrowIfNull(code);
-        ArgumentNullException.ThrowIfNull(name);
-
-        if (Path.Length < 1)
-            throw new ArgumentException("Parent must have a valid Path.");
-
-        var model = new OrganizationUnit
-        {
-            OrganizationId = OrganizationId,
-            ParenId = Id,
-            Code = code.ToUpperInvariant(),
-            Name = name,
-            Description = description,
-            Id = Guid.CreateVersion7(),
-            CreatedOnUtc = DateTimeOffset.UtcNow,
-            CreatedBy = createBy,
-        };
-
-        model.Path = string.Concat(Path.TrimEnd('/'), "/", model.ReferenceId);
-        model.AddDomainEvent(DomainEvent.Create((id, ts) =>
-            new OrganizationCreatedDomainEvent(id, ts)));
+        ThrowIfInvalidPath();
         
+        var model = Create(code, name, description, createBy);
+        model.OrganizationId = OrganizationId;
+        model.ParenId = Id;
+        model.Path = string.Concat(Path.TrimEnd('/'), "/", model.ReferenceId);
+        model.ClearDomainEvents();
+        model.AddOrganizationUnitCreatedDomainEvent();
+
         Children.Add(model);
         return model;
     }
@@ -109,6 +100,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
             Path = $"/{ReferenceId}";
             return;
         }
+
         parent.ThrowIfInvalidPath();
         OrganizationId = parent.OrganizationId;
         ParenId = parent.Id;
@@ -118,11 +110,11 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     public void Move(Organization organization, OrganizationUnit? parent = null)
     {
         ArgumentNullException.ThrowIfNull(organization);
-        
+
         if (parent is not null && parent.OrganizationId != organization.Id)
             throw new ArgumentException("The parent organization unit must belong to the same organization.",
                 nameof(parent));
-        
+
         Move(parent);
         OrganizationId = organization.Id;
     }
