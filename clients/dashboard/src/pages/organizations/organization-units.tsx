@@ -37,15 +37,15 @@ const DESKTOP_COLUMNS = "grid-cols-[minmax(240px,1.3fr)_130px_minmax(150px,1fr)_
 function toTree(units: OrganizationUnitDto[]): UnitNode[] {
   const byId = new Map<string, UnitNode>();
   const collect = (unit: OrganizationUnitDto, inheritedParent: string | null = null) => {
-    byId.set(unit.id, { ...unit, parentId: unit.parenId ?? inheritedParent, children: [] });
-    unit.children?.forEach((child) => collect(child, unit.id));
+    byId.set(unit.referenceId, { ...unit, parentId: inheritedParent, children: [] });
+    unit.children?.forEach((child) => collect(child, unit.referenceId));
   };
   units.forEach((unit) => collect(unit));
 
   const roots: UnitNode[] = [];
   for (const unit of byId.values()) {
     const parent = unit.parentId ? byId.get(unit.parentId) : undefined;
-    if (parent && parent.id !== unit.id) parent.children.push(unit);
+    if (parent && parent.referenceId !== unit.referenceId) parent.children.push(unit);
     else roots.push(unit);
   }
   const sort = (items: UnitNode[]) => {
@@ -61,7 +61,7 @@ function flatten(nodes: UnitNode[]): UnitNode[] {
 }
 
 function descendantIds(unit: UnitNode): Set<string> {
-  return new Set(flatten(unit.children).map((child) => child.id));
+  return new Set(flatten(unit.children).map((child) => child.referenceId));
 }
 
 export function OrganizationUnitsPage() {
@@ -81,7 +81,7 @@ export function OrganizationUnitsPage() {
 
   useEffect(() => {
     if (!hasInitializedExpansion && allUnits.length > 0) {
-      setExpanded(new Set(allUnits.map((unit) => unit.id)));
+      setExpanded(new Set(allUnits.map((unit) => unit.referenceId)));
       setHasInitializedExpansion(true);
     }
   }, [allUnits, hasInitializedExpansion]);
@@ -93,7 +93,7 @@ export function OrganizationUnitsPage() {
     onError: () => toast.error("Could not create organization unit"),
   });
   const update = useMutation({
-    mutationFn: ({ id, input }: { id: string; input: OrganizationUnitInput }) => updateOrganizationUnit(id, input),
+    mutationFn: ({ referenceId, input }: { referenceId: string; input: OrganizationUnitInput }) => updateOrganizationUnit(referenceId, input),
     onSuccess: () => { toast.success("Organization unit updated"); setFormOpen(false); refresh(); },
     onError: () => toast.error("Could not update organization unit"),
   });
@@ -103,7 +103,7 @@ export function OrganizationUnitsPage() {
     onError: () => toast.error("Could not delete organization unit"),
   });
   const move = useMutation({
-    mutationFn: ({ id, parentId }: { id: string; parentId: string | null }) => moveOrganizationUnit(id, parentId),
+    mutationFn: ({ referenceId, parentId }: { referenceId: string; parentId: string | null }) => moveOrganizationUnit(referenceId, parentId),
     onSuccess: () => { toast.success("Organization unit moved"); setMoveOpen(false); refresh(); },
     onError: () => toast.error("Could not move organization unit"),
   });
@@ -119,24 +119,24 @@ export function OrganizationUnitsPage() {
   const openMove = (unit: UnitNode) => {
     setMoving(unit); setMoveParentId(unit.parentId ?? ""); setMoveOpen(true);
   };
-  const toggle = (id: string) => setExpanded((value) => {
+  const toggle = (referenceId: string) => setExpanded((value) => {
     const next = new Set(value);
-    if (next.has(id)) next.delete(id); else next.add(id);
+    if (next.has(referenceId)) next.delete(referenceId); else next.add(referenceId);
     return next;
   });
   const submitForm = (event: FormEvent) => {
     event.preventDefault();
     const input = { name: form.name.trim(), code: form.code.trim(), description: form.description.trim() || null };
     if (!input.name || !input.code) return;
-    if (editing) update.mutate({ id: editing.id, input });
-    else create.mutate({ ...input, parentId: parentForNew?.id ?? null });
+    if (editing) update.mutate({ referenceId: editing.referenceId, input });
+    else create.mutate({ ...input, parentId: parentForNew?.referenceId ?? null });
   };
   const submitMove = (event: FormEvent) => {
     event.preventDefault();
-    if (moving) move.mutate({ id: moving.id, parentId: moveParentId || null });
+    if (moving) move.mutate({ referenceId: moving.referenceId, parentId: moveParentId || null });
   };
   const candidates = moving
-    ? allUnits.filter((unit) => unit.id !== moving.id && !descendantIds(moving).has(unit.id))
+    ? allUnits.filter((unit) => unit.referenceId !== moving.referenceId && !descendantIds(moving).has(unit.referenceId))
     : [];
 
   return (
@@ -159,7 +159,7 @@ export function OrganizationUnitsPage() {
           <EntityListHeader className={DESKTOP_COLUMNS}>
             <span>Organization unit</span><span>Code</span><span>Reference ID</span><span>Actions</span>
           </EntityListHeader>
-          {tree.map((unit, index) => <UnitRow key={unit.id} unit={unit} depth={0} isLast={index === tree.length - 1} expanded={expanded} onToggle={toggle} onCreate={openCreate} onEdit={openEdit} onMove={openMove} onDelete={(target) => { if (window.confirm(`Delete ${target.name}? This cannot be undone.`)) remove.mutate(target.id); }} deleting={remove.isPending} />)}
+          {tree.map((unit, index) => <UnitRow key={unit.referenceId} unit={unit} depth={0} isLast={index === tree.length - 1} expanded={expanded} onToggle={toggle} onCreate={openCreate} onEdit={openEdit} onMove={openMove} onDelete={(target) => { if (window.confirm(`Delete ${target.name}? This cannot be undone.`)) remove.mutate(target.referenceId); }} deleting={remove.isPending} />)}
         </EntityListCard>}
 
       {query.isError && <p role="alert" className="text-sm text-[var(--color-destructive)]">The organization structure could not be loaded.</p>}
@@ -170,13 +170,13 @@ export function OrganizationUnitsPage() {
   );
 }
 
-function UnitRow({ unit, depth, isLast, expanded, onToggle, onCreate, onEdit, onMove, onDelete, deleting }: { unit: UnitNode; depth: number; isLast: boolean; expanded: Set<string>; onToggle: (id: string) => void; onCreate: (unit: UnitNode) => void; onEdit: (unit: UnitNode) => void; onMove: (unit: UnitNode) => void; onDelete: (unit: UnitNode) => void; deleting: boolean }) {
+function UnitRow({ unit, depth, isLast, expanded, onToggle, onCreate, onEdit, onMove, onDelete, deleting }: { unit: UnitNode; depth: number; isLast: boolean; expanded: Set<string>; onToggle: (referenceId: string) => void; onCreate: (unit: UnitNode) => void; onEdit: (unit: UnitNode) => void; onMove: (unit: UnitNode) => void; onDelete: (unit: UnitNode) => void; deleting: boolean }) {
   const hasChildren = unit.children.length > 0;
-  const isExpanded = expanded.has(unit.id);
+  const isExpanded = expanded.has(unit.referenceId);
   return <>
     <EntityListRow className={DESKTOP_COLUMNS} isLast={isLast}>
       <div className="flex min-w-0 items-center gap-2" style={{ paddingLeft: `${depth * 20}px` }}>
-        <button type="button" className="grid size-7 shrink-0 place-items-center rounded hover:bg-[var(--color-accent)]" onClick={() => hasChildren && onToggle(unit.id)} aria-label={hasChildren ? `${isExpanded ? "Collapse" : "Expand"} ${unit.name}` : undefined}>
+        <button type="button" className="grid size-7 shrink-0 place-items-center rounded hover:bg-[var(--color-accent)]" onClick={() => hasChildren && onToggle(unit.referenceId)} aria-label={hasChildren ? `${isExpanded ? "Collapse" : "Expand"} ${unit.name}` : undefined}>
           {hasChildren ? isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" /> : <span className="size-1.5 rounded-full bg-[var(--color-border)]" />}
         </button>
         <Building2 className="size-4 shrink-0 text-[var(--color-primary)]" />
@@ -194,7 +194,7 @@ function UnitRow({ unit, depth, isLast, expanded, onToggle, onCreate, onEdit, on
         <Button variant="ghost" size="icon-xs" disabled={deleting} onClick={() => onDelete(unit)} aria-label={`Delete ${unit.name}`} title="Delete"><Trash2 className="size-3.5 text-[var(--color-destructive)]" /></Button>
       </div>
     </EntityListRow>
-    {hasChildren && isExpanded && unit.children.map((child, index) => <UnitRow key={child.id} unit={child} depth={depth + 1} isLast={isLast && index === unit.children.length - 1} expanded={expanded} onToggle={onToggle} onCreate={onCreate} onEdit={onEdit} onMove={onMove} onDelete={onDelete} deleting={deleting} />)}
+    {hasChildren && isExpanded && unit.children.map((child, index) => <UnitRow key={child.referenceId} unit={child} depth={depth + 1} isLast={isLast && index === unit.children.length - 1} expanded={expanded} onToggle={onToggle} onCreate={onCreate} onEdit={onEdit} onMove={onMove} onDelete={onDelete} deleting={deleting} />)}
   </>;
 }
 
@@ -203,5 +203,5 @@ function UnitFormDialog({ open, onOpenChange, editing, parent, form, setForm, on
 }
 
 function MoveUnitDialog({ open, onOpenChange, moving, candidates, parentId, setParentId, onSubmit, busy }: { open: boolean; onOpenChange: (open: boolean) => void; moving: UnitNode | null; candidates: UnitNode[]; parentId: string; setParentId: (value: string) => void; onSubmit: (event: FormEvent) => void; busy: boolean }) {
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent><form onSubmit={onSubmit}><DialogHeader><DialogTitle>Move organization unit</DialogTitle><DialogDescription>Choose a new parent, or make {moving?.name ?? "this unit"} a root unit.</DialogDescription></DialogHeader><DialogBody><Label htmlFor="new-parent">New parent</Label><select id="new-parent" value={parentId} onChange={(event) => setParentId(event.target.value)} className="mt-2 h-9 w-full rounded-md border border-[var(--color-input)] bg-transparent px-3 text-sm"><option value="">Root organization unit</option>{candidates.map((unit) => <option key={unit.id} value={unit.id}>{unit.name} ({unit.code})</option>)}</select></DialogBody><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose><Button type="submit" disabled={busy}>{busy ? "Moving…" : "Move unit"}</Button></DialogFooter></form></DialogContent></Dialog>;
+  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent><form onSubmit={onSubmit}><DialogHeader><DialogTitle>Move organization unit</DialogTitle><DialogDescription>Choose a new parent, or make {moving?.name ?? "this unit"} a root unit.</DialogDescription></DialogHeader><DialogBody><Label htmlFor="new-parent">New parent</Label><select id="new-parent" value={parentId} onChange={(event) => setParentId(event.target.value)} className="mt-2 h-9 w-full rounded-md border border-[var(--color-input)] bg-transparent px-3 text-sm"><option value="">Root organization unit</option>{candidates.map((unit) => <option key={unit.referenceId} value={unit.referenceId}>{unit.name} ({unit.code})</option>)}</select></DialogBody><DialogFooter><DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose><Button type="submit" disabled={busy}>{busy ? "Moving…" : "Move unit"}</Button></DialogFooter></form></DialogContent></Dialog>;
 }
