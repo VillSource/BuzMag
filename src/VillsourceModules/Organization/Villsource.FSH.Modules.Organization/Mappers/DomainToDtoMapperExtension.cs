@@ -8,4 +8,5 @@ namespace Villsource.FSH.Modules.Organization.Mappers;
 public static partial class DomainToDtoMapperExtension
 {
     public static partial OrganizationUnitDto ToDto(this OrganizationUnit source);
+    public static partial OrganizationDto ToDto(this Organization.Domain.Organization source);
 }
