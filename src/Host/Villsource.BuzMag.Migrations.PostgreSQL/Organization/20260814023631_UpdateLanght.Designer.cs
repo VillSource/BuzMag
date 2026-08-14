@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Villsource.FSH.Modules.Organization.Data;
@@ -11,9 +12,11 @@ using Villsource.FSH.Modules.Organization.Data;
 namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 {
     [DbContext(typeof(OrganizationDbContext))]
-    partial class OrganizationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260814023631_UpdateLanght")]
+    partial class UpdateLanght
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,6 +162,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasColumnType("character varying(10)");
 
                     b.Property<string>("CreatedBy")
+                        .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("character varying(36)");
 
@@ -166,6 +170,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DeletedBy")
+                        .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("character varying(36)");
 
@@ -180,6 +185,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastModifiedBy")
+                        .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("character varying(36)");
 
