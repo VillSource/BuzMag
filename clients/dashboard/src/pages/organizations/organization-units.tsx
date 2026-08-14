@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import {
   createOrganizationUnit,
   deleteOrganizationUnit,
+  listOrganizations,
   listOrganizationUnits,
   moveOrganizationUnit,
   updateOrganizationUnit,
@@ -31,7 +32,7 @@ type UnitNode = Omit<OrganizationUnitDto, "children"> & {
 type UnitForm = { name: string; code: string; description: string };
 
 const EMPTY_FORM: UnitForm = { name: "", code: "", description: "" };
-const queryKey = ["organizations", "units"] as const;
+const STORAGE_KEY = "selected_organization_id";
 const DESKTOP_COLUMNS = "grid-cols-[minmax(240px,1.3fr)_130px_minmax(150px,1fr)_178px]";
 
 function toTree(units: OrganizationUnitDto[]): UnitNode[] {
@@ -66,7 +67,52 @@ function descendantIds(unit: UnitNode): Set<string> {
 
 export function OrganizationUnitsPage() {
   const client = useQueryClient();
-  const query = useQuery({ queryKey, queryFn: listOrganizationUnits });
+
+  const orgsQuery = useQuery({
+    queryKey: ["organizations"],
+    queryFn: listOrganizations,
+  });
+
+  const orgs = orgsQuery.data ?? [];
+
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(() => {
+    return localStorage.getItem(STORAGE_KEY);
+  });
+
+  useEffect(() => {
+    if (orgs.length > 0) {
+      const savedId = localStorage.getItem(STORAGE_KEY);
+      const savedOrg = savedId ? orgs.find((o) => o.referenceId === savedId) : undefined;
+      if (savedOrg) {
+        if (selectedOrgId !== savedOrg.referenceId) {
+          setSelectedOrgId(savedOrg.referenceId);
+        }
+      } else {
+        const defaultOrg = orgs.find((o) => o.isDefault) ?? orgs[0];
+        if (defaultOrg && selectedOrgId !== defaultOrg.referenceId) {
+          setSelectedOrgId(defaultOrg.referenceId);
+          localStorage.setItem(STORAGE_KEY, defaultOrg.referenceId);
+        }
+      }
+    }
+  }, [orgs, selectedOrgId]);
+
+  const handleOrgChange = (newOrgId: string) => {
+    setSelectedOrgId(newOrgId);
+    if (newOrgId) {
+      localStorage.setItem(STORAGE_KEY, newOrgId);
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
+
+  const queryKey = useMemo(() => ["organizations", "units", selectedOrgId] as const, [selectedOrgId]);
+  const query = useQuery({
+    queryKey,
+    queryFn: () => listOrganizationUnits(selectedOrgId),
+    enabled: selectedOrgId !== null || orgsQuery.isSuccess,
+  });
+
   const tree = useMemo(() => toTree(query.data ?? []), [query.data]);
   const allUnits = useMemo(() => flatten(tree), [tree]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -78,6 +124,10 @@ export function OrganizationUnitsPage() {
   const [moving, setMoving] = useState<UnitNode | null>(null);
   const [form, setForm] = useState<UnitForm>(EMPTY_FORM);
   const [moveParentId, setMoveParentId] = useState("");
+
+  useEffect(() => {
+    setExpanded(new Set(allUnits.map((unit) => unit.referenceId)));
+  }, [selectedOrgId]);
 
   useEffect(() => {
     if (!hasInitializedExpansion && allUnits.length > 0) {
@@ -129,7 +179,7 @@ export function OrganizationUnitsPage() {
     const input = { name: form.name.trim(), code: form.code.trim(), description: form.description.trim() || null };
     if (!input.name || !input.code) return;
     if (editing) update.mutate({ referenceId: editing.referenceId, input });
-    else create.mutate({ ...input, parentId: parentForNew?.referenceId ?? null });
+    else create.mutate({ ...input, parentId: parentForNew?.referenceId ?? null, organizationId: selectedOrgId });
   };
   const submitMove = (event: FormEvent) => {
     event.preventDefault();
@@ -148,9 +198,30 @@ export function OrganizationUnitsPage() {
         unit="unit"
         description="Manage organization units and their reporting structure."
       >
-        <Button onClick={() => openCreate()}>
-          <Plus className="size-4" />New root unit
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          {orgs.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Label htmlFor="org-select" className="text-xs font-medium text-[var(--color-muted-foreground)] whitespace-nowrap">
+                Organization:
+              </Label>
+              <select
+                id="org-select"
+                value={selectedOrgId ?? ""}
+                onChange={(e) => handleOrgChange(e.target.value)}
+                className="h-9 rounded-md border border-[var(--color-input)] bg-[var(--color-card)] px-3 text-sm font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-ring)]"
+              >
+                {orgs.map((org) => (
+                  <option key={org.referenceId} value={org.referenceId}>
+                    {org.referenceId} {org.isDefault ? "(Default)" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <Button onClick={() => openCreate()}>
+            <Plus className="size-4" />New root unit
+          </Button>
+        </div>
       </EntityPageHeader>
 
       {query.isLoading ? <EntityListLoading rows={6} desktopColumns={DESKTOP_COLUMNS} />
