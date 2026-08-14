@@ -26,7 +26,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     public string? DeletedBy { get; private set; }
 
     public ICollection<OrganizationUnit> Children { get; private set; } = [];
-    public ICollection<OrganizationUnitPositionAllocation> Positions { get; private set; } = [];
+    public ICollection<OrganizationUnitPositionAllocation> PositionAllocations { get; private set; } = [];
 
     public OrganizationUnit() { }
 
@@ -40,7 +40,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
             headCount: headCount,
             effectiveDate: DateTimeOffset.UtcNow,
             createBy: createBy);
-        Positions.Add(po);
+        PositionAllocations.Add(po);
     }
 
     public static OrganizationUnit Create(string code, string name, string? description = null, string? createBy = null)

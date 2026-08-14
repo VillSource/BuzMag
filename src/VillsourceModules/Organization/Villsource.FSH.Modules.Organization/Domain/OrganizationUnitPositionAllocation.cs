@@ -6,6 +6,7 @@ namespace Villsource.FSH.Modules.Organization.Domain;
 
 public sealed class OrganizationUnitPositionAllocation : BaseEntity<Guid>, IAuditableEntity, ISoftDeletable
 {
+    public string ReferenceId { get; } = VillsourceId.Key;
     public Guid OrganizationUnitId { get; private set; } = Guid.Empty;
     public Guid PositionId { get; private set; } = Guid.Empty;
     public int? HeadCount { get; private set; }
@@ -19,8 +20,8 @@ public sealed class OrganizationUnitPositionAllocation : BaseEntity<Guid>, IAudi
     public DateTimeOffset? DeletedOnUtc { get; private set; }
     public string? DeletedBy { get; private set; }
 
-    public OrganizationUnit Unit { get; } = new ();
-    public Position Position { get; } = new();
+    public OrganizationUnit Unit { get; } = null!;
+    public Position Position { get; } = null!;
 
     public OrganizationUnitPositionAllocation() { }
 
