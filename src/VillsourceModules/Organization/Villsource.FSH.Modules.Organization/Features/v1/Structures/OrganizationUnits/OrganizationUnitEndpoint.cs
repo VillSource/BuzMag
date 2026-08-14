@@ -64,8 +64,8 @@ public static class OrganizationUnitEndpoint
 
     public sealed record UpdateOrganizationUnitBody( string Code, string Name, string? Description);
     internal static RouteHandlerBuilder MapUpdateOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapPut("/units/{organizationUnitId:guid}",
-                async (Guid organizationUnitId, [FromBody] UpdateOrganizationUnitBody body, IMediator mediator,
+        => endpoints.MapPut("/units/{organizationUnitId:length(11)}",
+                async (string organizationUnitId, [FromBody] UpdateOrganizationUnitBody body, IMediator mediator,
                     CancellationToken cancellationToken) =>
                 {
                     var result = await mediator.Send(new UpdateOrganizationUnitCommand(
