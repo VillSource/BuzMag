@@ -73,7 +73,12 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         Children.Add(model);
         return model;
     }
-
+    private void AddOrganizationUnitUpdatedDomainEvent() => AddDomainEvent(DomainEvent.Create((id, ts) =>
+        new OrganizationUnitUpdatedDomainEvent(
+            OrganizationId: OrganizationId,
+            OrganizationUnitId: Id,
+            EventId: id,
+            OccurredOnUtc: ts)));
     public void Update(string code, string name, string? description, string? modifiedBy = null)
     {
         ArgumentNullException.ThrowIfNull(code);
@@ -84,6 +89,8 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         Description = description;
         LastModifiedOnUtc = DateTimeOffset.UtcNow;
         LastModifiedBy = modifiedBy;
+        
+        AddOrganizationUnitUpdatedDomainEvent();
     }
 
     private void ThrowIfInvalidPath()
