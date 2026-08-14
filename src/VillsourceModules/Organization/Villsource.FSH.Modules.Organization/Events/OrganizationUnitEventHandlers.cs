@@ -9,8 +9,7 @@ using Villsource.FSH.Modules.Organization.Domain.Events;
 namespace Villsource.FSH.Modules.Organization.Events;
 
 public sealed class OrganizationUnitEventHandlers(
-    ILogger<OrganizationUnitEventHandlers> logger,
-    OrganizationDbContext dbContext) :
+    ILogger<OrganizationUnitEventHandlers> logger) :
     INotificationHandler<OrganizationCreatedDomainEvent>,
     INotificationHandler<OrganizationUnitCreatedDomainEvent>,
     INotificationHandler<OrganizationUnitDeletedDomainEvent>
@@ -37,23 +36,14 @@ public sealed class OrganizationUnitEventHandlers(
         return default;
     }
 
-    public async ValueTask Handle(OrganizationUnitDeletedDomainEvent notification, CancellationToken cancellationToken)
+    public ValueTask Handle(OrganizationUnitDeletedDomainEvent notification, CancellationToken cancellationToken)
     {
-        var deleted = await dbContext.OrganizationUnits
-                          .IgnoreQueryFilters([QueryFilters.SoftDelete])
-                          .Where(x => x.OrganizationId == notification.OrganizationId)
-                          .Where(x => x.Id == notification.OrganizationUnitId)
-                          .FirstOrDefaultAsync(cancellationToken)
-                          .ConfigureAwait(false) ??
-                      throw new NotFoundException("Deleted OrganizationUnit not found");
-
-        var descendants = await deleted.GetDescendantsAsync(dbContext, cancellationToken).ConfigureAwait(false);
-        foreach (var descendant in descendants)
+        ArgumentNullException.ThrowIfNull(notification);
+        if (logger.IsEnabled(LogLevel.Information))
         {
-            descendant.Delete();
-            descendant.ClearDomainEvents();
+            logger.LogInformation("PlaceHolder for OrganizationUnitDeletedDomainEvent Handler");
         }
 
-        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return default;
     }
 }

@@ -13,14 +13,10 @@ using Microsoft.Extensions.Hosting;
 using Villsource.FSH.Modules.Organization.Contracts.Authorization;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Features.v1.Structures.OrganizationUnits;
+using Villsource.FSH.Modules.Organization.Services;
 
 namespace Villsource.FSH.Modules.Organization;
 
-/// <summary>
-/// Notifications module: per-user inbox driven by integration events from other modules. Module
-/// Order 750 places it BEFORE Chat (800) so its integration-event handlers are registered
-/// before Chat starts publishing — handler registration is order-sensitive.
-/// </summary>
 public sealed class OrganizationModule : IModule
 {
     public void ConfigureServices(IHostApplicationBuilder builder)
@@ -36,6 +32,8 @@ public sealed class OrganizationModule : IModule
         builder.Services.AddHealthChecks().AddDbContextCheck<OrganizationDbContext>(
             name: "db:organization",
             failureStatus: HealthStatus.Unhealthy);
+
+        builder.Services.AddTransient<IOrganizationUnitService, OrganizationUnitService>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)

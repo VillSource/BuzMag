@@ -50,10 +50,10 @@ public static class OrganizationUnitEndpoint
             .RequirePermission(OrganizationPermissions.Structures.Create);
 
     internal static RouteHandlerBuilder MapDeleteOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapDelete("/units/{organizationUnitid:guid}",
-                async (Guid organizationUnitid, IMediator mediator, CancellationToken cancellationToken) =>
+        => endpoints.MapDelete("/units/{organizationUnitId:length(11)}",
+                async (string organizationUnitId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.Send(new DeleteOrganizationUnitCommand(Id: organizationUnitid), cancellationToken);
+                    var result = await mediator.Send(new DeleteOrganizationUnitCommand(Id: organizationUnitId), cancellationToken);
                     return Results.Ok(result);
                 })
             .Produces<OrganizationUnitDto>()

@@ -62,7 +62,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     public OrganizationUnit CreateChild(string code, string name, string? description = null, string? createBy = null)
     {
         ThrowIfInvalidPath();
-        
+
         var model = Create(code, name, description, createBy);
         model.OrganizationId = OrganizationId;
         model.ParenId = Id;
@@ -124,14 +124,16 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         DeletedOnUtc = DateTimeOffset.UtcNow;
         DeletedBy = deletedBy;
         IsDeleted = true;
-
-        AddDomainEvent(DomainEvent.Create((id, ts) =>
-            new OrganizationUnitDeletedDomainEvent(
-                OrganizationId: OrganizationId,
-                OrganizationUnitId: Id,
-                EventId: id,
-                OccurredOnUtc: ts)));
+        
+        AddOrganizationUnitDeletedDomainEvent();
     }
+
+    private void AddOrganizationUnitDeletedDomainEvent() => AddDomainEvent(DomainEvent.Create((id, ts) =>
+        new OrganizationUnitDeletedDomainEvent(
+            OrganizationId: OrganizationId,
+            OrganizationUnitId: Id,
+            EventId: id,
+            OccurredOnUtc: ts)));
 
     public async Task<List<OrganizationUnit>> GetDescendantsAsync(OrganizationDbContext dbContext,
         CancellationToken ct = default)
@@ -148,28 +150,6 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
 
         return await descendants.ToListAsync(ct).ConfigureAwait(false);
     }
-
-    public static ICollection<OrganizationUnit> BuildTree(IReadOnlyCollection<OrganizationUnit> flatList)
-    {
-        var parentLookup = flatList.ToLookup(u => u.ParenId);
-        var idSet = flatList.Select(u => u.Id).ToFrozenSet();
-
-        var rootNodes = parentLookup
-            .Where(l => !l.Key.HasValue || !idSet.Contains(l.Key.Value))
-            .Select(l => l.Key);
-
-        return [.. rootNodes.SelectMany(BuildChildren)];
-
-        List<OrganizationUnit> BuildChildren(Guid? parentId = null) =>
-        [
-            .. parentLookup[parentId].Select(u =>
-            {
-                u.Children = BuildChildren(u.Id);
-                return u;
-            })
-        ];
-    }
-
 
     public void MoveChildren(IList<OrganizationUnit> descendants)
     {
