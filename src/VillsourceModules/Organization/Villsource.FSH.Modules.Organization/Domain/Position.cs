@@ -7,6 +7,7 @@ namespace Villsource.FSH.Modules.Organization.Domain;
 public sealed class Position : BaseEntity<Guid>, IAuditableEntity, ISoftDeletable
 {
     public string ReferenceId { get; } = VillsourceId.Key;
+    public Guid OrganizationId { get; private set; } = Guid.Empty;
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
     public string? Description { get; private set; }

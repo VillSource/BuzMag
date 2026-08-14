@@ -18,6 +18,7 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Domai
         builder.Property(x => x.IsDefault).HasDefaultValue(false);
         
         builder.HasMany(x=>x.Units).WithOne().HasForeignKey(x => x.OrganizationId);
+        builder.HasMany(x=>x.Positions).WithOne().HasForeignKey(x => x.OrganizationId);
         
         builder.Ignore(x => x.DomainEvents);
     }

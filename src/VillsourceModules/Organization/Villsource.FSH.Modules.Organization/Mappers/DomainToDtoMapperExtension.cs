@@ -1,4 +1,4 @@
-﻿using Riok.Mapperly.Abstractions;
+using Riok.Mapperly.Abstractions;
 using Villsource.FSH.Modules.Organization.Contracts.Dtos;
 using Villsource.FSH.Modules.Organization.Domain;
 
@@ -9,4 +9,5 @@ public static partial class DomainToDtoMapperExtension
 {
     public static partial OrganizationUnitDto ToDto(this OrganizationUnit source);
     public static partial OrganizationDto ToDto(this Organization.Domain.Organization source);
+    public static partial PositionDto ToDto(this Position source);
 }

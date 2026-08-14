@@ -17,6 +17,7 @@ public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftD
     public bool IsDefault { get; }
     
     public ICollection<OrganizationUnit> Units { get; private set; } = [];
+    public ICollection<Position> Positions { get; private set; } = [];
     
     public Organization() { }
 
