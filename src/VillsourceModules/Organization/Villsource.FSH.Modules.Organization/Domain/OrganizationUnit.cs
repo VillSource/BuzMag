@@ -99,7 +99,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
             throw new InvalidOperationException("The organization unit has an invalid path.");
     }
 
-    public void Move(OrganizationUnit? parent)
+    public void MoveTo(OrganizationUnit? parent)
     {
         if (parent is null)
         {
@@ -114,7 +114,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         Path = string.Concat(parent.Path.TrimEnd('/'), "/", ReferenceId);
     }
 
-    public void Move(Organization organization, OrganizationUnit? parent = null)
+    public void MoveTo(Organization organization, OrganizationUnit? parent = null)
     {
         ArgumentNullException.ThrowIfNull(organization);
 
@@ -122,7 +122,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
             throw new ArgumentException("The parent organization unit must belong to the same organization.",
                 nameof(parent));
 
-        Move(parent);
+        MoveTo(parent);
         OrganizationId = organization.Id;
     }
 
@@ -142,29 +142,13 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
             EventId: id,
             OccurredOnUtc: ts)));
 
-    public async Task<List<OrganizationUnit>> GetDescendantsAsync(OrganizationDbContext dbContext,
-        CancellationToken ct = default)
-    {
-        ArgumentNullException.ThrowIfNull(dbContext);
-
-        if (Path.Length < 11)
-            throw new InvalidOperationException("Organization must have a valid Path.");
-
-        var descendants = dbContext.OrganizationUnits
-            .Where(ou => ou.OrganizationId == OrganizationId)
-            .Where(ou => ou.Path.StartsWith(Path))
-            .OrderBy(ou => ou.Path);
-
-        return await descendants.ToListAsync(ct).ConfigureAwait(false);
-    }
-
-    public void MoveChildren(IList<OrganizationUnit> descendants)
+    public void RebaseDescendants(IList<OrganizationUnit> descendants)
     {
         ArgumentNullException.ThrowIfNull(descendants);
         foreach (var descendant in descendants)
         {
             descendant.OrganizationId = OrganizationId;
-            descendant.Path = Replace(descendant.Path, $"^.*{ReferenceId}", Path);
+            descendant.Path = Replace(descendant.Path, $"^(/[a-zA-Z0-9]{VillsourceId.KeySizes})*/{ReferenceId}", Path);
         }
     }
 }
