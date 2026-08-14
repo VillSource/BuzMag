@@ -25,8 +25,8 @@ public static class OrganizationUnitEndpoint
             .RequirePermission(OrganizationPermissions.Structures.View);
 
     internal static RouteHandlerBuilder MapGetAllOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapGet("{organizationId:guid}/units",
-                async (Guid organizationId, IMediator mediator, CancellationToken cancellationToken) =>
+        => endpoints.MapGet("{organizationId:length(11)}/units",
+                async (string organizationId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var result = await mediator.Send(new GetAllOrganizationUnitsQuery(organizationId), cancellationToken);
                     return Results.Ok(result);
