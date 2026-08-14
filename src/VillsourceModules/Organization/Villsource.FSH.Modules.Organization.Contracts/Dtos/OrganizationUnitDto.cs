@@ -1,11 +1,14 @@
 ﻿using System.Collections.Frozen;
+using System.Text.Json.Serialization;
 
 namespace Villsource.FSH.Modules.Organization.Contracts.Dtos;
 
 public sealed class OrganizationUnitDto
 {
+    [JsonIgnore]
     public Guid Id { get; set; }
     public string ReferenceId { get; set; } = string.Empty;
+    [JsonIgnore]
     public Guid? ParenId { get; set; }
     public string Path { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;

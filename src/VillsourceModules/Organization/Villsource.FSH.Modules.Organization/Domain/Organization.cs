@@ -1,10 +1,12 @@
 using FSH.Framework.Core.Domain;
 using Villsource.FSH.Modules.Organization.Domain.Events;
+using Villsource.Tool.UniqueKey;
 
 namespace Villsource.FSH.Modules.Organization.Domain;
 
 public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable 
 {
+    public string ReferenceId { get; } = VillsourceId.Key;
     public DateTimeOffset CreatedOnUtc { get; private init; }
     public string? CreatedBy { get; private init; }
     public DateTimeOffset? LastModifiedOnUtc { get; private set; }
@@ -15,9 +17,10 @@ public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftD
     public bool IsDefault { get; }
     
     public ICollection<OrganizationUnit> Units { get; private set; } = [];
+    public ICollection<Position> Positions { get; private set; } = [];
+    
     public Organization() { }
 
-    public static Organization Create(string? createBy = null) => Create(Guid.CreateVersion7(), createBy);
     public static Organization Create(Guid id, string? createBy = null)
     {
         var model = new Organization
@@ -31,13 +34,13 @@ public sealed class Organization : AggregateRoot<Guid>, IAuditableEntity, ISoftD
         return model;
     }
 
-    public void Modify(string modifiedBy)
+    public void Modify(string? modifiedBy = null)
     {
         LastModifiedOnUtc = DateTimeOffset.UtcNow;
         LastModifiedBy = modifiedBy;
     }
 
-    public void Delete(string deletedBy)
+    public void Delete(string? deletedBy = null)
     {
         DeletedOnUtc = DateTimeOffset.UtcNow;
         DeletedBy = deletedBy;

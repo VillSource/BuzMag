@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Villsource.Tool.UniqueKey;
 
 namespace Villsource.FSH.Modules.Organization.Data.Configurations;
 
@@ -10,12 +11,14 @@ internal sealed class OrganizationConfiguration : IEntityTypeConfiguration<Domai
         builder.ToTable("Organizations");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
+        builder.Property(x => x.ReferenceId).HasMaxLength(VillsourceId.KeySizes).IsRequired();
         builder.Property(x => x.CreatedBy).HasMaxLength(36);
         builder.Property(x => x.LastModifiedBy).HasMaxLength(36);
         builder.Property(x => x.DeletedBy).HasMaxLength(36);
         builder.Property(x => x.IsDefault).HasDefaultValue(false);
         
         builder.HasMany(x=>x.Units).WithOne().HasForeignKey(x => x.OrganizationId);
+        builder.HasMany(x=>x.Positions).WithOne().HasForeignKey(x => x.OrganizationId);
         
         builder.Ignore(x => x.DomainEvents);
     }

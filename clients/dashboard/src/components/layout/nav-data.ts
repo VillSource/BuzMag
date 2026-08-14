@@ -1,5 +1,6 @@
 import {
   Activity,
+  Briefcase,
   Building2,
   CreditCard,
   FolderOpen,
@@ -115,6 +116,7 @@ export const sections: NavSection[] = [
     icon: Building2,
     items: [
       { to: "/organizations/units", label: "Structure", icon: Building2 },
+      { to: "/organizations/positions", label: "Positions", icon: Briefcase },
     ],
   },
   {

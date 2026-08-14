@@ -90,6 +90,9 @@
   <Folder Name="/VillsourceModules/">
     <Project Path="VillsourceModules/BuzMag/BuzMag.csproj" />
   </Folder>
+  <Folder Name="/VillsourceModules/Core/">
+    <Project Path="VillsourceModules/Core/Villsource.Tool.UniqueKey/Villsource.Tool.UniqueKey.csproj" />
+  </Folder>
     
   <Folder Name="/VillsourceModules/Organization/">
     <Project Path="VillsourceModules/Organization/Villsource.FSH.Modules.Organization.Contracts/Villsource.FSH.Modules.Organization.Contracts.csproj" />

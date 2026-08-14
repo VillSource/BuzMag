@@ -57,6 +57,11 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Property<DateTimeOffset?>("LastModifiedOnUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -125,8 +130,8 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.Property<string>("ReferenceId")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
@@ -143,6 +148,75 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
 
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.OrganizationUnitPositionAllocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
+
+                    b.Property<DateTimeOffset>("CreatedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
+
+                    b.Property<DateTimeOffset?>("DeletedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("EffectiveFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("EffectiveTo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("HeadCount")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
+
+                    b.Property<DateTimeOffset?>("LastModifiedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OrganizationUnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("OrganizationUnitId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationUnitId");
+
+                    b.HasIndex("OrganizationUnitId1");
+
+                    b.HasIndex("PositionId");
+
+                    b.ToTable("OrganizationUnitPositionAllocations", "organization");
+
+                    b.HasAnnotation("Finbuckle:MultiTenant", true);
+                });
+
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Position", b =>
                 {
                     b.Property<Guid>("Id")
@@ -154,17 +228,15 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasColumnType("character varying(10)");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
 
                     b.Property<DateTimeOffset>("CreatedOnUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DeletedBy")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
 
                     b.Property<DateTimeOffset?>("DeletedOnUtc")
                         .HasColumnType("timestamp with time zone");
@@ -177,9 +249,8 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(36)
+                        .HasColumnType("character varying(36)");
 
                     b.Property<DateTimeOffset?>("LastModifiedOnUtc")
                         .HasColumnType("timestamp with time zone");
@@ -189,8 +260,13 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<Guid?>("OrganizationUnitId")
+                    b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
@@ -198,7 +274,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrganizationUnitId");
+                    b.HasIndex("OrganizationId");
 
                     b.ToTable("Positions", "organization");
 
@@ -218,15 +294,43 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasForeignKey("ParenId");
                 });
 
-            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Position", b =>
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.OrganizationUnitPositionAllocation", b =>
                 {
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.OrganizationUnit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("OrganizationUnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Villsource.FSH.Modules.Organization.Domain.OrganizationUnit", null)
                         .WithMany("Positions")
-                        .HasForeignKey("OrganizationUnitId");
+                        .HasForeignKey("OrganizationUnitId1")
+                        .HasConstraintName("FK_OrganizationUnitPositionAllocations_OrganizationUnits_Orga~1");
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.Position", "Position")
+                        .WithMany()
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Position");
+
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Position", b =>
+                {
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.Organization", null)
+                        .WithMany("Positions")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Organization", b =>
                 {
+                    b.Navigation("Positions");
+
                     b.Navigation("Units");
                 });
 

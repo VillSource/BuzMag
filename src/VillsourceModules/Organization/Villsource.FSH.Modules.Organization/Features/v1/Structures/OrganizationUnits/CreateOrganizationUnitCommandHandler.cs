@@ -1,6 +1,7 @@
 ﻿using FSH.Framework.Core.Exceptions;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using Villsource.FSH.Modules.Organization.Contracts.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.Structures;
 using Villsource.FSH.Modules.Organization.Data;
@@ -17,37 +18,53 @@ public sealed class CreateOrganizationUnitCommandHandler(
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        var parent = command.ParentId is not null
-            ? await dbContext.OrganizationUnits
-                .AsNoTracking()
-                .FirstOrDefaultAsync(ou => ou.Id == command.ParentId, cancellationToken)
-                .ConfigureAwait(false) ?? throw new NotFoundException($"Parent with id '{command.ParentId}' not found.")
-            : null;
+        OrganizationUnit organizationUnit;
 
-        var org = parent is null
-            ? await dbContext.Organizations
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.IsDefault, cancellationToken)
-                .ConfigureAwait(false) ?? throw new NotFoundException($"Organization not found.")
-            : null;
+        if (command.ParentId is null)
+        {
+            // Add to root of Organization.
+            var organization = command.OrganizationId is null
+                ? await GetDefaultOrganization(cancellationToken)
+                    .ConfigureAwait(false) ?? throw new NotFoundException("Default Organization not found.")
+                : await dbContext.Organizations
+                      .FirstOrDefaultAsync(x => x.ReferenceId == command.OrganizationId, cancellationToken)
+                      .ConfigureAwait(false) ??
+                  throw new NotFoundException($"Organization with id '{command.OrganizationId}' not found.");
 
-        var unit = parent is null
-            ? OrganizationUnit.Create(
-                code: command.Code,
-                name: command.Name,
-                description: command.Description,
-                organization: org
-            )
-            : parent.CreateChild(
+            organizationUnit = OrganizationUnit.Create(
                 code: command.Code,
                 name: command.Name,
                 description: command.Description
             );
+            organization.Units.Add(organizationUnit);
+            await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            return organizationUnit.ToDto();
+        }
+        
+        if (command.OrganizationId is null)
+        {
+            // Add to parent organization unit
+            var parentOu = await dbContext.OrganizationUnits
+                               .FirstOrDefaultAsync(x => x.ReferenceId == command.ParentId, cancellationToken)
+                               .ConfigureAwait(false)
+                           ?? throw new NotFoundException("Parent OU not found.");
 
-        dbContext.OrganizationUnits.Add(unit);
+            organizationUnit = parentOu.CreateChild(
+                code: command.Code,
+                name: command.Name,
+                description: command.Description
+            );
+            await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            return organizationUnit.ToDto();
+        }
 
-        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        throw new CustomException("Only one 'ParentId' or 'OrganizationId' can be specified.", [],
+            HttpStatusCode.Conflict);
+    }
 
-        return unit.ToDto();
+    private Task<Domain.Organization?> GetDefaultOrganization(CancellationToken ct = default)
+    {
+        return dbContext.Organizations
+            .FirstOrDefaultAsync(x => x.IsDefault, ct);
     }
 }

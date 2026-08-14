@@ -7,4 +7,5 @@ public sealed record CreateOrganizationUnitCommand(
     string Code,
     string Name,
     string? Description = null,
-    Guid? ParentId = null) : ICommand<OrganizationUnitDto>;
+    string? ParentId = null,
+    string? OrganizationId = null) : ICommand<OrganizationUnitDto>;

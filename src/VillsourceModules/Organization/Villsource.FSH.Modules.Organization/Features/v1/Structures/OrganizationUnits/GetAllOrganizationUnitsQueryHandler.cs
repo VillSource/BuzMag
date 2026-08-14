@@ -12,18 +12,20 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.Organizatio
 public sealed class GetAllOrganizationUnitsQueryHandler(
     OrganizationDbContext dbContext) : IQueryHandler<GetAllOrganizationUnitsQuery, ICollection<OrganizationUnitDto>>
 {
-    public async ValueTask<ICollection<OrganizationUnitDto>> Handle(GetAllOrganizationUnitsQuery command,
+    public async ValueTask<ICollection<OrganizationUnitDto>> Handle(GetAllOrganizationUnitsQuery query,
         CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(command);
+        ArgumentNullException.ThrowIfNull(query);
 
-        var organizationQuery = command.OrganizationId is null
+        var organizationQuery = string.IsNullOrWhiteSpace(query.OrganizationId) 
             ? dbContext.Organizations
+                .AsNoTracking()
                 .Include(o => o.Units)
                 .FirstOrDefaultAsync(o => o.IsDefault, cancellationToken)
             : dbContext.Organizations
+                .AsNoTracking()
                 .Include(o => o.Units)
-                .FirstOrDefaultAsync(o => o.Id == command.OrganizationId, cancellationToken);
+                .FirstOrDefaultAsync(o => o.ReferenceId == query.OrganizationId, cancellationToken);
         
         var organization = await organizationQuery
                                .ConfigureAwait(false)

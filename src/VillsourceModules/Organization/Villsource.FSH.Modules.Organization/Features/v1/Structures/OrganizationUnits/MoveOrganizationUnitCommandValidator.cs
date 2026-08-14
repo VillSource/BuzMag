@@ -8,17 +8,7 @@ public sealed class MoveOrganizationUnitCommandValidator : AbstractValidator<Mov
     public MoveOrganizationUnitCommandValidator()
     {
         RuleFor(x => x)
-            .Must(x => x.OrganizationId.HasValue != x.ParentId.HasValue)
+            .Must(x => !string.IsNullOrWhiteSpace(x.OrganizationId)  != !string.IsNullOrWhiteSpace(x.ParentId))
             .WithMessage("Exactly one of 'NewParentId' or 'NewOrganizationId' must be provided.");
-    }
-}
-
-public sealed class MoveOrganizationUnitBodyValidator : AbstractValidator<OrganizationUnitEndpoint.MoveOrganizationUnitBody>
-{
-    public MoveOrganizationUnitBodyValidator()
-    {
-        RuleFor(x => x)
-            .Must(x => x.NewOrganizationId.HasValue != x.NewParentId.HasValue)
-            .WithMessage("[BODY] Exactly one of 'NewParentId' or 'NewOrganizationId' must be provided.");
     }
 }

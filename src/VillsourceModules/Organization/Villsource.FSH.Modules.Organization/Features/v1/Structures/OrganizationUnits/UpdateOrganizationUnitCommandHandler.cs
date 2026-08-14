@@ -17,7 +17,7 @@ public sealed class UpdateOrganizationUnitCommandHandler(
         ArgumentNullException.ThrowIfNull(command);
 
         var targetOu = await dbContext.OrganizationUnits
-                     .FirstOrDefaultAsync(ou => ou.Id == command.OrganizationUnitId, cancellationToken)
+                     .FirstOrDefaultAsync(ou => ou.ReferenceId == command.OrganizationUnitId, cancellationToken)
                      .ConfigureAwait(false) ??
                  throw new NotFoundException($"Organization unit with id '{command.OrganizationUnitId}' not found.");
 

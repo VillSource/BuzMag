@@ -25,8 +25,8 @@ public static class OrganizationUnitEndpoint
             .RequirePermission(OrganizationPermissions.Structures.View);
 
     internal static RouteHandlerBuilder MapGetAllOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapGet("{organizationId:guid}/units",
-                async (Guid organizationId, IMediator mediator, CancellationToken cancellationToken) =>
+        => endpoints.MapGet("{organizationId:length(11)}/units",
+                async (string organizationId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
                     var result = await mediator.Send(new GetAllOrganizationUnitsQuery(organizationId), cancellationToken);
                     return Results.Ok(result);
@@ -50,10 +50,10 @@ public static class OrganizationUnitEndpoint
             .RequirePermission(OrganizationPermissions.Structures.Create);
 
     internal static RouteHandlerBuilder MapDeleteOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapDelete("/units/{organizationUnitid:guid}",
-                async (Guid organizationUnitid, IMediator mediator, CancellationToken cancellationToken) =>
+        => endpoints.MapDelete("/units/{organizationUnitId:length(11)}",
+                async (string organizationUnitId, IMediator mediator, CancellationToken cancellationToken) =>
                 {
-                    var result = await mediator.Send(new DeleteOrganizationUnitCommand(Id: organizationUnitid), cancellationToken);
+                    var result = await mediator.Send(new DeleteOrganizationUnitCommand(Id: organizationUnitId), cancellationToken);
                     return Results.Ok(result);
                 })
             .Produces<OrganizationUnitDto>()
@@ -64,8 +64,8 @@ public static class OrganizationUnitEndpoint
 
     public sealed record UpdateOrganizationUnitBody( string Code, string Name, string? Description);
     internal static RouteHandlerBuilder MapUpdateOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapPut("/units/{organizationUnitId:guid}",
-                async (Guid organizationUnitId, [FromBody] UpdateOrganizationUnitBody body, IMediator mediator,
+        => endpoints.MapPut("/units/{organizationUnitId:length(11)}",
+                async (string organizationUnitId, [FromBody] UpdateOrganizationUnitBody body, IMediator mediator,
                     CancellationToken cancellationToken) =>
                 {
                     var result = await mediator.Send(new UpdateOrganizationUnitCommand(
@@ -80,10 +80,10 @@ public static class OrganizationUnitEndpoint
             .WithSummary("Update an organization unit.")
             .RequirePermission(OrganizationPermissions.Structures.Update);
     
-    public sealed record MoveOrganizationUnitBody(Guid? NewParentId, Guid? NewOrganizationId);
+    public sealed record MoveOrganizationUnitBody(string? NewParentId, string? NewOrganizationId);
     internal static RouteHandlerBuilder MapMoveOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapPost("/units/{organizationUnitId:guid}/move",
-                async (Guid organizationUnitId, [FromBody] MoveOrganizationUnitBody body, IMediator mediator,
+        => endpoints.MapPost("/units/{organizationUnitId:length(11)}/move",
+                async (string organizationUnitId, [FromBody] MoveOrganizationUnitBody body, IMediator mediator,
                     CancellationToken cancellationToken) =>
                 {
                     var result = await mediator.Send(new MoveOrganizationUnitCommand(

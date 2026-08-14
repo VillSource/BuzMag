@@ -22,7 +22,7 @@ public sealed class OrganizationDbInitializer(
         if (await dbContext.Organizations.AnyAsync(cancellationToken).ConfigureAwait(false))
             return;
 
-        var org = Domain.Organization.Create();
+        var org = Domain.Organization.Create(Guid.CreateVersion7());
         dbContext.Organizations.Add(org);
         dbContext.Entry(org).Property(x => x.IsDefault).CurrentValue = true;
         
