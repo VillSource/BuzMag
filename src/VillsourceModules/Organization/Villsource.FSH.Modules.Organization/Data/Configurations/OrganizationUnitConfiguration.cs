@@ -23,6 +23,7 @@ internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<O
         builder.Property(x => x.Description).HasMaxLength(150);
 
         builder.HasMany(x => x.Children).WithOne().HasForeignKey(x => x.ParenId);
+        builder.HasMany(x => x.Positions).WithOne().HasForeignKey(x => x.OrganizationUnitId);
 
         builder.Ignore(x => x.DomainEvents);
     }

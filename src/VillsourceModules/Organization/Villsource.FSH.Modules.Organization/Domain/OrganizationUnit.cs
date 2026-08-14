@@ -26,8 +26,22 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     public string? DeletedBy { get; private set; }
 
     public ICollection<OrganizationUnit> Children { get; private set; } = [];
+    public ICollection<OrganizationUnitPositionAllocation> Positions { get; private set; } = [];
 
     public OrganizationUnit() { }
+
+    public void AllocatePosition(Position position, int? headCount, string? createBy = null)
+    {
+        ArgumentNullException.ThrowIfNull(position);
+
+        var po = OrganizationUnitPositionAllocation.Create(
+            ouId: Id,
+            positionId: position.Id,
+            headCount: headCount,
+            effectiveDate: DateTimeOffset.UtcNow,
+            createBy: createBy);
+        Positions.Add(po);
+    }
 
     public static OrganizationUnit Create(string code, string name, string? description = null, string? createBy = null)
     {
@@ -73,12 +87,14 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         Children.Add(model);
         return model;
     }
+
     private void AddOrganizationUnitUpdatedDomainEvent() => AddDomainEvent(DomainEvent.Create((id, ts) =>
         new OrganizationUnitUpdatedDomainEvent(
             OrganizationId: OrganizationId,
             OrganizationUnitId: Id,
             EventId: id,
             OccurredOnUtc: ts)));
+
     public void Update(string code, string name, string? description, string? modifiedBy = null)
     {
         ArgumentNullException.ThrowIfNull(code);
@@ -89,7 +105,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         Description = description;
         LastModifiedOnUtc = DateTimeOffset.UtcNow;
         LastModifiedBy = modifiedBy;
-        
+
         AddOrganizationUnitUpdatedDomainEvent();
     }
 
@@ -131,7 +147,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         DeletedOnUtc = DateTimeOffset.UtcNow;
         DeletedBy = deletedBy;
         IsDeleted = true;
-        
+
         AddOrganizationUnitDeletedDomainEvent();
     }
 
