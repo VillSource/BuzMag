@@ -1,24 +1,25 @@
 # Deploy fullstackhero with Docker Compose
 
-This brings up the full stack on a single host:
+This brings up the full stack and an nginx reverse proxy on a single host:
 
 | Service | Image | Host port | What it is |
 |---|---|---|---|
-| `api` | `fsh/api:local` (built locally) | `FSH_API_PORT` (default 8080) | ASP.NET Core API |
-| `admin` | `fsh/admin:local` | `FSH_ADMIN_PORT` (default 8081) | Operator console (nginx + React) |
-| `dashboard` | `fsh/dashboard:local` | `FSH_DASHBOARD_PORT` (default 8082) | Tenant dashboard (nginx + React) |
+| `nginx` | `nginx:1.27-alpine` | `NGINX_HTTP_PORT` (default 80) | Host-based reverse proxy |
+| `api` | `fsh/api:local` (built locally) | (internal) | ASP.NET Core API |
+| `admin` | `fsh/admin:local` | (internal) | Operator console (nginx + React) |
+| `dashboard` | `fsh/dashboard:local` | (internal) | Tenant dashboard (nginx + React) |
 | `migrator` | `fsh/dbmigrator:local` | — | One-shot: applies EF migrations + seeds the root tenant + creates the default admin user |
 | `postgres` | `postgres:17-alpine` | (internal) | Identity, tenant catalog, module schemas |
 | `redis` | `redis:7-alpine` | (internal) | HybridCache L2, Data Protection keys, idempotency store |
 | `minio` | `minio/minio:latest` | (internal) | S3-compatible blob store for the Files module |
 
-The compose file does **not** include a reverse proxy or TLS terminator. You bring your own edge — Cloudflare Tunnel, AWS ALB, Tailscale Funnel, your existing nginx, anything that can route a TLS subdomain to a host:port on this machine.
+nginx routes `api.buzmag.villsource.net`, `admin.buzmag.villsource.net`, and `buzmag.villsource.net` to the internal services. The included configuration listens on HTTP port 80. Terminate TLS at an upstream load balancer, or extend `nginx/nginx.conf` with a 443 listener and mount certificates.
 
 ## Prerequisites
 
 - Docker Engine 24+ with the Compose plugin (`docker compose version` should print v2.x).
 - 2 GB free RAM, 5 GB disk for first-run images + builds.
-- Ports 8080–8082 free on the host (or set custom ports in `.env`).
+- Port 80 free on the host (or set `NGINX_HTTP_PORT` in `.env`).
 
 ## Five-minute deploy
 
@@ -40,21 +41,14 @@ Wait until you see something like `[migrator] DbMigrator completed` and the `mig
 ## Verify it's healthy
 
 ```bash
-curl -fsS http://localhost:8080/health/live   # API liveness
-curl -fsSI http://localhost:8081/ | head -1   # admin SPA — HTTP/1.1 200 OK
-curl -fsS  http://localhost:8081/config.json  # admin runtime config — shows FSH_API_URL
-curl -fsSI http://localhost:8082/ | head -1   # dashboard SPA
+curl -fsS -H 'Host: api.buzmag.villsource.net' http://localhost/health/live
+curl -fsSI -H 'Host: admin.buzmag.villsource.net' http://localhost/ | head -1
+curl -fsSI -H 'Host: buzmag.villsource.net' http://localhost/ | head -1
 ```
 
-## Wire up your external proxy
+## DNS and TLS
 
-Point three TLS subdomains at the published ports:
-
-| Public URL (your domain) | Host port |
-|---|---|
-| `api.example.com` | `8080` |
-| `admin.example.com` | `8081` |
-| `app.example.com` | `8082` |
+Point all three DNS records at the host running Compose. The nginx service accepts HTTP on port 80 and routes by hostname. Use a cloud load balancer, Cloudflare, or an equivalent edge to provide HTTPS, or add certificate mounts and a 443 listener to `nginx/nginx.conf`.
 
 Make sure the URLs you serve match the `FSH_API_URL` / `FSH_ADMIN_URL` / `FSH_DASHBOARD_URL` you set in `.env` — those values are baked into the frontends' runtime `/config.json` (CORS will fail loudly otherwise).
 
