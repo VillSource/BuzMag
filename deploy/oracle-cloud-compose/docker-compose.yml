@@ -18,7 +18,7 @@ services:
       POSTGRES_USER: fsh
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
-      - /data/postgresql:/var/lib/postgresql
+      - pg_data:/var/lib/postgresql
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U fsh -d fsh"]
@@ -131,12 +131,15 @@ services:
       JwtOptions__SigningKey: ${JWT_SIGNING_KEY}
       Seed__DefaultAdminPassword: ${SEED_ADMIN_PASSWORD}
       Storage__Provider: s3
-      Storage__S3__ServiceUrl: http://minio:9000
+      Storage__S3__ServiceUrl: https://axr1ydnxcdrp.compat.objectstorage.ap-singapore-1.oci.customer-oci.com 
       Storage__S3__AccessKey: ${MINIO_ROOT_USER}
       Storage__S3__SecretKey: ${MINIO_ROOT_PASSWORD}
-      Storage__S3__Bucket: fsh
+      Storage__S3__Bucket: buzmag-bucket
+      Storage__S3__Region: ap-singapore-1
       Storage__S3__ForcePathStyle: "true"
-      AllowedHosts: "*"
+      Storage__S3__PublicBaseUrl: https://axr1ydnxcdrp.compat.objectstorage.ap-singapore-1.oci.customer-oci.com/buzmag-bucket
+
+      AllowedHosts: "*.villsource.net"
       HangfireOptions__UserName: ${HANGFIRE_USERNAME:?HANGFIRE_USERNAME is required}
       HangfireOptions__Password: ${HANGFIRE_PASSWORD:?HANGFIRE_PASSWORD is required}
       CorsOptions__AllowedOrigins__0: ${FSH_ADMIN_URL:?FSH_ADMIN_URL is required}
