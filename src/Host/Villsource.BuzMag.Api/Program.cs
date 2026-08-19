@@ -13,8 +13,16 @@ using FSH.Modules.Tickets;
 using FSH.Modules.Multitenancy.Features.v1.GetTenantStatus;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Serialize enums as string names (reads still accept names or integers). [Flags] enums (AuditTag, BodyCapture)
 // opt back to numeric via their own NumericEnumConverter since comma-joined flag strings break bitwise consumers. Frontends mirror this as string unions.
@@ -106,6 +114,7 @@ builder.Services.AddHostedService<Villsource.BuzMag.Api.OrphanedOutboxRecurringJ
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseHeroMultiTenantDatabases();
 app.UseHeroPlatform(p =>
 {
