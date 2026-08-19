@@ -4,7 +4,7 @@ This brings up the full stack and an nginx reverse proxy on a single host:
 
 | Service | Image | Host port | What it is |
 |---|---|---|---|
-| `nginx` | `nginx:1.27-alpine` | `NGINX_HTTP_PORT` (default 80) | Host-based reverse proxy |
+| `nginx` | `nginx:1.27-alpine` | `NGINX_HTTP_PORT` (default 80), `NGINX_HTTPS_PORT` (default 443) | Host-based TLS reverse proxy |
 | `api` | `fsh/api:local` (built locally) | (internal) | ASP.NET Core API |
 | `admin` | `fsh/admin:local` | (internal) | Operator console (nginx + React) |
 | `dashboard` | `fsh/dashboard:local` | (internal) | Tenant dashboard (nginx + React) |
@@ -13,13 +13,13 @@ This brings up the full stack and an nginx reverse proxy on a single host:
 | `redis` | `redis:7-alpine` | (internal) | HybridCache L2, Data Protection keys, idempotency store |
 | `minio` | `minio/minio:latest` | (internal) | S3-compatible blob store for the Files module |
 
-nginx routes `api.buzmag.villsource.net`, `admin.buzmag.villsource.net`, and `buzmag.villsource.net` to the internal services. The included configuration listens on HTTP port 80. Terminate TLS at an upstream load balancer, or extend `nginx/nginx.conf` with a 443 listener and mount certificates.
+nginx routes `api.buzmag.villsource.net`, `admin.buzmag.villsource.net`, and `buzmag.villsource.net` to the internal services. The `certbot-init` service automatically obtains one Let's Encrypt certificate covering all three names before nginx starts. The `certbot-renew` service checks for renewal every 12 hours and reloads nginx after a successful renewal. HTTP redirects to HTTPS, except for ACME HTTP-01 challenge files in `nginx/certbot`.
 
 ## Prerequisites
 
 - Docker Engine 24+ with the Compose plugin (`docker compose version` should print v2.x).
 - 2 GB free RAM, 5 GB disk for first-run images + builds.
-- Port 80 free on the host (or set `NGINX_HTTP_PORT` in `.env`).
+- Ports 80 and 443 free on the host (or set `NGINX_HTTP_PORT` / `NGINX_HTTPS_PORT` in `.env`).
 
 ## Five-minute deploy
 
@@ -48,7 +48,13 @@ curl -fsSI -H 'Host: buzmag.villsource.net' http://localhost/ | head -1
 
 ## DNS and TLS
 
-Point all three DNS records at the host running Compose. The nginx service accepts HTTP on port 80 and routes by hostname. Use a cloud load balancer, Cloudflare, or an equivalent edge to provide HTTPS, or add certificate mounts and a 443 listener to `nginx/nginx.conf`.
+Point all three DNS records at the host running Compose, set `LETSENCRYPT_EMAIL` in `.env`, and make sure port 80 is publicly reachable. Certificate issuance and renewal happen automatically when Compose starts.
+
+On the first run, Certbot temporarily binds port 80 before nginx starts:
+
+```bash
+docker compose up -d
+```
 
 Make sure the URLs you serve match the `FSH_API_URL` / `FSH_ADMIN_URL` / `FSH_DASHBOARD_URL` you set in `.env` — those values are baked into the frontends' runtime `/config.json` (CORS will fail loudly otherwise).
 
