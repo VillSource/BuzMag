@@ -139,9 +139,10 @@ services:
       Storage__S3__ForcePathStyle: "true"
       Storage__S3__PublicBaseUrl: https://axr1ydnxcdrp.compat.objectstorage.ap-singapore-1.oci.customer-oci.com/buzmag-bucket
 
-      AllowedHosts: "*.villsource.net"
+      AllowedHosts: "*"
       HangfireOptions__UserName: ${HANGFIRE_USERNAME:?HANGFIRE_USERNAME is required}
       HangfireOptions__Password: ${HANGFIRE_PASSWORD:?HANGFIRE_PASSWORD is required}
+      CorsOptions__AllowAll: true
       CorsOptions__AllowedOrigins__0: ${FSH_ADMIN_URL:?FSH_ADMIN_URL is required}
       CorsOptions__AllowedOrigins__1: ${FSH_DASHBOARD_URL:?FSH_DASHBOARD_URL is required}
       OpenTelemetryOptions__Exporter__Otlp__Endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
