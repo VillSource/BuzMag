@@ -52,47 +52,6 @@ services:
     # ports:
     #   - "6379:6379"
 
-  minio:
-    image: minio/minio:latest
-    container_name: fsh-minio
-    restart: unless-stopped
-    command: ["server", "/data", "--console-address", ":9001"]
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
-    volumes:
-      - minio_data:/data
-    healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 10s
-      timeout: 3s
-      retries: 12
-    # Uncomment to expose the console (admin UI) + S3 API to the host:
-    # ports:
-    #   - "9000:9000"   # S3 API
-    #   - "9001:9001"   # Web console
-
-  # One-shot: create the bucket the Files module writes to. The app never
-  # auto-creates it (S3StorageService just PutObjects into Storage:S3:Bucket),
-  # so without this the first upload fails with NoSuchBucket. No anonymous
-  # policy is set — objects are served via the API / presigned URLs, not a
-  # public bucket.
-  minio-init:
-    image: minio/mc:latest
-    container_name: fsh-minio-init
-    restart: "no"
-    depends_on:
-      minio: { condition: service_healthy }
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    entrypoint: /bin/sh
-    command:
-      - -c
-      - |
-        mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
-        mc mb --ignore-existing local/fsh
-
   migrator:
     build:
       context: ../..
@@ -120,8 +79,6 @@ services:
     depends_on:
       postgres:   { condition: service_healthy }
       redis:      { condition: service_healthy }
-      minio:      { condition: service_healthy }
-      minio-init: { condition: service_completed_successfully }
       migrator:   { condition: service_completed_successfully }
     environment:
       DOTNET_ENVIRONMENT: Production
@@ -131,13 +88,13 @@ services:
       JwtOptions__SigningKey: ${JWT_SIGNING_KEY}
       Seed__DefaultAdminPassword: ${SEED_ADMIN_PASSWORD}
       Storage__Provider: s3
-      Storage__S3__ServiceUrl: https://axr1ydnxcdrp.compat.objectstorage.ap-singapore-1.oci.customer-oci.com 
-      Storage__S3__AccessKey: ${MINIO_ROOT_USER}
-      Storage__S3__SecretKey: ${MINIO_ROOT_PASSWORD}
-      Storage__S3__Bucket: buzmag-bucket
-      Storage__S3__Region: ap-singapore-1
+      Storage__S3__ServiceUrl: ${S3_ROOT_URL}
+      Storage__S3__AccessKey: ${S3_ROOT_USER}
+      Storage__S3__SecretKey: ${S3_ROOT_PASSWORD}
+      Storage__S3__Bucket: ${S3_ROOT_BUCKET}
+      Storage__S3__Region: ${S3_ROOT_REGION}
       Storage__S3__ForcePathStyle: "true"
-      Storage__S3__PublicBaseUrl: https://axr1ydnxcdrp.compat.objectstorage.ap-singapore-1.oci.customer-oci.com/buzmag-bucket
+      Storage__S3__PublicBaseUrl: ${S3_ROOT_PUBLIC_BASE_URL}
 
       AllowedHosts: "*"
       HangfireOptions__UserName: ${HANGFIRE_USERNAME:?HANGFIRE_USERNAME is required}
