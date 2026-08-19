@@ -143,7 +143,9 @@ services:
       HangfireOptions__UserName: ${HANGFIRE_USERNAME:?HANGFIRE_USERNAME is required}
       HangfireOptions__Password: ${HANGFIRE_PASSWORD:?HANGFIRE_PASSWORD is required}
       CorsOptions__AllowedOrigins__0: ${FSH_ADMIN_URL:?FSH_ADMIN_URL is required}
+      CorsOptions__AllowedOrigins__2: ${FSH_ADMIN_URLS:?FSH_ADMIN_URLs is required}
       CorsOptions__AllowedOrigins__1: ${FSH_DASHBOARD_URL:?FSH_DASHBOARD_URL is required}
+      CorsOptions__AllowedOrigins__3: ${FSH_DASHBOARD_URLS:?FSH_DASHBOARD_URLs is required}
       OpenTelemetryOptions__Exporter__Otlp__Endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
     expose:
       - "8080"
