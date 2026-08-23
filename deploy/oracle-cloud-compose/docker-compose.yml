@@ -154,8 +154,11 @@ services:
             --email "$${LETSENCRYPT_EMAIL}" \
             --cert-name buzmag.villsource.net \
             -d api.buzmag.villsource.net \
+            -d api.buzmag.villsource.com \
             -d admin.buzmag.villsource.net \
-            -d buzmag.villsource.net
+            -d admin.buzmag.villsource.com \
+            -d buzmag.villsource.net \
+            -d buzmag.villsource.com
         fi
 
   nginx:
