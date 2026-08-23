@@ -158,7 +158,9 @@ services:
             -d admin.buzmag.villsource.net \
             -d admin.buzmag.villsource.com \
             -d buzmag.villsource.net \
-            -d buzmag.villsource.com
+            -d buzmag.villsource.com \
+            -d villsource.net \
+            -d villsource.com 
         fi
 
   nginx:
