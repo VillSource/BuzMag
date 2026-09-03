@@ -1,0 +1,6 @@
+info:
+  name: Files
+  type: folder
+
+request:
+  auth: inherit

@@ -1,0 +1,6 @@
+info:
+  name: SSE
+  type: folder
+
+request:
+  auth: inherit

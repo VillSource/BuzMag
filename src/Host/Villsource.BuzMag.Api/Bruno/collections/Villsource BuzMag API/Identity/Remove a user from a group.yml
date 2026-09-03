@@ -1,0 +1,85 @@
+info:
+  name: Remove a user from a group
+  type: http
+  seq: 43
+  tags:
+    - Identity
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/identity/groups/:groupId/members/:userId"
+  params:
+    - name: groupId
+      value: ""
+      type: path
+    - name: userId
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 204 Response
+    description: No Content
+    request:
+      url: "{{baseUrl}}/api/v1/identity/groups/:groupId/members/:userId"
+      method: DELETE
+      params:
+        - name: groupId
+          value: ""
+          type: path
+        - name: userId
+          value: ""
+          type: path
+    response:
+      status: 204
+      statusText: No Content
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/groups/:groupId/members/:userId"
+      method: DELETE
+      params:
+        - name: groupId
+          value: ""
+          type: path
+        - name: userId
+          value: ""
+          type: path
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/identity/groups/:groupId/members/:userId"
+      method: DELETE
+      params:
+        - name: groupId
+          value: ""
+          type: path
+        - name: userId
+          value: ""
+          type: path
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Remove a specific user from a group.

@@ -1,0 +1,61 @@
+info:
+  name: List all groups
+  type: http
+  seq: 36
+  tags:
+    - Identity
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/identity/groups"
+  params:
+    - name: search
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/groups"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "",
+              "name": "",
+              "description": "",
+              "isDefault": false,
+              "isSystemGroup": false,
+              "memberCount": "",
+              "roleIds": "",
+              "roleNames": "",
+              "createdAt": ""
+            }
+          ]
+
+docs: Retrieve all groups for the current tenant with optional search filter.

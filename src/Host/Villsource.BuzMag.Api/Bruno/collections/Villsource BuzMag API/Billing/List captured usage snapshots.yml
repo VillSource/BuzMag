@@ -1,0 +1,75 @@
+info:
+  name: List captured usage snapshots
+  type: http
+  seq: 15
+  tags:
+    - Billing
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/billing/usage"
+  params:
+    - name: tenantId
+      value: ""
+      type: query
+      disabled: true
+    - name: periodYear
+      value: ""
+      type: query
+      disabled: true
+    - name: periodMonth
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/billing/usage"
+      method: GET
+      params:
+        - name: tenantId
+          value: ""
+          type: query
+          disabled: true
+        - name: periodYear
+          value: ""
+          type: query
+          disabled: true
+        - name: periodMonth
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "",
+              "tenantId": "",
+              "periodYear": "",
+              "periodMonth": "",
+              "resource": "ApiCalls",
+              "usedUnits": "",
+              "limitUnits": "",
+              "overage": "",
+              "capturedAtUtc": ""
+            }
+          ]

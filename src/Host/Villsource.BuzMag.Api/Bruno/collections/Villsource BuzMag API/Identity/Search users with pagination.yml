@@ -1,0 +1,198 @@
+info:
+  name: Search users with pagination
+  type: http
+  seq: 23
+  tags:
+    - Identity
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/identity/users/search"
+  params:
+    - name: PageNumber
+      value: ""
+      type: query
+      disabled: true
+    - name: PageSize
+      value: ""
+      type: query
+      disabled: true
+    - name: Sort
+      value: ""
+      type: query
+      disabled: true
+    - name: Search
+      value: ""
+      type: query
+      disabled: true
+    - name: IsActive
+      value: ""
+      type: query
+      disabled: true
+    - name: EmailConfirmed
+      value: ""
+      type: query
+      disabled: true
+    - name: RoleId
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/users/search"
+      method: GET
+      params:
+        - name: PageNumber
+          value: ""
+          type: query
+          disabled: true
+        - name: PageSize
+          value: ""
+          type: query
+          disabled: true
+        - name: Sort
+          value: ""
+          type: query
+          disabled: true
+        - name: Search
+          value: ""
+          type: query
+          disabled: true
+        - name: IsActive
+          value: ""
+          type: query
+          disabled: true
+        - name: EmailConfirmed
+          value: ""
+          type: query
+          disabled: true
+        - name: RoleId
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "id": "",
+                "userName": "",
+                "firstName": "",
+                "lastName": "",
+                "email": "",
+                "isActive": false,
+                "emailConfirmed": false,
+                "phoneNumber": "",
+                "imageUrl": "",
+                "twoFactorEnabled": false
+              }
+            ],
+            "pageNumber": "",
+            "pageSize": "",
+            "totalCount": "",
+            "totalPages": "",
+            "hasNext": false,
+            "hasPrevious": false
+          }
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/users/search"
+      method: GET
+      params:
+        - name: PageNumber
+          value: ""
+          type: query
+          disabled: true
+        - name: PageSize
+          value: ""
+          type: query
+          disabled: true
+        - name: Sort
+          value: ""
+          type: query
+          disabled: true
+        - name: Search
+          value: ""
+          type: query
+          disabled: true
+        - name: IsActive
+          value: ""
+          type: query
+          disabled: true
+        - name: EmailConfirmed
+          value: ""
+          type: query
+          disabled: true
+        - name: RoleId
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/identity/users/search"
+      method: GET
+      params:
+        - name: PageNumber
+          value: ""
+          type: query
+          disabled: true
+        - name: PageSize
+          value: ""
+          type: query
+          disabled: true
+        - name: Sort
+          value: ""
+          type: query
+          disabled: true
+        - name: Search
+          value: ""
+          type: query
+          disabled: true
+        - name: IsActive
+          value: ""
+          type: query
+          disabled: true
+        - name: EmailConfirmed
+          value: ""
+          type: query
+          disabled: true
+        - name: RoleId
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Search and filter users with server-side pagination, sorting, and filtering by status, email confirmation, and role.

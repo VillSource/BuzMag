@@ -1,0 +1,47 @@
+info:
+  name: Remove a member (admin) or leave the channel (self)
+  type: http
+  seq: 7
+  tags:
+    - Chat
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/chat/channels/:id/members/:userId"
+  params:
+    - name: id
+      value: ""
+      type: path
+    - name: userId
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/chat/channels/:id/members/:userId"
+      method: DELETE
+      params:
+        - name: id
+          value: ""
+          type: path
+        - name: userId
+          value: ""
+          type: path
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

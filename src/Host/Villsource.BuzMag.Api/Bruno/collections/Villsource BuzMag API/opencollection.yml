@@ -1,0 +1,33 @@
+opencollection: 1.0.0
+
+info:
+  name: Villsource BuzMag API
+  version: "1"
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+docs:
+  content: The FSH Starter Kit API for Modular/Multitenant Architecture.
+  type: text/markdown
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    openapi:
+      - sourceUrl: https://localhost:7030/openapi/v1.json
+        groupBy: tags
+        lastSyncDate: 2026-09-03T14:51:25.679Z
+        specHash: c265aa1d836c7c3c5f92adfca1e60c5e
+        autoCheck: true
+        autoCheckInterval: 5

@@ -1,0 +1,6 @@
+info:
+  name: Catalog
+  type: folder
+
+request:
+  auth: inherit

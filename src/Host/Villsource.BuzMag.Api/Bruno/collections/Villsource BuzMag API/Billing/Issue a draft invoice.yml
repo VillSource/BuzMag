@@ -1,0 +1,47 @@
+info:
+  name: Issue a draft invoice
+  type: http
+  seq: 12
+  tags:
+    - Billing
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/billing/invoices/:invoiceId/issue"
+  params:
+    - name: invoiceId
+      value: ""
+      type: path
+  body:
+    type: json
+    data: "{}"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/billing/invoices/:invoiceId/issue"
+      method: POST
+      params:
+        - name: invoiceId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

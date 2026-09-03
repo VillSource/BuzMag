@@ -1,0 +1,12 @@
+opencollection: 1.0.0
+info:
+  name: "BuzMag"
+  type: workspace
+
+collections:
+  - name: "Villsource BuzMag API"
+    path: "collections/Villsource BuzMag API"
+
+specs:
+
+docs: ''

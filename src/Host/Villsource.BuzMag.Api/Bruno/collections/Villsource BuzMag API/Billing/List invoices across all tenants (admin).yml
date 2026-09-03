@@ -1,0 +1,146 @@
+info:
+  name: List invoices across all tenants (admin)
+  type: http
+  seq: 7
+  tags:
+    - Billing
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/billing/invoices"
+  params:
+    - name: tenantId
+      value: ""
+      type: query
+      disabled: true
+    - name: status
+      value: Draft
+      type: query
+      disabled: true
+    - name: status
+      value: Issued
+      type: query
+      disabled: true
+    - name: status
+      value: Paid
+      type: query
+      disabled: true
+    - name: status
+      value: Void
+      type: query
+      disabled: true
+    - name: periodYear
+      value: ""
+      type: query
+      disabled: true
+    - name: periodMonth
+      value: ""
+      type: query
+      disabled: true
+    - name: pageNumber
+      value: ""
+      type: query
+    - name: pageSize
+      value: ""
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/billing/invoices"
+      method: GET
+      params:
+        - name: tenantId
+          value: ""
+          type: query
+          disabled: true
+        - name: status
+          value: Draft
+          type: query
+          disabled: true
+        - name: status
+          value: Issued
+          type: query
+          disabled: true
+        - name: status
+          value: Paid
+          type: query
+          disabled: true
+        - name: status
+          value: Void
+          type: query
+          disabled: true
+        - name: periodYear
+          value: ""
+          type: query
+          disabled: true
+        - name: periodMonth
+          value: ""
+          type: query
+          disabled: true
+        - name: pageNumber
+          value: ""
+          type: query
+        - name: pageSize
+          value: ""
+          type: query
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "id": "",
+                "tenantId": "",
+                "invoiceNumber": "",
+                "periodYear": "",
+                "periodMonth": "",
+                "currency": "",
+                "subtotalAmount": "",
+                "status": "Draft",
+                "createdAtUtc": "",
+                "issuedAtUtc": "",
+                "dueAtUtc": "",
+                "paidAtUtc": "",
+                "voidedAtUtc": "",
+                "notes": "",
+                "lineItems": [
+                  {
+                    "id": "",
+                    "kind": "BaseFee",
+                    "resource": "",
+                    "description": "",
+                    "quantity": "",
+                    "unitPrice": "",
+                    "amount": ""
+                  }
+                ],
+                "purpose": "Usage",
+                "periodStartUtc": "",
+                "periodEndUtc": ""
+              }
+            ],
+            "pageNumber": "",
+            "pageSize": "",
+            "totalCount": "",
+            "totalPages": "",
+            "hasNext": false,
+            "hasPrevious": false
+          }

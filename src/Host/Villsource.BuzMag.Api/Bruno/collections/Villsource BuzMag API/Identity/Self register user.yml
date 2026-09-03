@@ -1,0 +1,97 @@
+info:
+  name: Self register user
+  type: http
+  seq: 27
+  tags:
+    - Identity
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/identity/self-register"
+  headers:
+    - name: tenant
+      value: ""
+  body:
+    type: json
+    data: |-
+      {
+        "firstName": "",
+        "lastName": "",
+        "email": "",
+        "userName": "",
+        "password": "",
+        "confirmPassword": "",
+        "phoneNumber": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 201 Response
+    description: Created
+    request:
+      url: "{{baseUrl}}/api/v1/identity/self-register"
+      method: POST
+      headers:
+        - name: tenant
+          value: ""
+      body:
+        type: json
+        data: |-
+          {
+            "firstName": "",
+            "lastName": "",
+            "email": "",
+            "userName": "",
+            "password": "",
+            "confirmPassword": "",
+            "phoneNumber": ""
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "userId": ""
+          }
+  - name: 400 Response
+    description: Bad Request
+    request:
+      url: "{{baseUrl}}/api/v1/identity/self-register"
+      method: POST
+      headers:
+        - name: tenant
+          value: ""
+      body:
+        type: json
+        data: |-
+          {
+            "firstName": "",
+            "lastName": "",
+            "email": "",
+            "userName": "",
+            "password": "",
+            "confirmPassword": "",
+            "phoneNumber": ""
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: ""
+
+docs: Allow a user to self-register. Anonymous; tenant identified via the tenant header.

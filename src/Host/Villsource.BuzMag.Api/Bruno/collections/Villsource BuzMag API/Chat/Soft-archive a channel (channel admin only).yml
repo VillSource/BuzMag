@@ -1,0 +1,41 @@
+info:
+  name: Soft-archive a channel (channel admin only)
+  type: http
+  seq: 10
+  tags:
+    - Chat
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/chat/channels/:id"
+  params:
+    - name: id
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/chat/channels/:id"
+      method: DELETE
+      params:
+        - name: id
+          value: ""
+          type: path
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

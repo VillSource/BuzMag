@@ -1,0 +1,77 @@
+info:
+  name: Get all organization unit from default organization
+  type: http
+  seq: 4
+  tags:
+    - Organizations
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/organizations/:organizationId/units"
+  params:
+    - name: organizationId
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/organizations/:organizationId/units"
+      method: GET
+      params:
+        - name: organizationId
+          value: ""
+          type: path
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "referenceId": "",
+              "path": "",
+              "name": "",
+              "code": "",
+              "description": "",
+              "createdOnUtc": "",
+              "createdBy": "",
+              "lastModifiedOnUtc": "",
+              "lastModifiedBy": "",
+              "isDeleted": false,
+              "deletedOnUtc": "",
+              "deletedBy": "",
+              "children": [],
+              "descendants": [],
+              "positions": [
+                {
+                  "referenceId": "",
+                  "name": "",
+                  "code": "",
+                  "description": "",
+                  "createdOnUtc": "",
+                  "createdBy": "",
+                  "lastModifiedOnUtc": "",
+                  "lastModifiedBy": "",
+                  "isDeleted": false,
+                  "deletedOnUtc": "",
+                  "deletedBy": ""
+                }
+              ]
+            }
+          ]

@@ -1,0 +1,172 @@
+info:
+  name: Issue JWT access and refresh tokens
+  type: http
+  seq: 1
+  tags:
+    - Identity
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/identity/token/issue"
+  headers:
+    - name: tenant
+      value: root
+    - name: X-FSH-App
+      value: ""
+      disabled: true
+  body:
+    type: json
+    data: |-
+      {
+        "email": "",
+        "password": "",
+        "twoFactorCode": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/token/issue"
+      method: POST
+      headers:
+        - name: tenant
+          value: root
+        - name: X-FSH-App
+          value: ""
+          disabled: true
+      body:
+        type: json
+        data: |-
+          {
+            "email": "",
+            "password": "",
+            "twoFactorCode": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "accessToken": "",
+            "refreshToken": "",
+            "refreshTokenExpiresAt": "",
+            "accessTokenExpiresAt": ""
+          }
+  - name: 400 Response
+    description: Bad Request
+    request:
+      url: "{{baseUrl}}/api/v1/identity/token/issue"
+      method: POST
+      headers:
+        - name: tenant
+          value: root
+        - name: X-FSH-App
+          value: ""
+          disabled: true
+      body:
+        type: json
+        data: |-
+          {
+            "email": "",
+            "password": "",
+            "twoFactorCode": ""
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/token/issue"
+      method: POST
+      headers:
+        - name: tenant
+          value: root
+        - name: X-FSH-App
+          value: ""
+          disabled: true
+      body:
+        type: json
+        data: |-
+          {
+            "email": "",
+            "password": "",
+            "twoFactorCode": ""
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/identity/token/issue"
+      method: POST
+      headers:
+        - name: tenant
+          value: root
+        - name: X-FSH-App
+          value: ""
+          disabled: true
+      body:
+        type: json
+        data: |-
+          {
+            "email": "",
+            "password": "",
+            "twoFactorCode": ""
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+  - name: 500 Response
+    description: Internal Server Error
+    request:
+      url: "{{baseUrl}}/api/v1/identity/token/issue"
+      method: POST
+      headers:
+        - name: tenant
+          value: root
+        - name: X-FSH-App
+          value: ""
+          disabled: true
+      body:
+        type: json
+        data: |-
+          {
+            "email": "",
+            "password": "",
+            "twoFactorCode": ""
+          }
+    response:
+      status: 500
+      statusText: Internal Server Error
+      body:
+        type: text
+        data: ""
+
+docs: Submit credentials to receive a JWT access token and a refresh token. Provide the 'tenant' header to select the tenant context (defaults to 'root'). The 'X-FSH-App' header (admin|dashboard) is used to enforce the SuperAdmin / dashboard boundary.

@@ -1,0 +1,146 @@
+info:
+  name: Add users to a group
+  type: http
+  seq: 42
+  tags:
+    - Identity
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/identity/groups/:groupId/members"
+  params:
+    - name: groupId
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "userIds": []
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/groups/:groupId/members"
+      method: POST
+      params:
+        - name: groupId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "userIds": []
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "addedCount": "",
+            "alreadyMemberUserIds": []
+          }
+  - name: 400 Response
+    description: Bad Request
+    request:
+      url: "{{baseUrl}}/api/v1/identity/groups/:groupId/members"
+      method: POST
+      params:
+        - name: groupId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "userIds": []
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/groups/:groupId/members"
+      method: POST
+      params:
+        - name: groupId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "userIds": []
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/identity/groups/:groupId/members"
+      method: POST
+      params:
+        - name: groupId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "userIds": []
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+  - name: 404 Response
+    description: Not Found
+    request:
+      url: "{{baseUrl}}/api/v1/identity/groups/:groupId/members"
+      method: POST
+      params:
+        - name: groupId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "userIds": []
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      body:
+        type: text
+        data: ""
+
+docs: Add one or more users to a group. Returns count of added users and list of users already in the group.

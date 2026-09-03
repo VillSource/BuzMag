@@ -1,0 +1,51 @@
+info:
+  name: Mint a short-lived presigned download URL
+  type: http
+  seq: 7
+  tags:
+    - Files
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/files/:id/url"
+  params:
+    - name: id
+      value: ""
+      type: path
+    - name: inline
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/files/:id/url"
+      method: GET
+      params:
+        - name: id
+          value: ""
+          type: path
+        - name: inline
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""
+
+docs: Default disposition is attachment (click-to-save). Pass ?inline=true to get an inline disposition for browser preview (PDF viewer, image render, etc.).

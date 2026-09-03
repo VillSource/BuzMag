@@ -1,0 +1,67 @@
+info:
+  name: Creates a new position
+  type: http
+  seq: 9
+  tags:
+    - Organizations
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/organizations/positions"
+  body:
+    type: json
+    data: |-
+      {
+        "code": "",
+        "name": "",
+        "description": "",
+        "organizationId": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/organizations/positions"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "code": "",
+            "name": "",
+            "description": "",
+            "organizationId": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "referenceId": "",
+            "name": "",
+            "code": "",
+            "description": "",
+            "createdOnUtc": "",
+            "createdBy": "",
+            "lastModifiedOnUtc": "",
+            "lastModifiedBy": "",
+            "isDeleted": false,
+            "deletedOnUtc": "",
+            "deletedBy": ""
+          }

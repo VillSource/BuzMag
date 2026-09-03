@@ -1,0 +1,76 @@
+info:
+  name: Readiness probe with database check
+  type: http
+  seq: 2
+  tags:
+    - Health
+
+http:
+  method: GET
+  url: "{{baseUrl}}/health/ready"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/health/ready"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "status": "",
+            "results": [
+              {
+                "name": "",
+                "status": "",
+                "description": "",
+                "durationMs": "",
+                "details": ""
+              }
+            ]
+          }
+  - name: 503 Response
+    description: Service Unavailable
+    request:
+      url: "{{baseUrl}}/health/ready"
+      method: GET
+    response:
+      status: 503
+      statusText: Service Unavailable
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "status": "",
+            "results": [
+              {
+                "name": "",
+                "status": "",
+                "description": "",
+                "durationMs": "",
+                "details": ""
+              }
+            ]
+          }
+
+docs: Returns 200 if all dependencies are healthy, otherwise 503. Body is the same shape in both cases.

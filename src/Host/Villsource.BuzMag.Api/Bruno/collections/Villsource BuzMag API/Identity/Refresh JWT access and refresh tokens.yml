@@ -1,0 +1,126 @@
+info:
+  name: Refresh JWT access and refresh tokens
+  type: http
+  seq: 2
+  tags:
+    - Identity
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/identity/token/refresh"
+  headers:
+    - name: tenant
+      value: ""
+  body:
+    type: json
+    data: |-
+      {
+        "token": "",
+        "refreshToken": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/token/refresh"
+      method: POST
+      headers:
+        - name: tenant
+          value: ""
+      body:
+        type: json
+        data: |-
+          {
+            "token": "",
+            "refreshToken": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "token": "",
+            "refreshToken": "",
+            "refreshTokenExpiryTime": ""
+          }
+  - name: 400 Response
+    description: Bad Request
+    request:
+      url: "{{baseUrl}}/api/v1/identity/token/refresh"
+      method: POST
+      headers:
+        - name: tenant
+          value: ""
+      body:
+        type: json
+        data: |-
+          {
+            "token": "",
+            "refreshToken": ""
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/token/refresh"
+      method: POST
+      headers:
+        - name: tenant
+          value: ""
+      body:
+        type: json
+        data: |-
+          {
+            "token": "",
+            "refreshToken": ""
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 500 Response
+    description: Internal Server Error
+    request:
+      url: "{{baseUrl}}/api/v1/identity/token/refresh"
+      method: POST
+      headers:
+        - name: tenant
+          value: ""
+      body:
+        type: json
+        data: |-
+          {
+            "token": "",
+            "refreshToken": ""
+          }
+    response:
+      status: 500
+      statusText: Internal Server Error
+      body:
+        type: text
+        data: ""
+
+docs: Use a valid (possibly expired) access token together with a valid refresh token to obtain a new access token and a rotated refresh token.

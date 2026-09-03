@@ -1,0 +1,105 @@
+info:
+  name: Update user profile
+  type: http
+  seq: 21
+  tags:
+    - Identity
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/identity/profile"
+  body:
+    type: json
+    data: |-
+      {
+        "id": "",
+        "firstName": "",
+        "lastName": "",
+        "phoneNumber": "",
+        "email": "",
+        "image": "",
+        "deleteCurrentImage": false
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/profile"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "firstName": "",
+            "lastName": "",
+            "phoneNumber": "",
+            "email": "",
+            "image": "",
+            "deleteCurrentImage": false
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""
+  - name: 400 Response
+    description: Bad Request
+    request:
+      url: "{{baseUrl}}/api/v1/identity/profile"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "firstName": "",
+            "lastName": "",
+            "phoneNumber": "",
+            "email": "",
+            "image": "",
+            "deleteCurrentImage": false
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/profile"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "firstName": "",
+            "lastName": "",
+            "phoneNumber": "",
+            "email": "",
+            "image": "",
+            "deleteCurrentImage": false
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+
+docs: Update profile details for the authenticated user. Any signed-in user may edit their own profile; no admin permission required.

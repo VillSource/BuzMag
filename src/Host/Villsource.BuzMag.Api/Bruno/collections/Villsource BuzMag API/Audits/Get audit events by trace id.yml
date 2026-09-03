@@ -1,0 +1,124 @@
+info:
+  name: Get audit events by trace id
+  type: http
+  seq: 4
+  tags:
+    - Audits
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/audits/by-trace/:traceId"
+  params:
+    - name: traceId
+      value: ""
+      type: path
+    - name: fromUtc
+      value: ""
+      type: query
+      disabled: true
+    - name: toUtc
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/audits/by-trace/:traceId"
+      method: GET
+      params:
+        - name: traceId
+          value: ""
+          type: path
+        - name: fromUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: toUtc
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "",
+              "occurredAtUtc": "",
+              "eventType": "None",
+              "severity": "None",
+              "tenantId": "",
+              "userId": "",
+              "userName": "",
+              "traceId": "",
+              "correlationId": "",
+              "requestId": "",
+              "source": "",
+              "tags": ""
+            }
+          ]
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/audits/by-trace/:traceId"
+      method: GET
+      params:
+        - name: traceId
+          value: ""
+          type: path
+        - name: fromUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: toUtc
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/audits/by-trace/:traceId"
+      method: GET
+      params:
+        - name: traceId
+          value: ""
+          type: path
+        - name: fromUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: toUtc
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Retrieve audit events associated with a given trace id.

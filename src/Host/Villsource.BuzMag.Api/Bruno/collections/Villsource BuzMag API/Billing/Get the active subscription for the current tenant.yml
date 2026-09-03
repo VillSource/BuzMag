@@ -1,0 +1,45 @@
+info:
+  name: Get the active subscription for the current tenant
+  type: http
+  seq: 6
+  tags:
+    - Billing
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/billing/subscriptions/me"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/billing/subscriptions/me"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "tenantId": "",
+            "planId": "",
+            "planKey": "",
+            "startUtc": "",
+            "endUtc": "",
+            "status": "Active"
+          }

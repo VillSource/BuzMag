@@ -1,0 +1,138 @@
+info:
+  name: Search products (paged, filter by brand/category/active, sortable)
+  type: http
+  seq: 19
+  tags:
+    - Catalog
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/catalog/products"
+  params:
+    - name: search
+      value: ""
+      type: query
+      disabled: true
+    - name: brandId
+      value: ""
+      type: query
+      disabled: true
+    - name: categoryId
+      value: ""
+      type: query
+      disabled: true
+    - name: isActive
+      value: ""
+      type: query
+      disabled: true
+    - name: pageNumber
+      value: ""
+      type: query
+    - name: pageSize
+      value: ""
+      type: query
+    - name: sortBy
+      value: ""
+      type: query
+      disabled: true
+    - name: sortDir
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/catalog/products"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+          disabled: true
+        - name: brandId
+          value: ""
+          type: query
+          disabled: true
+        - name: categoryId
+          value: ""
+          type: query
+          disabled: true
+        - name: isActive
+          value: ""
+          type: query
+          disabled: true
+        - name: pageNumber
+          value: ""
+          type: query
+        - name: pageSize
+          value: ""
+          type: query
+        - name: sortBy
+          value: ""
+          type: query
+          disabled: true
+        - name: sortDir
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "id": "",
+                "sku": "",
+                "name": "",
+                "slug": "",
+                "description": "",
+                "brandId": "",
+                "categoryId": "",
+                "price": {
+                  "amount": "",
+                  "currency": ""
+                },
+                "stock": "",
+                "isActive": false,
+                "thumbnailUrl": "",
+                "images": [
+                  {
+                    "id": "",
+                    "fileAssetId": "",
+                    "url": "",
+                    "isThumbnail": false,
+                    "sortOrder": "",
+                    "createdAtUtc": ""
+                  }
+                ],
+                "createdAtUtc": "",
+                "updatedAtUtc": "",
+                "deletedOnUtc": "",
+                "deletedBy": ""
+              }
+            ],
+            "pageNumber": "",
+            "pageSize": "",
+            "totalCount": "",
+            "totalPages": "",
+            "hasNext": false,
+            "hasPrevious": false
+          }

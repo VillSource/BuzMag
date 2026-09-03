@@ -1,0 +1,65 @@
+info:
+  name: Promote a product image to thumbnail (cover)
+  type: http
+  seq: 27
+  tags:
+    - Catalog
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/catalog/products/:productId/images/:imageId/thumbnail"
+  params:
+    - name: productId
+      value: ""
+      type: path
+    - name: imageId
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 204 Response
+    description: No Content
+    request:
+      url: "{{baseUrl}}/api/v1/catalog/products/:productId/images/:imageId/thumbnail"
+      method: PUT
+      params:
+        - name: productId
+          value: ""
+          type: path
+        - name: imageId
+          value: ""
+          type: path
+    response:
+      status: 204
+      statusText: No Content
+      body:
+        type: text
+        data: ""
+  - name: 404 Response
+    description: Not Found
+    request:
+      url: "{{baseUrl}}/api/v1/catalog/products/:productId/images/:imageId/thumbnail"
+      method: PUT
+      params:
+        - name: productId
+          value: ""
+          type: path
+        - name: imageId
+          value: ""
+          type: path
+    response:
+      status: 404
+      statusText: Not Found
+      body:
+        type: text
+        data: ""

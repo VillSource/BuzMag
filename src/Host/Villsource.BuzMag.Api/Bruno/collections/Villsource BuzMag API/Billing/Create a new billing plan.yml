@@ -1,0 +1,57 @@
+info:
+  name: Create a new billing plan
+  type: http
+  seq: 2
+  tags:
+    - Billing
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/billing/plans"
+  body:
+    type: json
+    data: |-
+      {
+        "key": "",
+        "name": "",
+        "currency": "",
+        "monthlyBasePrice": "",
+        "overageRates": "",
+        "interval": "Monthly",
+        "annualPrice": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/billing/plans"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "key": "",
+            "name": "",
+            "currency": "",
+            "monthlyBasePrice": "",
+            "overageRates": "",
+            "interval": "Monthly",
+            "annualPrice": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

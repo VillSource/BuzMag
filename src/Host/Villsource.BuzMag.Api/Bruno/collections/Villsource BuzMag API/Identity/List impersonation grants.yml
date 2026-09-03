@@ -1,0 +1,193 @@
+info:
+  name: List impersonation grants
+  type: http
+  seq: 47
+  tags:
+    - Identity
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/identity/impersonation/grants"
+  params:
+    - name: Status
+      value: Active
+      type: query
+      disabled: true
+    - name: Status
+      value: Ended
+      type: query
+      disabled: true
+    - name: Status
+      value: Revoked
+      type: query
+      disabled: true
+    - name: Status
+      value: Expired
+      type: query
+      disabled: true
+    - name: ImpersonatedTenantId
+      value: ""
+      type: query
+      disabled: true
+    - name: ActorUserId
+      value: ""
+      type: query
+      disabled: true
+    - name: Take
+      value: "100"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/impersonation/grants"
+      method: GET
+      params:
+        - name: Status
+          value: Active
+          type: query
+          disabled: true
+        - name: Status
+          value: Ended
+          type: query
+          disabled: true
+        - name: Status
+          value: Revoked
+          type: query
+          disabled: true
+        - name: Status
+          value: Expired
+          type: query
+          disabled: true
+        - name: ImpersonatedTenantId
+          value: ""
+          type: query
+          disabled: true
+        - name: ActorUserId
+          value: ""
+          type: query
+          disabled: true
+        - name: Take
+          value: "100"
+          type: query
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "",
+              "jti": "",
+              "actorUserId": "",
+              "actorUserName": "",
+              "actorTenantId": "",
+              "impersonatedUserId": "",
+              "impersonatedUserName": "",
+              "impersonatedTenantId": "",
+              "reason": "",
+              "startedAtUtc": "",
+              "expiresAtUtc": "",
+              "endedAtUtc": "",
+              "revokedAtUtc": "",
+              "revokedByUserId": "",
+              "revokedByUserName": "",
+              "revokeReason": "",
+              "status": "Active"
+            }
+          ]
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/impersonation/grants"
+      method: GET
+      params:
+        - name: Status
+          value: Active
+          type: query
+          disabled: true
+        - name: Status
+          value: Ended
+          type: query
+          disabled: true
+        - name: Status
+          value: Revoked
+          type: query
+          disabled: true
+        - name: Status
+          value: Expired
+          type: query
+          disabled: true
+        - name: ImpersonatedTenantId
+          value: ""
+          type: query
+          disabled: true
+        - name: ActorUserId
+          value: ""
+          type: query
+          disabled: true
+        - name: Take
+          value: "100"
+          type: query
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/identity/impersonation/grants"
+      method: GET
+      params:
+        - name: Status
+          value: Active
+          type: query
+          disabled: true
+        - name: Status
+          value: Ended
+          type: query
+          disabled: true
+        - name: Status
+          value: Revoked
+          type: query
+          disabled: true
+        - name: Status
+          value: Expired
+          type: query
+          disabled: true
+        - name: ImpersonatedTenantId
+          value: ""
+          type: query
+          disabled: true
+        - name: ActorUserId
+          value: ""
+          type: query
+          disabled: true
+        - name: Take
+          value: "100"
+          type: query
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Lists impersonation sessions scoped to what the caller can see. Tenant admins are limited to grants targeting their own tenant; root operators can filter by any tenant.

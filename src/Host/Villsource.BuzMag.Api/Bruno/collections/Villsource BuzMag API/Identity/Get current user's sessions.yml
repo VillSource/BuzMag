@@ -1,0 +1,79 @@
+info:
+  name: Get current user's sessions
+  type: http
+  seq: 29
+  tags:
+    - Identity
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/identity/sessions/me"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/sessions/me"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "",
+              "userId": "",
+              "userName": "",
+              "userEmail": "",
+              "ipAddress": "",
+              "deviceType": "",
+              "browser": "",
+              "browserVersion": "",
+              "operatingSystem": "",
+              "osVersion": "",
+              "createdAt": "",
+              "lastActivityAt": "",
+              "expiresAt": "",
+              "isActive": false,
+              "isCurrentSession": false
+            }
+          ]
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/sessions/me"
+      method: GET
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/identity/sessions/me"
+      method: GET
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Retrieve all active sessions for the currently authenticated user.

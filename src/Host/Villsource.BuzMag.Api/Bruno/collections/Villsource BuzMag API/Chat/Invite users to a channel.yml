@@ -1,0 +1,53 @@
+info:
+  name: Invite users to a channel
+  type: http
+  seq: 6
+  tags:
+    - Chat
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/chat/channels/:id/members"
+  params:
+    - name: id
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "userIds": []
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/chat/channels/:id/members"
+      method: POST
+      params:
+        - name: id
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "userIds": []
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

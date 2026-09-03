@@ -1,0 +1,51 @@
+info:
+  name: List Public files in this tenant (the 'Shared' view)
+  type: http
+  seq: 3
+  tags:
+    - Files
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/files/shared"
+  params:
+    - name: page
+      value: ""
+      type: query
+      disabled: true
+    - name: pageSize
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/files/shared"
+      method: GET
+      params:
+        - name: page
+          value: ""
+          type: query
+          disabled: true
+        - name: pageSize
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

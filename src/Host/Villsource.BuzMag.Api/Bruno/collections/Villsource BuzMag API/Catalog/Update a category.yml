@@ -1,0 +1,59 @@
+info:
+  name: Update a category
+  type: http
+  seq: 13
+  tags:
+    - Catalog
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/catalog/categories/:categoryId"
+  params:
+    - name: categoryId
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "categoryId": "",
+        "name": "",
+        "description": "",
+        "parentCategoryId": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/catalog/categories/:categoryId"
+      method: PUT
+      params:
+        - name: categoryId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "categoryId": "",
+            "name": "",
+            "description": "",
+            "parentCategoryId": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

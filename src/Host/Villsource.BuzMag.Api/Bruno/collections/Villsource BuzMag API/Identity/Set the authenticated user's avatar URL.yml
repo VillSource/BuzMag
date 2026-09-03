@@ -1,0 +1,81 @@
+info:
+  name: Set the authenticated user's avatar URL
+  type: http
+  seq: 28
+  tags:
+    - Identity
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/identity/profile/image"
+  body:
+    type: json
+    data: |-
+      {
+        "imageUrl": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 204 Response
+    description: No Content
+    request:
+      url: "{{baseUrl}}/api/v1/identity/profile/image"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "imageUrl": ""
+          }
+    response:
+      status: 204
+      statusText: No Content
+      body:
+        type: text
+        data: ""
+  - name: 400 Response
+    description: Bad Request
+    request:
+      url: "{{baseUrl}}/api/v1/identity/profile/image"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "imageUrl": ""
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/profile/image"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "imageUrl": ""
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+
+docs: Persists a durable image URL on the current user's profile. Typically called after the Files module's presigned-upload flow returns a publicUrl. Pass a null/empty body to clear.

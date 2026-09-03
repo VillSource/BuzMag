@@ -1,0 +1,155 @@
+info:
+  name: List all sessions in the current tenant (Admin)
+  type: http
+  seq: 32
+  tags:
+    - Identity
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/identity/sessions"
+  params:
+    - name: includeInactive
+      value: ""
+      type: query
+      disabled: true
+    - name: search
+      value: ""
+      type: query
+      disabled: true
+    - name: pageNumber
+      value: ""
+      type: query
+      disabled: true
+    - name: pageSize
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/sessions"
+      method: GET
+      params:
+        - name: includeInactive
+          value: ""
+          type: query
+          disabled: true
+        - name: search
+          value: ""
+          type: query
+          disabled: true
+        - name: pageNumber
+          value: ""
+          type: query
+          disabled: true
+        - name: pageSize
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "id": "",
+                "userId": "",
+                "userName": "",
+                "userEmail": "",
+                "ipAddress": "",
+                "deviceType": "",
+                "browser": "",
+                "browserVersion": "",
+                "operatingSystem": "",
+                "osVersion": "",
+                "createdAt": "",
+                "lastActivityAt": "",
+                "expiresAt": "",
+                "isActive": false,
+                "isCurrentSession": false
+              }
+            ],
+            "pageNumber": "",
+            "pageSize": "",
+            "totalCount": "",
+            "totalPages": "",
+            "hasNext": false,
+            "hasPrevious": false
+          }
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/sessions"
+      method: GET
+      params:
+        - name: includeInactive
+          value: ""
+          type: query
+          disabled: true
+        - name: search
+          value: ""
+          type: query
+          disabled: true
+        - name: pageNumber
+          value: ""
+          type: query
+          disabled: true
+        - name: pageSize
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/identity/sessions"
+      method: GET
+      params:
+        - name: includeInactive
+          value: ""
+          type: query
+          disabled: true
+        - name: search
+          value: ""
+          type: query
+          disabled: true
+        - name: pageNumber
+          value: ""
+          type: query
+          disabled: true
+        - name: pageSize
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Returns paged sessions across the tenant, filterable by active state and a free-text search across user name, email, and IP address.

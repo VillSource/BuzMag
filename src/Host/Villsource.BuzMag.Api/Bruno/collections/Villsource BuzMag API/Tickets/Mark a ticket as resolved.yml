@@ -1,0 +1,47 @@
+info:
+  name: Mark a ticket as resolved
+  type: http
+  seq: 6
+  tags:
+    - Tickets
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/tickets/:ticketId/resolve"
+  params:
+    - name: ticketId
+      value: ""
+      type: path
+  body:
+    type: json
+    data: "{}"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/tickets/:ticketId/resolve"
+      method: POST
+      params:
+        - name: ticketId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

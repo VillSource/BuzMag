@@ -1,0 +1,72 @@
+info:
+  name: get /api/v1/organizations/units/:organizationUnitId/positions/:positionId/allocation-history
+  type: http
+  seq: 16
+  tags:
+    - Organizations
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/organizations/units/:organizationUnitId/positions/:positionId/allocation-history"
+  params:
+    - name: organizationUnitId
+      value: ""
+      type: path
+    - name: positionId
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/organizations/units/:organizationUnitId/positions/:positionId/allocation-history"
+      method: GET
+      params:
+        - name: organizationUnitId
+          value: ""
+          type: path
+        - name: positionId
+          value: ""
+          type: path
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "",
+              "organizationUnitReferenceId": "",
+              "position": {
+                "referenceId": "",
+                "name": "",
+                "code": "",
+                "description": "",
+                "createdOnUtc": "",
+                "createdBy": "",
+                "lastModifiedOnUtc": "",
+                "lastModifiedBy": "",
+                "isDeleted": false,
+                "deletedOnUtc": "",
+                "deletedBy": ""
+              },
+              "headCount": "",
+              "effectiveFrom": "",
+              "effectiveTo": ""
+            }
+          ]
