@@ -33,11 +33,14 @@ public sealed class CreatePositionCommandHandler(
             description: command.Description
         );
 
-        foreach (var tier in command.PositionTier ?? [])  
+        HashSet<PositionTier> positionTiers = [];
+        foreach (var tier in (command.PositionTier ?? []).AsSpan())
         {
             if (PositionTier.TryGet(tier, out var positionTier))
-                position.PositionTiers.Add(positionTier);
+                positionTiers.Add(positionTier);
         }
+        
+        position.SetTier(positionTiers);
 
         dbContext.Positions.Add(position);
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
