@@ -2,15 +2,15 @@
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Villsource.FSH.Modules.Organization.Contracts.Dtos;
-using Villsource.FSH.Modules.Organization.Contracts.v1.Structures.PositionAllocations;
+using Villsource.FSH.Modules.Organization.Contracts.v1.Structures;
 using Villsource.FSH.Modules.Organization.Data;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.PositionAllocations;
 
 public sealed class EndPositionAllocationCommandHandler(OrganizationDbContext dbContext)
-    : ICommandHandler<EndPositionAllocationCommand, OrganizationUnitPositionAllocationDto>
+    : ICommandHandler<EndPositionAllocationCommand, PositionAllocationDto>
 {
-    public async ValueTask<OrganizationUnitPositionAllocationDto> Handle(EndPositionAllocationCommand command,
+    public async ValueTask<PositionAllocationDto> Handle(EndPositionAllocationCommand command,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);

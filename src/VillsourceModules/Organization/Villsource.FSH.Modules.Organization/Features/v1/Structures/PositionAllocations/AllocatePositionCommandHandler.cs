@@ -3,19 +3,19 @@ using Mediator;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using Villsource.FSH.Modules.Organization.Contracts.Dtos;
-using Villsource.FSH.Modules.Organization.Contracts.v1.Structures.PositionAllocations;
+using Villsource.FSH.Modules.Organization.Contracts.v1.Structures;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.PositionAllocations;
 
 public sealed class AllocatePositionCommandHandler(OrganizationDbContext dbContext)
-    : ICommandHandler<AllocatePositionCommand, OrganizationUnitPositionAllocationDto>
+    : ICommandHandler<AllocatePositionCommand, PositionAllocationDto>
 {
     private OrganizationUnit _ou = null!;
     private Position _position = null!;
 
-    public async ValueTask<OrganizationUnitPositionAllocationDto> Handle(AllocatePositionCommand command,
+    public async ValueTask<PositionAllocationDto> Handle(AllocatePositionCommand command,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);

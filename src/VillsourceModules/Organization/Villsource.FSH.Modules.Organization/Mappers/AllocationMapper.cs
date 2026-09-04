@@ -6,11 +6,11 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.PositionAll
 
 internal static class AllocationMapper
 {
-    public static OrganizationUnitPositionAllocationDto ToDto(OrganizationUnitPositionAllocation allocation,
+    public static PositionAllocationDto ToDto(OrganizationUnitPositionAllocation allocation,
         string unitReferenceId, Position? position = null) => new()
     {
         Id = allocation.Id,
-        OrganizationUnitReferenceId = unitReferenceId,
+        ReferenceId = unitReferenceId,
         Position = (position ?? allocation.Position).ToDto(),
         HeadCount = allocation.HeadCount,
         EffectiveFrom = allocation.EffectiveFrom,
