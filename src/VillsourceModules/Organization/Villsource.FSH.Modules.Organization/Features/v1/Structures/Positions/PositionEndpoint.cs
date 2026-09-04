@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Villsource.FSH.Modules.Organization.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.Authorization;
+using Villsource.FSH.Modules.Organization.Contracts.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.Structures;
 
@@ -12,7 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.Positions;
 
 public static class PositionEndpoint
 {
-    internal static RouteHandlerBuilder MapGetAllDefaultPositionsEndpoint(this IEndpointRouteBuilder endpoints)
+    internal static RouteHandlerBuilder MapGetAllPositionsEndpoint(this IEndpointRouteBuilder endpoints)
         => endpoints.MapGet("/positions",
                 async (IMediator mediator, CancellationToken cancellationToken) =>
                 {
@@ -20,20 +22,8 @@ public static class PositionEndpoint
                     return Results.Ok(result);
                 })
             .Produces<ICollection<PositionDto>>()
-            .WithName("GetAllDefaultPositions")
-            .WithSummary("Get all positions from default organization.")
-            .RequirePermission(OrganizationPermissions.Structures.View);
-
-    internal static RouteHandlerBuilder MapGetAllPositionsEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapGet("{organizationId:length(11)}/positions",
-                async (string organizationId, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var result = await mediator.Send(new GetAllPositionsQuery(organizationId), cancellationToken);
-                    return Results.Ok(result);
-                })
-            .Produces<ICollection<PositionDto>>()
             .WithName("GetAllPositions")
-            .WithSummary("Get all positions from specified organization.")
+            .WithSummary("Get all positions.")
             .RequirePermission(OrganizationPermissions.Structures.View);
 
     internal static RouteHandlerBuilder MapGetPositionByIdEndpoint(this IEndpointRouteBuilder endpoints)
@@ -90,4 +80,12 @@ public static class PositionEndpoint
             .WithName("DeletePosition")
             .WithSummary("Delete a position.")
             .RequirePermission(OrganizationPermissions.Structures.Delete);
+
+    internal static RouteHandlerBuilder MapGetPositionTiers(this IEndpointRouteBuilder endpoints)
+        => endpoints.MapGet("/positions/tiers", () => PositionTier.Items)
+            .Produces<IReadOnlyCollection<PositionTier>>()
+            .WithName("GetPositionTiers")
+            .WithSummary("Get all position tiers.")
+            .WithTags(ApiTags.Organization, "lookups")
+            .AllowAnonymous();
 }

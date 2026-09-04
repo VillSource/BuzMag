@@ -16,8 +16,7 @@ http:
     type: json
     data: |-
       {
-        "newParentId": "",
-        "newOrganizationId": ""
+        "newParentId": ""
       }
   auth:
     type: bearer

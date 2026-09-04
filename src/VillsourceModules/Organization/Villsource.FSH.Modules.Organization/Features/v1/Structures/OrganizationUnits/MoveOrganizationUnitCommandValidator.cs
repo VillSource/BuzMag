@@ -7,8 +7,5 @@ public sealed class MoveOrganizationUnitCommandValidator : AbstractValidator<Mov
 {
     public MoveOrganizationUnitCommandValidator()
     {
-        RuleFor(x => x)
-            .Must(x => !string.IsNullOrWhiteSpace(x.OrganizationId)  != !string.IsNullOrWhiteSpace(x.ParentId))
-            .WithMessage("Exactly one of 'NewParentId' or 'NewOrganizationId' must be provided.");
     }
 }

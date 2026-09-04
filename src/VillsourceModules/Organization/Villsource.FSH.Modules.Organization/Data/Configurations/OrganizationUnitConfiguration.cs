@@ -12,8 +12,8 @@ internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<O
         builder.ToTable("OrganizationUnits");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
-        builder.Property(x => x.CreatedBy).HasMaxLength(36).IsRequired();
         builder.Property(x => x.ReferenceId).HasMaxLength(VillsourceId.KeySizes).IsRequired();
+        builder.Property(x => x.CreatedBy).HasMaxLength(36);
         builder.Property(x => x.LastModifiedBy).HasMaxLength(36);
         builder.Property(x => x.DeletedBy).HasMaxLength(36);
 
@@ -25,6 +25,10 @@ internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<O
         builder.HasMany(x => x.Children).WithOne().HasForeignKey(x => x.ParenId);
         builder.HasMany(x => x.PositionAllocations).WithOne().HasForeignKey(x => x.OrganizationUnitId);
 
+        builder.HasIndex( nameof(OrganizationUnit.ReferenceId)).IsUnique();
+        builder.HasIndex( nameof(OrganizationUnit.Code)).IsUnique();
+        builder.HasIndex( nameof(OrganizationUnit.Path)).IsUnique();
+        
         builder.Ignore(x => x.DomainEvents);
     }
 }

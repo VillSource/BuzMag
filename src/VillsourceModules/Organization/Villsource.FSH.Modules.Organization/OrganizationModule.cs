@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
+using Villsource.FSH.Modules.Organization.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.Authorization;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Features.v1.Structures.OrganizationUnits;
@@ -48,20 +49,16 @@ public sealed class OrganizationModule : IModule
             .Build();
 
         var group = endpoints.MapGroup("api/v{version:apiVersion}/organizations")
-            .WithTags("Organizations")
+            .WithTags(ApiTags.Organization)
             .WithApiVersionSet(versionSet)
             .RequireAuthorization();
 
-        group.MapGetAllOrganizationEndpoint();
-
-        group.MapGetAllDefaultOrganizationUnitEndpoint();
         group.MapGetAllOrganizationUnitEndpoint();
         group.MapCreateOrganizationUnitEndpoint();
         group.MapDeleteOrganizationUnitEndpoint();
         group.MapUpdateOrganizationUnitEndpoint();
         group.MapMoveOrganizationUnitEndpoint();
 
-        group.MapGetAllDefaultPositionsEndpoint();
         group.MapGetAllPositionsEndpoint();
         group.MapGetPositionByIdEndpoint();
         group.MapCreatePositionEndpoint();
@@ -73,5 +70,7 @@ public sealed class OrganizationModule : IModule
         group.MapAllocatePositionEndpoint();
         group.MapChangePositionAllocationEndpoint();
         group.MapEndPositionAllocationEndpoint();
+
+        group.MapGetPositionTiers();
     }
 }

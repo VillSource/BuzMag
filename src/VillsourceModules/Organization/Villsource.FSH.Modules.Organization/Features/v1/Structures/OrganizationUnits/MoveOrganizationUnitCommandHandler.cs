@@ -20,14 +20,11 @@ public sealed class MoveOrganizationUnitCommandHandler(
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        if (string.IsNullOrWhiteSpace(command.ParentId) == string.IsNullOrWhiteSpace(command.OrganizationId))
-            throw new CustomException("Parent or Organization id must be specified.", [], HttpStatusCode.Conflict);
-
         if (command.ParentId == command.OrganizationUnitId)
             throw new CustomException("Organization unit can not be child of itself.", [], HttpStatusCode.Conflict);
 
         var target = await dbContext.OrganizationUnits
-                         .FirstOrDefaultAsync(ou => ou.ReferenceId == command.OrganizationUnitId, cancellationToken)
+                         .SingleOrDefaultAsync(ou => ou.ReferenceId == command.OrganizationUnitId, cancellationToken)
                          .ConfigureAwait(false) ??
                      throw new NotFoundException(
                          $"Organization unit with id '{command.OrganizationUnitId}' not found.");
@@ -48,14 +45,7 @@ public sealed class MoveOrganizationUnitCommandHandler(
                             $"Parent organization unit with id '{command.ParentId}' not found.");
         }
 
-        var newOrganization = await dbContext.Organizations
-                                  .AsNoTracking()
-                                  .FirstOrDefaultAsync(o => newParent!.OrganizationId == o.Id || command.OrganizationId == o.ReferenceId, cancellationToken)
-                                  .ConfigureAwait(false) ??
-                              throw new NotFoundException(
-                                  $"Organization with id '{command.OrganizationId}' not found.");
-
-        target.MoveTo(newOrganization, newParent);
+        target.MoveTo(newParent);
         target.RebaseDescendants(descendants);
 
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

@@ -12,7 +12,7 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.Organizatio
 
 public static class OrganizationUnitEndpoint
 {
-    internal static RouteHandlerBuilder MapGetAllDefaultOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
+    internal static RouteHandlerBuilder MapGetAllOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
         => endpoints.MapGet("/units",
                 async (IMediator mediator, CancellationToken cancellationToken) =>
                 {
@@ -20,21 +20,10 @@ public static class OrganizationUnitEndpoint
                     return Results.Ok(result);
                 })
             .Produces<ICollection<OrganizationUnitDto>>()
-            .WithName("GetAllDefaultOrganizationUnit")
-            .WithSummary("Get all default organization unit from default organization.")
+            .WithName("GetAllOrganizationUnit")
+            .WithSummary("Get all organization units.")
             .RequirePermission(OrganizationPermissions.Structures.View);
 
-    internal static RouteHandlerBuilder MapGetAllOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
-        => endpoints.MapGet("{organizationId:length(11)}/units",
-                async (string organizationId, IMediator mediator, CancellationToken cancellationToken) =>
-                {
-                    var result = await mediator.Send(new GetAllOrganizationUnitsQuery(organizationId), cancellationToken);
-                    return Results.Ok(result);
-                })
-            .Produces<ICollection<OrganizationUnitDto>>()
-            .WithName("GetAllOrganizationUnit")
-            .WithSummary("Get all organization unit from default organization.")
-            .RequirePermission(OrganizationPermissions.Structures.View);
 
     internal static RouteHandlerBuilder MapCreateOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
         => endpoints.MapPost("/units",
@@ -80,7 +69,7 @@ public static class OrganizationUnitEndpoint
             .WithSummary("Update an organization unit.")
             .RequirePermission(OrganizationPermissions.Structures.Update);
     
-    public sealed record MoveOrganizationUnitBody(string? NewParentId, string? NewOrganizationId);
+    public sealed record MoveOrganizationUnitBody(string? NewParentId);
     internal static RouteHandlerBuilder MapMoveOrganizationUnitEndpoint(this IEndpointRouteBuilder endpoints)
         => endpoints.MapPost("/units/{organizationUnitId:length(11)}/move",
                 async (string organizationUnitId, [FromBody] MoveOrganizationUnitBody body, IMediator mediator,
@@ -88,7 +77,6 @@ public static class OrganizationUnitEndpoint
                 {
                     var result = await mediator.Send(new MoveOrganizationUnitCommand(
                         OrganizationUnitId: organizationUnitId,
-                        OrganizationId: body.NewOrganizationId,
                         ParentId: body.NewParentId), cancellationToken);
                     return Results.Ok(result);
                 })

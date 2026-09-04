@@ -1,4 +1,5 @@
 ﻿using FSH.Framework.Core.Domain;
+using Villsource.FSH.Modules.Organization.Contracts.Constants;
 using Villsource.FSH.Modules.Organization.Domain.Events;
 using Villsource.Tool.UniqueKey;
 
@@ -7,10 +8,10 @@ namespace Villsource.FSH.Modules.Organization.Domain;
 public sealed class Position : BaseEntity<Guid>, IAuditableEntity, ISoftDeletable
 {
     public string ReferenceId { get; } = VillsourceId.Key;
-    public Guid OrganizationId { get; private set; } = Guid.Empty;
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
     public string? Description { get; private set; }
+    public ICollection<PositionTier> PositionTiers { get; private set; } = [];
     public DateTimeOffset CreatedOnUtc { get; private init; }
     public string? CreatedBy { get; private init; }
     public DateTimeOffset? LastModifiedOnUtc { get; private set; }
@@ -23,9 +24,11 @@ public sealed class Position : BaseEntity<Guid>, IAuditableEntity, ISoftDeletabl
 
     public static Position Create(string code, string name, string? description = null, string? createBy = null)
     {
+        ArgumentNullException.ThrowIfNull(code);
+        
         var model = new Position
         {
-            Code = code,
+            Code = code.ToUpperInvariant(),
             Name = name,
             Description =  description,
             Id =  Guid.CreateVersion7(),

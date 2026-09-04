@@ -9,7 +9,6 @@ public sealed class OrganizationUnitService(OrganizationDbContext dbContext) : I
     public async Task<List<OrganizationUnit>> GetDescendantsAsync(OrganizationUnit ancestor, CancellationToken ct = default)
     {
         var descendants = dbContext.OrganizationUnits
-            .Where(ou => ou.OrganizationId == ancestor.OrganizationId)
             .Where(ou => ou.Path.StartsWith(ancestor.Path))
             .OrderBy(ou => ou.Path);
 

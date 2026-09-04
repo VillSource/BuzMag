@@ -15,8 +15,7 @@ http:
         "code": "",
         "name": "",
         "description": "",
-        "parentId": "",
-        "organizationId": ""
+        "parentId": ""
       }
   auth:
     type: bearer

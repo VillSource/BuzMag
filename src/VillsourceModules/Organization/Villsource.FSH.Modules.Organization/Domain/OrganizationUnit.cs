@@ -10,7 +10,6 @@ namespace Villsource.FSH.Modules.Organization.Domain;
 
 public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, ISoftDeletable
 {
-    public Guid OrganizationId { get; private set; } = Guid.Empty;
     public Guid? ParenId { get; private set; }
     public string ReferenceId { get; } = VillsourceId.Key;
     public string Path { get; private set; } = string.Empty;
@@ -78,7 +77,6 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         ThrowIfInvalidPath();
 
         var model = Create(code, name, description, createBy);
-        model.OrganizationId = OrganizationId;
         model.ParenId = Id;
         model.Path = string.Concat(Path.TrimEnd('/'), "/", model.ReferenceId);
         model.ClearDomainEvents();
@@ -90,7 +88,6 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
 
     private void AddOrganizationUnitUpdatedDomainEvent() => AddDomainEvent(DomainEvent.Create((id, ts) =>
         new OrganizationUnitUpdatedDomainEvent(
-            OrganizationId: OrganizationId,
             OrganizationUnitId: Id,
             EventId: id,
             OccurredOnUtc: ts)));
@@ -111,7 +108,7 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
 
     private void ThrowIfInvalidPath()
     {
-        if (Path.Length < 11)
+        if (Path.Length <= VillsourceId.KeySizes)
             throw new InvalidOperationException("The organization unit has an invalid path.");
     }
 
@@ -125,21 +122,8 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
         }
 
         parent.ThrowIfInvalidPath();
-        OrganizationId = parent.OrganizationId;
         ParenId = parent.Id;
         Path = string.Concat(parent.Path.TrimEnd('/'), "/", ReferenceId);
-    }
-
-    public void MoveTo(Organization organization, OrganizationUnit? parent = null)
-    {
-        ArgumentNullException.ThrowIfNull(organization);
-
-        if (parent is not null && parent.OrganizationId != organization.Id)
-            throw new ArgumentException("The parent organization unit must belong to the same organization.",
-                nameof(parent));
-
-        MoveTo(parent);
-        OrganizationId = organization.Id;
     }
 
     public void Delete(string? deletedBy = null)
@@ -153,7 +137,6 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
 
     private void AddOrganizationUnitDeletedDomainEvent() => AddDomainEvent(DomainEvent.Create((id, ts) =>
         new OrganizationUnitDeletedDomainEvent(
-            OrganizationId: OrganizationId,
             OrganizationUnitId: Id,
             EventId: id,
             OccurredOnUtc: ts)));
@@ -161,10 +144,26 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     public void RebaseDescendants(IList<OrganizationUnit> descendants)
     {
         ArgumentNullException.ThrowIfNull(descendants);
+        string searchToken = $"/{ReferenceId}/"; 
+        string endToken = $"/{ReferenceId}";
+
         foreach (var descendant in descendants)
         {
-            descendant.OrganizationId = OrganizationId;
-            descendant.Path = Replace(descendant.Path, $"^(/[a-zA-Z0-9]{VillsourceId.KeySizes})*/{ReferenceId}", Path);
+            int index = descendant.Path.IndexOf(searchToken, StringComparison.Ordinal);
+
+            if (index >= 0)
+            {
+                int remainderStartIndex = index + endToken.Length; 
+                descendant.Path = string.Concat(Path, descendant.Path.AsSpan(remainderStartIndex));
+                continue;
+            }
+            if (descendant.Path.EndsWith(endToken, StringComparison.Ordinal))
+            {
+                descendant.Path = Path;
+                continue;
+            }
+            descendant.Path = $"{Path}/{descendant.ReferenceId}";
         }
+
     }
 }

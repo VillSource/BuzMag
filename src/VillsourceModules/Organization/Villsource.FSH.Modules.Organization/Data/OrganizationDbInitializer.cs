@@ -19,15 +19,6 @@ public sealed class OrganizationDbInitializer(
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
-        if (await dbContext.Organizations.AnyAsync(cancellationToken).ConfigureAwait(false))
-            return;
-
-        var org = Domain.Organization.Create(Guid.CreateVersion7());
-        dbContext.Organizations.Add(org);
-        dbContext.Entry(org).Property(x => x.IsDefault).CurrentValue = true;
-        
-        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        
         logger.LogInformation("[Organization] seeded default organization");
     }
 }

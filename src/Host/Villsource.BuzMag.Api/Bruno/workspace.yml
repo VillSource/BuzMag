@@ -6,6 +6,8 @@ info:
 collections:
   - name: "Villsource BuzMag API"
     path: "collections/Villsource BuzMag API"
+  - name: "SandBox"
+    path: "collections/SandBox"
 
 specs:
 

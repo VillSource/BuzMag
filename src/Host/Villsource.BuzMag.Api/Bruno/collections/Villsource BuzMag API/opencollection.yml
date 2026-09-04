@@ -27,7 +27,7 @@ extensions:
     openapi:
       - sourceUrl: https://localhost:7030/openapi/v1.json
         groupBy: tags
-        lastSyncDate: 2026-09-03T14:51:25.679Z
-        specHash: c265aa1d836c7c3c5f92adfca1e60c5e
+        lastSyncDate: 2026-09-04T12:24:12.923Z
+        specHash: fcb8831b04e32c4fc9560beef1194426
         autoCheck: true
         autoCheckInterval: 5

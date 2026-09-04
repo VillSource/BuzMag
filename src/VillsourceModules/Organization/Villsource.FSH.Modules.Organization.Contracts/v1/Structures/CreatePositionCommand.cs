@@ -7,4 +7,4 @@ public sealed record CreatePositionCommand(
     string Code,
     string Name,
     string? Description = null,
-    string? OrganizationId = null) : ICommand<PositionDto>;
+    string[]? PositionTier = null) : ICommand<PositionDto>;

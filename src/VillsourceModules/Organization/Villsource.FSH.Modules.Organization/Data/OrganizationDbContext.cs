@@ -18,7 +18,6 @@ public sealed class OrganizationDbContext(
 {
     public const string Schema = "organization";
 
-    public DbSet<Domain.Organization> Organizations => Set<Domain.Organization>();
     public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
     public DbSet<Position> Positions => Set<Position>();
     public DbSet<OrganizationUnitPositionAllocation> OrganizationUnitPositionAllocations => Set<OrganizationUnitPositionAllocation>();

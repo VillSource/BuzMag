@@ -16,20 +16,8 @@ public sealed class GetAllPositionsQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        var organizationQuery = string.IsNullOrWhiteSpace(query.OrganizationId)
-            ? dbContext.Organizations
-                .AsNoTracking()
-                .Include(o => o.Positions)
-                .FirstOrDefaultAsync(o => o.IsDefault, cancellationToken)
-            : dbContext.Organizations
-                .AsNoTracking()
-                .Include(o => o.Positions)
-                .FirstOrDefaultAsync(o => o.ReferenceId == query.OrganizationId, cancellationToken);
-
-        var organization = await organizationQuery
-            .ConfigureAwait(false)
-            ?? throw new NotFoundException("Organization not found.");
-
-        return organization.Positions.Select(p => p.ToDto()).ToList();
+        return await dbContext.Positions
+            .Select(p => p.ToDto())
+            .ToListAsync(cancellationToken);
     }
 }
