@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\BuildingBlocks\Web\Web.csproj"/>
+        <ProjectReference Include="..\..\Core\Villsource.ObjectValue\Villsource.ObjectValue.csproj" />
+        <ProjectReference Include="..\..\Core\Villsource.Tool.UniqueKey\Villsource.Tool.UniqueKey.csproj"/>
+        <ProjectReference Include="..\..\Organization\Villsource.FSH.Modules.Organization.Contracts\Villsource.FSH.Modules.Organization.Contracts.csproj" />
+        <ProjectReference Include="..\Villsource.Modules.HumanResource.Contracts\Villsource.Modules.HumanResource.Contracts.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Core\Villsource.CodeGen\Villsource.CodeGen.csproj"
+                          OutputItemType="Analyzer"
+                          PrivateAssets="all"
+                          ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" />
+      <PackageReference Include="Thinktecture.Runtime.Extensions" />
+    </ItemGroup>
+
+</Project>
