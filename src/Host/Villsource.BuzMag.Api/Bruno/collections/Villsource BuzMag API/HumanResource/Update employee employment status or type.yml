@@ -1,0 +1,80 @@
+info:
+  name: Update employee employment status or type
+  type: http
+  seq: 6
+  tags:
+    - HumanResource
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/employees/:ref/employment"
+  params:
+    - name: ref
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "employeeRef": "",
+        "type": "",
+        "status": "",
+        "note": "",
+        "effectiveFrom": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/employees/:ref/employment"
+      method: PUT
+      params:
+        - name: ref
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "employeeRef": "",
+            "type": "",
+            "status": "",
+            "note": "",
+            "effectiveFrom": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "ref": "",
+            "type": "",
+            "status": "",
+            "effectiveFrom": "",
+            "effectiveTo": "",
+            "startNote": "",
+            "endNote": "",
+            "createdOnUtc": "",
+            "createdBy": "",
+            "lastModifiedOnUtc": "",
+            "lastModifiedBy": "",
+            "isDeleted": false,
+            "deletedOnUtc": "",
+            "deletedBy": ""
+          }

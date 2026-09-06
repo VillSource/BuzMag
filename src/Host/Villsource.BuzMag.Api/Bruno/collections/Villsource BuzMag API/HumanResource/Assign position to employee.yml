@@ -1,0 +1,90 @@
+info:
+  name: Assign position to employee
+  type: http
+  seq: 5
+  tags:
+    - HumanResource
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/employees/:ref/positions"
+  params:
+    - name: ref
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "employeeRef": "",
+        "managerRef": "",
+        "organizationUnitRef": "",
+        "positionRef": "",
+        "positionTier": "",
+        "type": "",
+        "isPrimary": false,
+        "effectiveFrom": "",
+        "effectiveTo": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/employees/:ref/positions"
+      method: POST
+      params:
+        - name: ref
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "employeeRef": "",
+            "managerRef": "",
+            "organizationUnitRef": "",
+            "positionRef": "",
+            "positionTier": "",
+            "type": "",
+            "isPrimary": false,
+            "effectiveFrom": "",
+            "effectiveTo": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "ref": "",
+            "managerRef": "",
+            "organizationUnitRef": "",
+            "positionRef": "",
+            "positionTier": "",
+            "type": "",
+            "isPrimary": false,
+            "effectiveFrom": "",
+            "effectiveTo": "",
+            "createdOnUtc": "",
+            "createdBy": "",
+            "lastModifiedOnUtc": "",
+            "lastModifiedBy": "",
+            "isDeleted": false,
+            "deletedOnUtc": "",
+            "deletedBy": ""
+          }

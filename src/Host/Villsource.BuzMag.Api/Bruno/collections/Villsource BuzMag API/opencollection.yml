@@ -15,6 +15,11 @@ config:
         password: ""
       bypassProxy: ""
 
+request:
+  auth:
+    type: bearer
+    token: "{{token}}"
+
 docs:
   content: The FSH Starter Kit API for Modular/Multitenant Architecture.
   type: text/markdown
@@ -27,7 +32,7 @@ extensions:
     openapi:
       - sourceUrl: https://localhost:7030/openapi/v1.json
         groupBy: tags
-        lastSyncDate: 2026-09-04T12:24:12.923Z
-        specHash: fcb8831b04e32c4fc9560beef1194426
+        lastSyncDate: 2026-09-06T10:20:38.382Z
+        specHash: 62b2b105a52e91809b10c039f92d57a0
         autoCheck: true
         autoCheckInterval: 5

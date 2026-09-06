@@ -1,7 +1,7 @@
 info:
   name: Delete an organization unit
   type: http
-  seq: 5
+  seq: 3
   tags:
     - Organizations
 
@@ -62,6 +62,12 @@ examples:
                 "referenceId": "",
                 "name": "",
                 "code": "",
+                "positionTiers": [
+                  {
+                    "tier": "",
+                    "key": ""
+                  }
+                ],
                 "description": "",
                 "createdOnUtc": "",
                 "createdBy": "",

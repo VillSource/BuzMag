@@ -1,17 +1,13 @@
 info:
-  name: post /api/v1/organizations/position-allocations/:allocationId/end
+  name: Get all positions
   type: http
-  seq: 18
+  seq: 6
   tags:
     - Organizations
 
 http:
-  method: POST
-  url: "{{baseUrl}}/api/v1/organizations/position-allocations/:allocationId/end"
-  params:
-    - name: allocationId
-      value: ""
-      type: path
+  method: GET
+  url: "{{baseUrl}}/api/v1/organizations/positions"
   auth:
     type: bearer
     token: "{{token}}"
@@ -27,12 +23,8 @@ examples:
   - name: 200 Response
     description: OK
     request:
-      url: "{{baseUrl}}/api/v1/organizations/position-allocations/:allocationId/end"
-      method: POST
-      params:
-        - name: allocationId
-          value: ""
-          type: path
+      url: "{{baseUrl}}/api/v1/organizations/positions"
+      method: GET
     response:
       status: 200
       statusText: OK
@@ -42,13 +34,17 @@ examples:
       body:
         type: json
         data: |-
-          {
-            "id": "",
-            "organizationUnitReferenceId": "",
-            "position": {
+          [
+            {
               "referenceId": "",
               "name": "",
               "code": "",
+              "positionTiers": [
+                {
+                  "tier": "",
+                  "key": ""
+                }
+              ],
               "description": "",
               "createdOnUtc": "",
               "createdBy": "",
@@ -57,8 +53,5 @@ examples:
               "isDeleted": false,
               "deletedOnUtc": "",
               "deletedBy": ""
-            },
-            "headCount": "",
-            "effectiveFrom": "",
-            "effectiveTo": ""
-          }
+            }
+          ]

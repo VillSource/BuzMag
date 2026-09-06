@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Villsource.ObjectValue;
 
-public readonly partial record struct Address()
+public sealed partial record  Address()
 {
     public string? RawAddress { get; init; } // เก็บข้อความต้นฉบับ
     public string? HouseNo { get; init; } // บ้านเลขที่
@@ -210,6 +210,7 @@ public static class AddressConfigurationExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
         builder.IsRequired(isRequired);
+        builder.HasDiscriminator();
 
         builder.Property(a => a.HouseNo).HasMaxLength(50).HasColumnName($"{columnPrefix}_HouseNo");
         builder.Property(a => a.Building).HasMaxLength(100).HasColumnName($"{columnPrefix}_Building");

@@ -10,12 +10,14 @@ public sealed partial class PositionAssignment: BaseEntity<Guid>, IAuditableEnti
     public string Ref { get; } = VillsourceId.Key;
     public Guid EmployeeId { get; set; }
     public Guid? ManagerId { get; set; }
-    public string OrganizationUnitId { get; set; } = string.Empty;
-    public string PositionId { get; set; } = string.Empty;
+    public string OrganizationUnitRef { get; set; } = string.Empty;
+    public string PositionRef { get; set; } = string.Empty;
     public PositionTier PositionTier { get; set; } = PositionTier.None;
 
     public PositionAssignmentType Type { get; set; } = PositionAssignmentType.None;
     public bool IsPrimary { get; set; }
     public DateTimeOffset EffectiveFrom { get; set; }
     public DateTimeOffset? EffectiveTo { get; set; }
+
+    public Employee? Manager { get; }
 }

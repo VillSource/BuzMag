@@ -5,6 +5,7 @@ using FSH.Framework.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Villsource.Modules.HumanResource.Domain;
 
 namespace Villsource.Modules.HumanResource.Data;
 
@@ -16,6 +17,10 @@ public sealed class HumanResourceDbContext(
     : BaseDbContext(multiTenantContextAccessor, options, settings, environment)
 {
     public const string Schema = "hr";
+    
+    public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<Employment> Employments => Set<Employment>();
+    public DbSet<PositionAssignment> PositionAssignments => Set<PositionAssignment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

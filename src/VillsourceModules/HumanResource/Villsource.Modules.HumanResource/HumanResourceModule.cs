@@ -12,6 +12,8 @@ using Microsoft.Extensions.Hosting;
 using Villsource.Modules.HumanResource.Constants;
 using Villsource.Modules.HumanResource.Contracts.Authorization;
 using Villsource.Modules.HumanResource.Data;
+using Villsource.Modules.HumanResource.Features.v1;
+using Villsource.Modules.HumanResource.Services;
 
 namespace Villsource.Modules.HumanResource;
 
@@ -26,6 +28,8 @@ public sealed class HumanResourceModule : IModule
         builder.Services.AddHeroDbContext<HumanResourceDbContext>();
         builder.Services.AddScoped<IDbInitializer, HumanResourceDbInitializer>();
         builder.Services.AddValidatorsFromAssembly(typeof(HumanResourceModule).Assembly);
+        
+        builder.Services.AddTransient<IEmployeeCodeFactory, EmployeeCodeFactory>();
 
         builder.Services.AddHealthChecks().AddDbContextCheck<HumanResourceDbContext>(
             name: "db:human-resource",
@@ -35,20 +39,6 @@ public sealed class HumanResourceModule : IModule
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
-
-        var versionSet = endpoints.NewApiVersionSet()
-            .HasApiVersion(new ApiVersion(1))
-            .ReportApiVersions()
-            .Build();
-
-        var group = endpoints.MapGroup("api/v{version:apiVersion}/hr")
-            .WithTags(ApiTags.HumanResource)
-            .WithApiVersionSet(versionSet)
-            .RequireAuthorization();
-
-        group.MapGet("/test", () =>
-        {
-            return "Hello World!";
-        });
+        endpoints.MapHumanResourceEndpoints();
     }
 }

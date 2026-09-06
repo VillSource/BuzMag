@@ -1,13 +1,13 @@
 info:
-  name: get /api/v1/organizations/units/:organizationUnitId/positions/:positionId/allocation-history
+  name: Gets the current position allocation history for a given organization unit
   type: http
-  seq: 16
+  seq: 13
   tags:
     - Organizations
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/v1/organizations/units/:organizationUnitId/positions/:positionId/allocation-history"
+  url: "{{baseUrl}}/api/v1/organizations/units/:organizationUnitId/positions/:positionId/history"
   params:
     - name: organizationUnitId
       value: ""
@@ -30,7 +30,7 @@ examples:
   - name: 200 Response
     description: OK
     request:
-      url: "{{baseUrl}}/api/v1/organizations/units/:organizationUnitId/positions/:positionId/allocation-history"
+      url: "{{baseUrl}}/api/v1/organizations/units/:organizationUnitId/positions/:positionId/history"
       method: GET
       params:
         - name: organizationUnitId
@@ -50,12 +50,17 @@ examples:
         data: |-
           [
             {
-              "id": "",
-              "organizationUnitReferenceId": "",
+              "referenceId": "",
               "position": {
                 "referenceId": "",
                 "name": "",
                 "code": "",
+                "positionTiers": [
+                  {
+                    "tier": "",
+                    "key": ""
+                  }
+                ],
                 "description": "",
                 "createdOnUtc": "",
                 "createdBy": "",

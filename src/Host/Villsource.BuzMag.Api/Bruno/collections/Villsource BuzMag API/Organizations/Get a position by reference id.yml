@@ -1,7 +1,7 @@
 info:
   name: Get a position by reference id
   type: http
-  seq: 11
+  seq: 8
   tags:
     - Organizations
 
@@ -46,6 +46,12 @@ examples:
             "referenceId": "",
             "name": "",
             "code": "",
+            "positionTiers": [
+              {
+                "tier": "",
+                "key": ""
+              }
+            ],
             "description": "",
             "createdOnUtc": "",
             "createdBy": "",

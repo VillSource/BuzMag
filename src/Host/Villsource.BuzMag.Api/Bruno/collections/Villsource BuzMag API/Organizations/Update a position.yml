@@ -1,7 +1,7 @@
 info:
   name: Update a position
   type: http
-  seq: 12
+  seq: 9
   tags:
     - Organizations
 
@@ -62,6 +62,12 @@ examples:
             "referenceId": "",
             "name": "",
             "code": "",
+            "positionTiers": [
+              {
+                "tier": "",
+                "key": ""
+              }
+            ],
             "description": "",
             "createdOnUtc": "",
             "createdBy": "",

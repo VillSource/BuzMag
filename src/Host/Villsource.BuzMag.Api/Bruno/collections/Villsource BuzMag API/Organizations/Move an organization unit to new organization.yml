@@ -1,7 +1,7 @@
 info:
   name: Move an organization unit to new organization
   type: http
-  seq: 7
+  seq: 5
   tags:
     - Organizations
 
@@ -43,8 +43,7 @@ examples:
         type: json
         data: |-
           {
-            "newParentId": "",
-            "newOrganizationId": ""
+            "newParentId": ""
           }
     response:
       status: 200
@@ -75,6 +74,12 @@ examples:
                 "referenceId": "",
                 "name": "",
                 "code": "",
+                "positionTiers": [
+                  {
+                    "tier": "",
+                    "key": ""
+                  }
+                ],
                 "description": "",
                 "createdOnUtc": "",
                 "createdBy": "",

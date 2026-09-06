@@ -1,7 +1,7 @@
 info:
   name: Creates a new position
   type: http
-  seq: 9
+  seq: 7
   tags:
     - Organizations
 
@@ -41,7 +41,7 @@ examples:
             "code": "",
             "name": "",
             "description": "",
-            "organizationId": ""
+            "positionTier": ""
           }
     response:
       status: 200
@@ -56,6 +56,12 @@ examples:
             "referenceId": "",
             "name": "",
             "code": "",
+            "positionTiers": [
+              {
+                "tier": "",
+                "key": ""
+              }
+            ],
             "description": "",
             "createdOnUtc": "",
             "createdBy": "",

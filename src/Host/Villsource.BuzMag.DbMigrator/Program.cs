@@ -104,6 +104,8 @@ builder.Services.AddMediator(o =>
         
         typeof(Villsource.FSH.Modules.Organization.Contracts.OrganizationContractsMarker),
         typeof(Villsource.FSH.Modules.Organization.OrganizationModule),
+        typeof(Villsource.Modules.HumanResource.Contracts.HumanResourceContractsMarker),
+        typeof(Villsource.Modules.HumanResource.HumanResourceModule)
     ];
 });
 
@@ -121,6 +123,7 @@ var moduleAssemblies = new Assembly[]
     typeof(FSH.Modules.Notifications.NotificationsModule).Assembly,
     
     typeof(Villsource.FSH.Modules.Organization.OrganizationModule).Assembly,
+    typeof(Villsource.Modules.HumanResource.HumanResourceModule).Assembly
 };
 
 // Disable runtime-only concerns; persistence + multitenancy stay on so DbInitializers resolve. Caching

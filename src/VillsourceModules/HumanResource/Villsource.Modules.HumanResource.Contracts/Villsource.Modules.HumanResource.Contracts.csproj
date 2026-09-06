@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\BuildingBlocks\Shared\Shared.csproj" />
+      <ProjectReference Include="..\..\Core\Villsource.ObjectValue\Villsource.ObjectValue.csproj" />
     </ItemGroup>
 
 

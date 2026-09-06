@@ -1,7 +1,7 @@
 info:
   name: Update an organization unit
   type: http
-  seq: 6
+  seq: 4
   tags:
     - Organizations
 
@@ -78,6 +78,12 @@ examples:
                 "referenceId": "",
                 "name": "",
                 "code": "",
+                "positionTiers": [
+                  {
+                    "tier": "",
+                    "key": ""
+                  }
+                ],
                 "description": "",
                 "createdOnUtc": "",
                 "createdBy": "",

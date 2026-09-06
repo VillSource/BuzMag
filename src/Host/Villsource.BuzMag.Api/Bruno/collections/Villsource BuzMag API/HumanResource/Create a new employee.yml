@@ -1,0 +1,131 @@
+info:
+  name: Create a new employee
+  type: http
+  seq: 1
+  tags:
+    - HumanResource
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/employees"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "นาย",
+        "firstName": "สมชาย",
+        "middleName": "วิเศษ",
+        "lastName": "ใจดี",
+        "titleEn": "Mr.",
+        "firstNameEn": "Somchai",
+        "middleNameEn": "Wiset",
+        "lastNameEn": "Jaidee",
+        "address": {
+          "rawAddress": "123/45 อาคารวิลล์ทาวเวอร์ ชั้น 10 หมู่ 3 ซอยสุขุมวิท 55 ถนนสุขุมวิท แขวงคลองตันเหนือ เขตวัฒนา กรุงเทพมหานคร 10110",
+          "houseNo": "123/45",
+          "building": "อาคารวิลล์ทาวเวอร์ ชั้น 10",
+          "moo": "3",
+          "soi": "สุขุมวิท 55",
+          "road": "สุขุมวิท",
+          "subDistrict": "คลองตันเหนือ",
+          "district": "วัฒนา",
+          "province": "กรุงเทพมหานคร",
+          "postalCode": "10110",
+          "country": "Thailand"
+        },
+        "email": "somchai.jaidee@example.com"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 201 Response
+    description: Created
+    request:
+      url: "{{baseUrl}}/api/v1/employees"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "title": "",
+            "firstName": "",
+            "middleName": "",
+            "lastName": "",
+            "titleEn": "",
+            "firstNameEn": "",
+            "middleNameEn": "",
+            "lastNameEn": "",
+            "address": {
+              "rawAddress": "",
+              "houseNo": "",
+              "building": "",
+              "moo": "",
+              "soi": "",
+              "road": "",
+              "subDistrict": "",
+              "district": "",
+              "province": "",
+              "postalCode": "",
+              "country": ""
+            },
+            "email": ""
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "ref": "",
+            "userId": "",
+            "code": "",
+            "title": "",
+            "firstName": "",
+            "middleName": "",
+            "lastName": "",
+            "titleEn": "",
+            "firstNameEn": "",
+            "middleNameEn": "",
+            "lastNameEn": "",
+            "address": {
+              "rawAddress": "",
+              "houseNo": "",
+              "building": "",
+              "moo": "",
+              "soi": "",
+              "road": "",
+              "subDistrict": "",
+              "district": "",
+              "province": "",
+              "postalCode": "",
+              "country": ""
+            },
+            "email": "",
+            "isActive": false,
+            "lastHireDate": "",
+            "firstHireDate": "",
+            "snapshotManagerRef": "",
+            "snapshotOuRef": "",
+            "snapshotPositionRef": "",
+            "snapshotTier": "",
+            "createdOnUtc": "",
+            "createdBy": "",
+            "lastModifiedOnUtc": "",
+            "lastModifiedBy": "",
+            "isDeleted": false,
+            "deletedOnUtc": "",
+            "deletedBy": ""
+          }

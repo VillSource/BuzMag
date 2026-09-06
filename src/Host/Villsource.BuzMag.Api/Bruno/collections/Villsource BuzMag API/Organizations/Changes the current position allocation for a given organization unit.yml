@@ -1,7 +1,7 @@
 info:
-  name: post /api/v1/organizations/position-allocations/:allocationId/change
+  name: Changes the current position allocation for a given organization unit
   type: http
-  seq: 17
+  seq: 14
   tags:
     - Organizations
 
@@ -55,12 +55,17 @@ examples:
         type: json
         data: |-
           {
-            "id": "",
-            "organizationUnitReferenceId": "",
+            "referenceId": "",
             "position": {
               "referenceId": "",
               "name": "",
               "code": "",
+              "positionTiers": [
+                {
+                  "tier": "",
+                  "key": ""
+                }
+              ],
               "description": "",
               "createdOnUtc": "",
               "createdBy": "",
