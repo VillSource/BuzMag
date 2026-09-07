@@ -36,23 +36,25 @@ public class UpdateEmploymentStatusCommandHandler(HumanResourceDbContext dbConte
         DateTimeOffset now = timeProvider.GetUtcNow();
         EmployeeEmploymentAtTimeSpec spec = new(employmentType, employee.Id, now);
         var employments = await dbContext.Employments
-                                .ApplySpecification(spec)
-                                .AsTracking()
-                                .Take(2)
-                                .ToListAsync(cancellationToken)
-                                .ConfigureAwait(false)
-                            ?? throw new CustomException(
-                                $"[invalid data for employment in database] Employment with type '{command.Type}' of employee '{command.EmployeeRef}' not found or found multiple employments.");
-        
+            .ApplySpecification(spec)
+            .AsTracking()
+            .Take(2)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
         Employment oldEmployment = employments.Count switch
         {
-            0 => throw new CustomException($"Employment with type '{command.Type}' for employee '{command.EmployeeRef}' was not found.",[], HttpStatusCode.BadRequest),
-            > 1 => throw new CustomException($"Invalid database state: Found multiple active employments with type '{command.Type}' for employee '{command.EmployeeRef}'."),
+            0 => throw new CustomException(
+                $"Employment with type '{command.Type}' for employee '{command.EmployeeRef}' was not found.", [],
+                HttpStatusCode.BadRequest),
+            > 1 => throw new CustomException(
+                $"Invalid database state: Found multiple active employments with type '{command.Type}' for employee '{command.EmployeeRef}'."),
             _ => employments[0]
         };
 
         if (oldEmployment.Status == employmentStatus)
-            throw new CustomException($"Employment already with status '{oldEmployment.Status}'.");
+            throw new CustomException($"Employment already with status '{oldEmployment.Status}'.", [],
+                HttpStatusCode.BadRequest);
 
         oldEmployment.EffectiveTo = command.EffectiveDate - TimeSpan.FromDays(1);
 

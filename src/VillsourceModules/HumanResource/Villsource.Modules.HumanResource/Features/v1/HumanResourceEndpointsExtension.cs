@@ -195,7 +195,7 @@ public static class HumanResourceEndpointsExtension
                         var result = await mediator.Send(new GetEmploymentHistoryQuery(@ref), cancellationToken);
                         return Results.Ok(result);
                     })
-                .Produces<ICollection<EmploymentDto>>()
+                .Produces<ICollection<EmploymentCycleDto>>()
                 .WithName("GetEmploymentHistory")
                 // .WithSummary("Get employment history.")
                 .RequirePermission(HumanResourcePermissions.Employees.View);
