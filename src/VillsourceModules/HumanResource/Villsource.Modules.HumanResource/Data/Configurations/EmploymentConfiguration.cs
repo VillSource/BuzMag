@@ -18,8 +18,7 @@ public class EmploymentConfiguration : IEntityTypeConfiguration<Employment>
         builder.Property(e => e.Ref).HasMaxLength(VillsourceId.KeySizes).IsRequired();
 
         builder.Property(e => e.EmployeeId).IsRequired();
-        builder.Property(e => e.StartNote).HasMaxLength(500);
-        builder.Property(e => e.EndNote).HasMaxLength(500);
+        builder.Property(e => e.Note).HasMaxLength(500);
 
         builder.Property(e => e.Type)
             .HasConversion(

@@ -14,6 +14,10 @@ namespace Villsource.Modules.HumanResource.Features.v1;
 
 public static class HumanResourceEndpointsExtension
 {
+    internal sealed record CreateEmploymentBody(string Type, string? Note, DateTimeOffset EffectiveDate);
+
+    internal sealed record UpdateEmploymentStatusBody(string Status, string? Note, DateTimeOffset EffectiveDate);
+
     extension(IEndpointRouteBuilder endpoints)
     {
         public IEndpointRouteBuilder MapHumanResourceEndpoints()
@@ -28,10 +32,10 @@ public static class HumanResourceEndpointsExtension
                 .WithApiVersionSet(versionSet)
                 .RequireAuthorization();
 
-            group.MapCreateNewEmployeeEndpoint();
+            group.MapCreateEmployeeEndpoint();
             group.MapUpdateEmployeeInfoEndpoint();
             group.MapAssignPositionEndpoint();
-            group.MapUpdateEmploymentEndpoint();
+            group.MapUpdateEmploymentStatusEndpoint();
             group.MapTerminateEmploymentEndpoint();
             group.MapGetEmployeesEndpoint();
             group.MapGetEmployeeBriefEndpoint();
@@ -39,80 +43,111 @@ public static class HumanResourceEndpointsExtension
             group.MapGetCurrentPositionsEndpoint();
             group.MapGetEmploymentHistoryEndpoint();
             group.MapGetPositionHistoryEndpoint();
+            group.MapCreateEmploymentEndpoint();
 
             return endpoints;
         }
 
-        internal RouteHandlerBuilder MapCreateNewEmployeeEndpoint()
+        internal RouteHandlerBuilder MapCreateEmployeeEndpoint()
             => endpoints.MapPost("/",
-                    async ([FromBody] CreateNewEmployeeCommand command, IMediator mediator, CancellationToken cancellationToken) =>
+                    async ([FromBody] CreateEmployeeCommand command, IMediator mediator,
+                        CancellationToken cancellationToken) =>
                     {
                         var result = await mediator.Send(command, cancellationToken);
                         return Results.Created($"/api/v1/employees/{result.Ref}", result);
                     })
                 .Produces<EmployeeDto>(StatusCodes.Status201Created)
-                .WithName("CreateNewEmployee")
-                .WithSummary("Create a new employee.")
+                .WithName("CreateEmployee")
+                // .WithSummary("Create an employee.")
                 .RequirePermission(HumanResourcePermissions.Employees.Create);
 
         internal RouteHandlerBuilder MapUpdateEmployeeInfoEndpoint()
             => endpoints.MapPut("/{ref}",
-                    async (string @ref, [FromBody] UpdateEmployeeInfoCommand command, IMediator mediator, CancellationToken cancellationToken) =>
+                    async (string @ref, [FromBody] UpdateEmployeeInfoCommand command, IMediator mediator,
+                        CancellationToken cancellationToken) =>
                     {
                         var result = await mediator.Send(command with { EmployeeRef = @ref }, cancellationToken);
                         return Results.Ok(result);
                     })
                 .Produces<EmployeeDto>()
                 .WithName("UpdateEmployeeInfo")
-                .WithSummary("Update employee personal information.")
+                // .WithSummary("Update employee personal information.")
                 .RequirePermission(HumanResourcePermissions.Employees.Update);
 
         internal RouteHandlerBuilder MapAssignPositionEndpoint()
             => endpoints.MapPost("/{ref}/positions",
-                    async (string @ref, [FromBody] AssignPositionCommand command, IMediator mediator, CancellationToken cancellationToken) =>
+                    async (string @ref, [FromBody] AssignPositionCommand command, IMediator mediator,
+                        CancellationToken cancellationToken) =>
                     {
                         var result = await mediator.Send(command with { EmployeeRef = @ref }, cancellationToken);
                         return Results.Ok(result);
                     })
                 .Produces<PositionAssignmentDto>()
                 .WithName("AssignPosition")
-                .WithSummary("Assign position to employee.")
+                // .WithSummary("Assign position to employee.")
                 .RequirePermission(HumanResourcePermissions.Employees.AssignPosition);
 
-        internal RouteHandlerBuilder MapUpdateEmploymentEndpoint()
-            => endpoints.MapPut("/{ref}/employment",
-                    async (string @ref, [FromBody] UpdateEmploymentCommand command, IMediator mediator, CancellationToken cancellationToken) =>
+
+        internal RouteHandlerBuilder MapCreateEmploymentEndpoint()
+            => endpoints.MapPost("/{employeeRef}/employment",
+                    async (string employeeRef, [FromBody] CreateEmploymentBody command, IMediator mediator,
+                        CancellationToken cancellationToken) =>
                     {
-                        var result = await mediator.Send(command with { EmployeeRef = @ref }, cancellationToken);
+                        EmploymentDto result = await mediator.Send(new CreateEmploymentCommand
+                        (
+                            EmployeeRef: employeeRef,
+                            EffectiveDate: command.EffectiveDate,
+                            Note: command.Note,
+                            Type: command.Type
+                        ), cancellationToken);
                         return Results.Ok(result);
                     })
                 .Produces<EmploymentDto>()
-                .WithName("UpdateEmployment")
-                .WithSummary("Update employee employment status or type.")
+                .WithName("CreateEmployment")
+                .RequirePermission(HumanResourcePermissions.Employees.ApplyEmployment);
+
+        internal RouteHandlerBuilder MapUpdateEmploymentStatusEndpoint()
+            => endpoints.MapPut("/{employeeRef}/employment/{employmentType}",
+                    async (string employeeRef, string employmentType, [FromBody] UpdateEmploymentStatusBody body,
+                        IMediator mediator, CancellationToken cancellationToken) =>
+                    {
+                        var result = await mediator.Send(new UpdateEmploymentStatusCommand(
+                            EmployeeRef: employeeRef,
+                            Type: employmentType,
+                            Status: body.Status,
+                            Note: body.Note,
+                            EffectiveDate: body.EffectiveDate
+                        ), cancellationToken);
+                        return Results.Ok(result);
+                    })
+                .Produces<EmploymentDto>()
+                .WithName("UpdateEmploymentStatus")
                 .RequirePermission(HumanResourcePermissions.Employees.UpdateEmployment);
 
         internal RouteHandlerBuilder MapTerminateEmploymentEndpoint()
             => endpoints.MapPost("/{ref}/terminate",
-                    async (string @ref, [FromBody] TerminateEmploymentCommand command, IMediator mediator, CancellationToken cancellationToken) =>
+                    async (string @ref, [FromBody] TerminateEmploymentCommand command, IMediator mediator,
+                        CancellationToken cancellationToken) =>
                     {
                         var result = await mediator.Send(command with { EmployeeRef = @ref }, cancellationToken);
                         return Results.Ok(result);
                     })
                 .Produces<EmployeeDto>()
                 .WithName("TerminateEmployment")
-                .WithSummary("Terminate employment.")
+                // .WithSummary("Terminate employment.")
                 .RequirePermission(HumanResourcePermissions.Employees.Terminate);
 
         internal RouteHandlerBuilder MapGetEmployeesEndpoint()
             => endpoints.MapGet("/",
-                    async ([AsParameters] GetEmployeesQuery query, IMediator mediator, CancellationToken cancellationToken) =>
+                    async ([AsParameters] GetEmployeesQuery query, IMediator mediator,
+                        CancellationToken cancellationToken) =>
                     {
                         var result = await mediator.Send(query, cancellationToken);
                         return Results.Ok(result);
                     })
                 .Produces<ICollection<EmployeeDto>>()
                 .WithName("GetEmployees")
-                .WithSummary("Get all employees.")
+                // .WithSummary("Get all employees.")
                 .RequirePermission(HumanResourcePermissions.Employees.View);
 
         internal RouteHandlerBuilder MapGetEmployeeBriefEndpoint()
@@ -124,7 +159,7 @@ public static class HumanResourceEndpointsExtension
                     })
                 .Produces<EmployeeBriefDto>()
                 .WithName("GetEmployeeBrief")
-                .WithSummary("Get brief employee details for reference.")
+                // .WithSummary("Get brief employee details for reference.")
                 .RequirePermission(HumanResourcePermissions.Employees.View);
 
         internal RouteHandlerBuilder MapGetEmployeeDetailEndpoint()
@@ -136,19 +171,21 @@ public static class HumanResourceEndpointsExtension
                     })
                 .Produces<EmployeeDto>()
                 .WithName("GetEmployeeDetail")
-                .WithSummary("Get full employee details.")
+                // .WithSummary("Get full employee details.")
                 .RequirePermission(HumanResourcePermissions.Employees.View);
 
         internal RouteHandlerBuilder MapGetCurrentPositionsEndpoint()
             => endpoints.MapGet("/{ref}/positions/current",
-                    async (string @ref, [FromQuery] bool? isPrimary, IMediator mediator, CancellationToken cancellationToken) =>
+                    async (string @ref, [FromQuery] bool? isPrimary, IMediator mediator,
+                        CancellationToken cancellationToken) =>
                     {
-                        var result = await mediator.Send(new GetCurrentPositionsQuery(@ref, isPrimary), cancellationToken);
+                        var result = await mediator.Send(new GetCurrentPositionsQuery(@ref, isPrimary),
+                            cancellationToken);
                         return Results.Ok(result);
                     })
                 .Produces<ICollection<PositionAssignmentDto>>()
                 .WithName("GetCurrentPositions")
-                .WithSummary("Get current active position assignments.")
+                // .WithSummary("Get current active position assignments.")
                 .RequirePermission(HumanResourcePermissions.Employees.View);
 
         internal RouteHandlerBuilder MapGetEmploymentHistoryEndpoint()
@@ -160,7 +197,7 @@ public static class HumanResourceEndpointsExtension
                     })
                 .Produces<ICollection<EmploymentDto>>()
                 .WithName("GetEmploymentHistory")
-                .WithSummary("Get employment history.")
+                // .WithSummary("Get employment history.")
                 .RequirePermission(HumanResourcePermissions.Employees.View);
 
         internal RouteHandlerBuilder MapGetPositionHistoryEndpoint()
@@ -172,7 +209,7 @@ public static class HumanResourceEndpointsExtension
                     })
                 .Produces<ICollection<PositionAssignmentDto>>()
                 .WithName("GetPositionHistory")
-                .WithSummary("Get position assignment history.")
+                // .WithSummary("Get position assignment history.")
                 .RequirePermission(HumanResourcePermissions.Employees.View);
     }
 }

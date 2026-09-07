@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Villsource.FSH.Modules.Organization.Contracts.Constants;
+using Villsource.Modules.HumanResource.Contracts.Constants;
 using Villsource.Modules.HumanResource.Domain;
 using Villsource.ObjectValue;
 using Villsource.Tool.UniqueKey;
@@ -41,7 +42,11 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
                 value => ToPositionTier(value))
             .HasMaxLength(50);
         builder.ComplexProperty(e => e.Address).ConfigureAddress();
-        
+
+        builder.Property(e => e.Status)
+            .HasConversion(
+                status => status.Key == EmployeeStatus.None.Key ? null : status.Key,
+                value => toEmployeeStatus(value));
         
         builder.HasMany(e => e.Employments)
             .WithOne()
@@ -61,4 +66,5 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
     }
 
     private static PositionTier? ToPositionTier(string? key) => PositionTier.TryGet(key, out PositionTier? tier) ? tier : null;
+    private static EmployeeStatus toEmployeeStatus(string? key) => EmployeeStatus.TryGet(key, out EmployeeStatus? status) ? status : EmployeeStatus.None;
 }

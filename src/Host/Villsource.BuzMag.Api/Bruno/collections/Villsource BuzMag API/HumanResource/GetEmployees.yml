@@ -1,5 +1,5 @@
 info:
-  name: Get all employees
+  name: GetEmployees
   type: http
   seq: 2
   tags:

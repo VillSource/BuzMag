@@ -1,5 +1,6 @@
 ﻿using FSH.Framework.Core.Domain;
 using Villsource.FSH.Modules.Organization.Contracts.Constants;
+using Villsource.Modules.HumanResource.Contracts.Constants;
 using Villsource.ObjectValue;
 using Villsource.Tool.UniqueKey;
 
@@ -25,7 +26,7 @@ public sealed partial class Employee : AggregateRoot<Guid>, IAuditableEntity, IS
 
 
     // job label
-    public bool IsActive { get; private set; }
+    public EmployeeStatus Status { get; private set; } = EmployeeStatus.None; 
     public DateTimeOffset? LastHireDate { get; }
     public DateTimeOffset? FirstHireDate { get; }
     public Guid? SnapshotManagerId { get; }
@@ -68,7 +69,7 @@ public sealed partial class Employee : AggregateRoot<Guid>, IAuditableEntity, IS
             FirstNameEn = firstNameEn,
             LastNameEn = lastNameEn,
             Email = email,
-            IsActive = false,
+            Status = EmployeeStatus.Offboarding,
             Address = address
         };
 

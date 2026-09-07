@@ -6,12 +6,12 @@ using Villsource.Modules.HumanResource.Domain;
 using Villsource.Modules.HumanResource.Mappers;
 using Villsource.Modules.HumanResource.Services;
 
-namespace Villsource.Modules.HumanResource.Features.v1.Employ.NewEmployee;
+namespace Villsource.Modules.HumanResource.Features.v1.Employ.CreateEmployee;
 
-public class CreateNewEmployeeCommandHandler(HumanResourceDbContext dbContext, IEmployeeCodeFactory codeFactory)
-    : ICommandHandler<CreateNewEmployeeCommand, EmployeeDto>
+public class CreateEmployeeCommandHandler(HumanResourceDbContext dbContext, IEmployeeCodeFactory codeFactory)
+    : ICommandHandler<CreateEmployeeCommand, EmployeeDto>
 {
-    public async ValueTask<EmployeeDto> Handle(CreateNewEmployeeCommand command, CancellationToken cancellationToken)
+    public async ValueTask<EmployeeDto> Handle(CreateEmployeeCommand command, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
 

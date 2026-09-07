@@ -4,7 +4,7 @@ using Villsource.ObjectValue;
 
 namespace Villsource.Modules.HumanResource.Contracts.v1;
 
-public sealed record CreateNewEmployeeCommand(
+public sealed record CreateEmployeeCommand(
     string Title,
     string FirstName,
     string? MiddleName,

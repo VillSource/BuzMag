@@ -1,5 +1,5 @@
 info:
-  name: Create a new employee
+  name: CreateEmployee
   type: http
   seq: 1
   tags:
@@ -12,28 +12,28 @@ http:
     type: json
     data: |-
       {
-        "title": "นาย",
-        "firstName": "สมชาย",
-        "middleName": "วิเศษ",
-        "lastName": "ใจดี",
-        "titleEn": "Mr.",
-        "firstNameEn": "Somchai",
-        "middleNameEn": "Wiset",
-        "lastNameEn": "Jaidee",
+        "title": "นางสาว",
+        "firstName": "ปิยะดา",
+        "middleName": "",
+        "lastName": "สิริวัฒนกุล",
+        "titleEn": "Ms.",
+        "firstNameEn": "Piyada",
+        "middleNameEn": "",
+        "lastNameEn": "Siriwattanakul",
         "address": {
-          "rawAddress": "123/45 อาคารวิลล์ทาวเวอร์ ชั้น 10 หมู่ 3 ซอยสุขุมวิท 55 ถนนสุขุมวิท แขวงคลองตันเหนือ เขตวัฒนา กรุงเทพมหานคร 10110",
-          "houseNo": "123/45",
-          "building": "อาคารวิลล์ทาวเวอร์ ชั้น 10",
-          "moo": "3",
-          "soi": "สุขุมวิท 55",
-          "road": "สุขุมวิท",
-          "subDistrict": "คลองตันเหนือ",
-          "district": "วัฒนา",
+          "rawAddress": "55/88 หมู่บ้านปัญญาเวิลด์ หมู่ 2 ซอยแจ้งวัฒนะ 14 ถนนแจ้งวัฒนะ แขวงทุ่งสองห้อง เขตหลักสี่ กรุงเทพมหานคร 10210",
+          "houseNo": "55/88",
+          "building": "หมู่บ้านปัญญาเวิลด์",
+          "moo": "2",
+          "soi": "แจ้งวัฒนะ 14",
+          "road": "แจ้งวัฒนะ",
+          "subDistrict": "ทุ่งสองห้อง",
+          "district": "หลักสี่",
           "province": "กรุงเทพมหานคร",
-          "postalCode": "10110",
+          "postalCode": "10210",
           "country": "Thailand"
         },
-        "email": "somchai.jaidee@example.com"
+        "email": "piyada.s@example.com"
       }
   auth:
     type: bearer

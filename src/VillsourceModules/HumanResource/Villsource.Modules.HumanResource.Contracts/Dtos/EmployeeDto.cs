@@ -17,7 +17,6 @@ public sealed class EmployeeDto : AuditableDto
     public string LastNameEn { get; set; } = string.Empty;
     public Address Address { get; set; } = Address.Empty();
     public string? Email { get; set; }
-    public bool IsActive { get; set; }
     public DateTimeOffset? LastHireDate { get; set; }
     public DateTimeOffset? FirstHireDate { get; set; }
     public string? SnapshotManagerRef { get; set; } 

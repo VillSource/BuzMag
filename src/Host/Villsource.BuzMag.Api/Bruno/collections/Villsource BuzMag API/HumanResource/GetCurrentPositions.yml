@@ -1,17 +1,21 @@
 info:
-  name: Get position assignment history
+  name: GetCurrentPositions
   type: http
-  seq: 11
+  seq: 9
   tags:
     - HumanResource
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/v1/employees/:ref/positions/history"
+  url: "{{baseUrl}}/api/v1/employees/:ref/positions/current"
   params:
     - name: ref
       value: ""
       type: path
+    - name: isPrimary
+      value: ""
+      type: query
+      disabled: true
   auth:
     type: bearer
     token: "{{token}}"
@@ -27,12 +31,16 @@ examples:
   - name: 200 Response
     description: OK
     request:
-      url: "{{baseUrl}}/api/v1/employees/:ref/positions/history"
+      url: "{{baseUrl}}/api/v1/employees/:ref/positions/current"
       method: GET
       params:
         - name: ref
           value: ""
           type: path
+        - name: isPrimary
+          value: ""
+          type: query
+          disabled: true
     response:
       status: 200
       statusText: OK

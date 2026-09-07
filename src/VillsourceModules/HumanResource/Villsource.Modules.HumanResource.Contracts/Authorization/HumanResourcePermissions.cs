@@ -15,6 +15,7 @@ public static class HumanResourcePermissions
         
         public const string AssignPosition = $"Permissions.{Resource}.AssignPosition";
         public const string UpdateEmployment = $"Permissions.{Resource}.UpdateEmployment";
+        public const string ApplyEmployment = $"Permissions.{Resource}.ApplyEmployment";
         public const string Terminate = $"Permissions.{Resource}.Terminate";
     }
 
@@ -25,8 +26,9 @@ public static class HumanResourcePermissions
         new("Update HumanResource Employees", ActionConstants.Update, Employees.Resource, IsBasic: false),
         new("Delete HumanResource Employees", ActionConstants.Delete, Employees.Resource, IsBasic: false),
         
-        new("Assign Position to Employees", ActionConstants.Update, Employees.Resource, IsBasic: false),
-        new("Update Employment Status/Type", ActionConstants.Update, Employees.Resource, IsBasic: false),
-        new("Terminate Employee Employment", ActionConstants.Delete, Employees.Resource, IsBasic: false),
+        new("Assign Position to Employees", "AssignPosition", Employees.Resource, IsBasic: false),
+        new("Update Employment Status/Type", "UpdateEmployment", Employees.Resource, IsBasic: false),
+        new("Apply Employment to Employee", "ApplyEmployment", Employees.Resource, IsBasic: false),
+        new("Terminate Employee Employment", "Terminate", Employees.Resource, IsBasic: false),
     ];
 }

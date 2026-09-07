@@ -1,4 +1,6 @@
-﻿namespace Villsource.Modules.HumanResource.Contracts.Dtos;
+﻿using Villsource.Modules.HumanResource.Contracts.Constants;
+
+namespace Villsource.Modules.HumanResource.Contracts.Dtos;
 
 public sealed class EmployeeBriefDto
 {
@@ -14,7 +16,7 @@ public sealed class EmployeeBriefDto
     public string? MiddleNameEn { get; set; }
     public string LastNameEn { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
-    public bool IsActive { get; set; }
+    public string Status { get; set; } = EmploymentStatus.None.Key;
     public string? SnapshotManagerRef { get; set; } 
     public string? SnapshotOuRef { get; set; }
     public string? SnapshotPositionRef { get; set; }
