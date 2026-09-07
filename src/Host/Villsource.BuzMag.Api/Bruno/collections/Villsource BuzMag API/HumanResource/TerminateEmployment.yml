@@ -84,7 +84,6 @@ examples:
               "country": ""
             },
             "email": "",
-            "isActive": false,
             "lastHireDate": "",
             "firstHireDate": "",
             "snapshotManagerRef": "",

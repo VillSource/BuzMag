@@ -10,7 +10,7 @@ http:
   url: "{{baseUrl}}/api/v1/employees/:ref/employments/history"
   params:
     - name: ref
-      value: nPUKFXaOELQ
+      value: ""
       type: path
   auth:
     type: bearer
@@ -44,19 +44,24 @@ examples:
         data: |-
           [
             {
-              "ref": "",
-              "type": "",
-              "status": "",
-              "effectiveFrom": "",
-              "effectiveTo": "",
-              "startNote": "",
-              "endNote": "",
-              "createdOnUtc": "",
-              "createdBy": "",
-              "lastModifiedOnUtc": "",
-              "lastModifiedBy": "",
-              "isDeleted": false,
-              "deletedOnUtc": "",
-              "deletedBy": ""
+              "hireFrom": "",
+              "hireEnd": "",
+              "employments": [
+                {
+                  "ref": "",
+                  "type": "",
+                  "status": "",
+                  "effectiveFrom": "",
+                  "effectiveTo": "",
+                  "note": "",
+                  "createdOnUtc": "",
+                  "createdBy": "",
+                  "lastModifiedOnUtc": "",
+                  "lastModifiedBy": "",
+                  "isDeleted": false,
+                  "deletedOnUtc": "",
+                  "deletedBy": ""
+                }
+              ]
             }
           ]

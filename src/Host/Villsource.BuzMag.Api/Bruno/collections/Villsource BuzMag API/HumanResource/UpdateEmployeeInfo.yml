@@ -10,33 +10,21 @@ http:
   url: "{{baseUrl}}/api/v1/employees/:ref"
   params:
     - name: ref
-      value: nPUKFXaOELQ
+      value: ""
       type: path
   body:
     type: json
     data: |-
       {
-        "title": "นางสาว",
-        "firstName": "ปิยะดา2",
+        "title": "",
+        "firstName": "",
         "middleName": "",
-        "lastName": "สิริวัฒนกุล",
-        "titleEn": "Ms.",
-        "firstNameEn": "Piyada2",
+        "lastName": "",
+        "titleEn": "",
+        "firstNameEn": "",
         "middleNameEn": "",
-        "lastNameEn": "Siriwattanakul",
-        "address": {
-          "rawAddress": "55/88 หมู่บ้านปัญญาเวิลด์ หมู่ 2 ซอยแจ้งวัฒนะ 14 ถนนแจ้งวัฒนะ แขวงทุ่งสองห้อง เขตหลักสี่ กรุงเทพมหานคร 10210",
-          "houseNo": "55/88",
-          "building": "หมู่บ้านปัญญาเวิลด์",
-          "moo": "2",
-          "soi": "แจ้งวัฒนะ 14",
-          "road": "แจ้งวัฒนะ",
-          "subDistrict": "ทุ่งสองห้อง",
-          "district": "หลักสี่",
-          "province": "กรุงเทพมหานคร",
-          "postalCode": "10210",
-          "country": "Thailand"
-        }
+        "lastNameEn": "",
+        "address": ""
       }
   auth:
     type: bearer
@@ -108,7 +96,6 @@ examples:
               "country": ""
             },
             "email": "",
-            "isActive": false,
             "lastHireDate": "",
             "firstHireDate": "",
             "snapshotManagerRef": "",

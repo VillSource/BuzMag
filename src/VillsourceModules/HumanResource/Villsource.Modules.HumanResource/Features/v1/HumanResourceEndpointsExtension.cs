@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Villsource.Modules.HumanResource.Constants;
 using Villsource.Modules.HumanResource.Contracts.Authorization;
+using Villsource.Modules.HumanResource.Contracts.Constants;
 using Villsource.Modules.HumanResource.Contracts.Dtos;
 using Villsource.Modules.HumanResource.Contracts.v1;
 
@@ -44,6 +45,11 @@ public static class HumanResourceEndpointsExtension
             group.MapGetEmploymentHistoryEndpoint();
             group.MapGetPositionHistoryEndpoint();
             group.MapCreateEmploymentEndpoint();
+
+            group.MapGetEmployeeStatusLookupEndpoint();
+            group.MapGetEmploymentStatusLookupEndpoint();
+            group.MapGetEmploymentTypeLookupEndpoint();
+            group.MapGetPositionAssignmentTypeLookupEndpoint();
 
             return endpoints;
         }
@@ -211,5 +217,25 @@ public static class HumanResourceEndpointsExtension
                 .WithName("GetPositionHistory")
                 // .WithSummary("Get position assignment history.")
                 .RequirePermission(HumanResourcePermissions.Employees.View);
+
+        internal RouteHandlerBuilder MapGetEmployeeStatusLookupEndpoint() => endpoints
+            .MapGet("employee-status/lookup", () => EmployeeStatus.Items)
+            .WithName("GetEmployeeStatusLookup").AllowAnonymous()
+            .WithTags(ApiTags.HumanResource, "lookups");
+
+        internal RouteHandlerBuilder MapGetEmploymentStatusLookupEndpoint() => endpoints
+            .MapGet("employment-status/lookup", () => EmploymentStatus.Items)
+            .WithName("GetEmploymentStatusLookup").AllowAnonymous()
+            .WithTags(ApiTags.HumanResource, "lookups");
+
+        internal RouteHandlerBuilder MapGetEmploymentTypeLookupEndpoint() => endpoints
+            .MapGet("employment-type/lookup", () => EmploymentType.Items)
+            .WithName("GetEmploymentTypeLookup").AllowAnonymous()
+            .WithTags(ApiTags.HumanResource, "lookups");
+
+        internal RouteHandlerBuilder MapGetPositionAssignmentTypeLookupEndpoint() => endpoints
+            .MapGet("position-assignment-type/lookup", () => PositionAssignmentType.Items)
+            .WithName("GetPositionAssignmentTypeLookup").AllowAnonymous()
+            .WithTags(ApiTags.HumanResource, "lookups");
     }
 }

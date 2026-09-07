@@ -10,7 +10,7 @@ http:
   url: "{{baseUrl}}/api/v1/employees/:ref"
   params:
     - name: ref
-      value: nPUKFXaOELQ
+      value: ""
       type: path
   auth:
     type: bearer
@@ -68,7 +68,6 @@ examples:
               "country": ""
             },
             "email": "",
-            "isActive": false,
             "lastHireDate": "",
             "firstHireDate": "",
             "snapshotManagerRef": "",

@@ -10,18 +10,18 @@ http:
   url: "{{baseUrl}}/api/v1/employees/:employeeRef/employment/:employmentType"
   params:
     - name: employeeRef
-      value: nPUKFXaOELQ
+      value: ""
       type: path
     - name: employmentType
-      value: CONTRACT
+      value: ""
       type: path
   body:
     type: json
     data: |-
       {
-        "status": "RESIGNED",
-        "note": "บรรจุ",
-        "effectiveDate": "{{$isoTimestamp}}"
+        "status": "",
+        "note": "",
+        "effectiveDate": ""
       }
   auth:
     type: bearer
@@ -70,8 +70,7 @@ examples:
             "status": "",
             "effectiveFrom": "",
             "effectiveTo": "",
-            "startNote": "",
-            "endNote": "",
+            "note": "",
             "createdOnUtc": "",
             "createdBy": "",
             "lastModifiedOnUtc": "",

@@ -12,28 +12,28 @@ http:
     type: json
     data: |-
       {
-        "title": "นางสาว",
-        "firstName": "ปิยะดา",
+        "title": "",
+        "firstName": "",
         "middleName": "",
-        "lastName": "สิริวัฒนกุล",
-        "titleEn": "Ms.",
-        "firstNameEn": "Piyada",
+        "lastName": "",
+        "titleEn": "",
+        "firstNameEn": "",
         "middleNameEn": "",
-        "lastNameEn": "Siriwattanakul",
+        "lastNameEn": "",
         "address": {
-          "rawAddress": "55/88 หมู่บ้านปัญญาเวิลด์ หมู่ 2 ซอยแจ้งวัฒนะ 14 ถนนแจ้งวัฒนะ แขวงทุ่งสองห้อง เขตหลักสี่ กรุงเทพมหานคร 10210",
-          "houseNo": "55/88",
-          "building": "หมู่บ้านปัญญาเวิลด์",
-          "moo": "2",
-          "soi": "แจ้งวัฒนะ 14",
-          "road": "แจ้งวัฒนะ",
-          "subDistrict": "ทุ่งสองห้อง",
-          "district": "หลักสี่",
-          "province": "กรุงเทพมหานคร",
-          "postalCode": "10210",
-          "country": "Thailand"
+          "rawAddress": "",
+          "houseNo": "",
+          "building": "",
+          "moo": "",
+          "soi": "",
+          "road": "",
+          "subDistrict": "",
+          "district": "",
+          "province": "",
+          "postalCode": "",
+          "country": ""
         },
-        "email": "piyada.s@example.com"
+        "email": ""
       }
   auth:
     type: bearer
@@ -114,7 +114,6 @@ examples:
               "country": ""
             },
             "email": "",
-            "isActive": false,
             "lastHireDate": "",
             "firstHireDate": "",
             "snapshotManagerRef": "",
