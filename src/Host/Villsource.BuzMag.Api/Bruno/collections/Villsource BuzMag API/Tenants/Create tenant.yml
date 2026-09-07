@@ -1,0 +1,136 @@
+info:
+  name: Create tenant
+  type: http
+  seq: 3
+  tags:
+    - Tenants
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/tenants"
+  body:
+    type: json
+    data: |-
+      {
+        "id": "",
+        "name": "",
+        "connectionString": "",
+        "adminEmail": "",
+        "adminPassword": "",
+        "issuer": "",
+        "planKey": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 201 Response
+    description: Created
+    request:
+      url: "{{baseUrl}}/api/v1/tenants"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "name": "",
+            "connectionString": "",
+            "adminEmail": "",
+            "adminPassword": "",
+            "issuer": "",
+            "planKey": ""
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "provisioningCorrelationId": "",
+            "status": ""
+          }
+  - name: 400 Response
+    description: Bad Request
+    request:
+      url: "{{baseUrl}}/api/v1/tenants"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "name": "",
+            "connectionString": "",
+            "adminEmail": "",
+            "adminPassword": "",
+            "issuer": "",
+            "planKey": ""
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/tenants"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "name": "",
+            "connectionString": "",
+            "adminEmail": "",
+            "adminPassword": "",
+            "issuer": "",
+            "planKey": ""
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/tenants"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "name": "",
+            "connectionString": "",
+            "adminEmail": "",
+            "adminPassword": "",
+            "issuer": "",
+            "planKey": ""
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Create a new tenant.

@@ -1,0 +1,73 @@
+info:
+  name: Get per-tenant migration status
+  type: http
+  seq: 10
+  tags:
+    - Tenants
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/tenants/migrations"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/tenants/migrations"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "tenantId": "",
+              "name": "",
+              "isActive": false,
+              "validUpto": "",
+              "hasPendingMigrations": false,
+              "provider": "",
+              "lastAppliedMigration": "",
+              "pendingMigrations": [],
+              "error": ""
+            }
+          ]
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/tenants/migrations"
+      method: GET
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/tenants/migrations"
+      method: GET
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Retrieve migration status for each tenant, including pending migrations and provider information.

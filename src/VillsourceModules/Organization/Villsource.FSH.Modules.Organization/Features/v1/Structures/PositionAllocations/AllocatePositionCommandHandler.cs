@@ -3,38 +3,34 @@ using Mediator;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using Villsource.FSH.Modules.Organization.Contracts.Dtos;
-using Villsource.FSH.Modules.Organization.Contracts.v1.Structures.PositionAllocations;
+using Villsource.FSH.Modules.Organization.Contracts.v1.Structures;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.PositionAllocations;
 
 public sealed class AllocatePositionCommandHandler(OrganizationDbContext dbContext)
-    : ICommandHandler<AllocatePositionCommand, OrganizationUnitPositionAllocationDto>
+    : ICommandHandler<AllocatePositionCommand, PositionAllocationDto>
 {
     private OrganizationUnit _ou = null!;
     private Position _position = null!;
 
-    public async ValueTask<OrganizationUnitPositionAllocationDto> Handle(AllocatePositionCommand command,
+    public async ValueTask<PositionAllocationDto> Handle(AllocatePositionCommand command,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
 
         _ou = await dbContext.OrganizationUnits
-                  .FirstOrDefaultAsync(x => x.ReferenceId == command.OrganizationUnitId, cancellationToken)
+                  .SingleOrDefaultAsync(x => x.ReferenceId == command.OrganizationUnitId, cancellationToken)
                   .ConfigureAwait(false) ??
               throw new NotFoundException(
                   $"Organization unit with reference '{command.OrganizationUnitId}' not found.");
 
         _position = await dbContext.Positions
-                        .FirstOrDefaultAsync(x => x.ReferenceId == command.PositionId, cancellationToken)
+                        .SingleOrDefaultAsync(x => x.ReferenceId == command.PositionId, cancellationToken)
                         .ConfigureAwait(false) ??
                     throw new NotFoundException($"Position with reference '{command.PositionId}' not found.");
         
-        if (_ou.OrganizationId != _position.OrganizationId)
-            throw new CustomException("The position must belong to the organization unit's organization.", [],
-                HttpStatusCode.Conflict);
-
         if (await dbContext.OrganizationUnitPositionAllocations
                 .AnyAsync(x => x.OrganizationUnitId == _ou.Id && x.PositionId == _position.Id && x.EffectiveTo == null,
                     cancellationToken).ConfigureAwait(false))

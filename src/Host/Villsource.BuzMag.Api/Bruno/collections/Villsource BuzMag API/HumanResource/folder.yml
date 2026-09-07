@@ -1,0 +1,6 @@
+info:
+  name: HumanResource
+  type: folder
+
+request:
+  auth: inherit

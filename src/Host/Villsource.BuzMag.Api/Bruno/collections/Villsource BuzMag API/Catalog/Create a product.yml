@@ -1,0 +1,59 @@
+info:
+  name: Create a product
+  type: http
+  seq: 18
+  tags:
+    - Catalog
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/catalog/products"
+  body:
+    type: json
+    data: |-
+      {
+        "sku": "",
+        "name": "",
+        "description": "",
+        "brandId": "",
+        "categoryId": "",
+        "priceAmount": "",
+        "priceCurrency": "",
+        "stock": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/catalog/products"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "sku": "",
+            "name": "",
+            "description": "",
+            "brandId": "",
+            "categoryId": "",
+            "priceAmount": "",
+            "priceCurrency": "",
+            "stock": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

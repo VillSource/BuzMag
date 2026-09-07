@@ -1,0 +1,61 @@
+info:
+  name: Get current user profile
+  type: http
+  seq: 20
+  tags:
+    - Identity
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/identity/profile"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/profile"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "userName": "",
+            "firstName": "",
+            "lastName": "",
+            "email": "",
+            "isActive": false,
+            "emailConfirmed": false,
+            "phoneNumber": "",
+            "imageUrl": "",
+            "twoFactorEnabled": false
+          }
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/profile"
+      method: GET
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+
+docs: Retrieve the authenticated user's profile from the access token.

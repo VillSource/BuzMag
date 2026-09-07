@@ -1,6 +1,8 @@
 using FSH.Framework.Core.Exceptions;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using Villsource.FSH.Modules.Organization.Contracts.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.Structures;
 using Villsource.FSH.Modules.Organization.Data;
@@ -16,14 +18,14 @@ public sealed class CreatePositionCommandHandler(
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
-
-        var organization = string.IsNullOrWhiteSpace(command.OrganizationId)
-            ? await dbContext.Organizations
-                .FirstOrDefaultAsync(o => o.IsDefault, cancellationToken)
-                .ConfigureAwait(false) ?? throw new NotFoundException("Default Organization not found.")
-            : await dbContext.Organizations
-                .FirstOrDefaultAsync(o => o.ReferenceId == command.OrganizationId, cancellationToken)
-                .ConfigureAwait(false) ?? throw new NotFoundException($"Organization with id '{command.OrganizationId}' not found.");
+        
+        string normalizeCode = command.Code.ToUpperInvariant();
+        if (await dbContext.Positions
+                .AnyAsync(i => i.Code == normalizeCode, cancellationToken)
+                .ConfigureAwait(false))
+        {
+            throw new CustomException($"Position with code '{command.Code}' already exists", [], statusCode: HttpStatusCode.Conflict);
+        }
 
         var position = Position.Create(
             code: command.Code,
@@ -31,7 +33,16 @@ public sealed class CreatePositionCommandHandler(
             description: command.Description
         );
 
-        organization.Positions.Add(position);
+        HashSet<PositionTier> positionTiers = [];
+        foreach (var tier in (command.PositionTier ?? []).AsSpan())
+        {
+            if (PositionTier.TryGet(tier, out var positionTier))
+                positionTiers.Add(positionTier);
+        }
+        
+        position.SetTier(positionTiers);
+
+        dbContext.Positions.Add(position);
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return position.ToDto();

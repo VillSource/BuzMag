@@ -1,0 +1,41 @@
+info:
+  name: Finalize a file upload after the browser PUT completes
+  type: http
+  seq: 6
+  tags:
+    - Files
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/files/:id/finalize"
+  params:
+    - name: id
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/files/:id/finalize"
+      method: POST
+      params:
+        - name: id
+          value: ""
+          type: path
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

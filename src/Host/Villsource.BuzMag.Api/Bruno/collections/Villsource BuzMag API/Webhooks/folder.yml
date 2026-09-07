@@ -1,0 +1,6 @@
+info:
+  name: Webhooks
+  type: folder
+
+request:
+  auth: inherit

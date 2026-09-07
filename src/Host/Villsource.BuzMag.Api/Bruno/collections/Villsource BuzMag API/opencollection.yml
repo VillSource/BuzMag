@@ -1,0 +1,14 @@
+opencollection: 1.0.0
+
+info:
+  name: Villsource BuzMag API
+
+docs:
+  content: The FSH Starter Kit API for Modular/Multitenant Architecture.
+  type: text/markdown
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

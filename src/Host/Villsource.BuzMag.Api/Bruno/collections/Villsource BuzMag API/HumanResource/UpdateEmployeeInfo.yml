@@ -1,0 +1,125 @@
+info:
+  name: UpdateEmployeeInfo
+  type: http
+  seq: 3
+  tags:
+    - HumanResource
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/employees/:ref"
+  params:
+    - name: ref
+      value: nPUKFXaOELQ
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "title": "นางสาว",
+        "firstName": "ปิยะดา2",
+        "middleName": "",
+        "lastName": "สิริวัฒนกุล",
+        "titleEn": "Ms.",
+        "firstNameEn": "Piyada2",
+        "middleNameEn": "",
+        "lastNameEn": "Siriwattanakul",
+        "address": {
+          "rawAddress": "55/88 หมู่บ้านปัญญาเวิลด์ หมู่ 2 ซอยแจ้งวัฒนะ 14 ถนนแจ้งวัฒนะ แขวงทุ่งสองห้อง เขตหลักสี่ กรุงเทพมหานคร 10210",
+          "houseNo": "55/88",
+          "building": "หมู่บ้านปัญญาเวิลด์",
+          "moo": "2",
+          "soi": "แจ้งวัฒนะ 14",
+          "road": "แจ้งวัฒนะ",
+          "subDistrict": "ทุ่งสองห้อง",
+          "district": "หลักสี่",
+          "province": "กรุงเทพมหานคร",
+          "postalCode": "10210",
+          "country": "Thailand"
+        }
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/employees/:ref"
+      method: PUT
+      params:
+        - name: ref
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "title": "",
+            "firstName": "",
+            "middleName": "",
+            "lastName": "",
+            "titleEn": "",
+            "firstNameEn": "",
+            "middleNameEn": "",
+            "lastNameEn": "",
+            "address": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "ref": "",
+            "userId": "",
+            "code": "",
+            "title": "",
+            "firstName": "",
+            "middleName": "",
+            "lastName": "",
+            "titleEn": "",
+            "firstNameEn": "",
+            "middleNameEn": "",
+            "lastNameEn": "",
+            "address": {
+              "rawAddress": "",
+              "houseNo": "",
+              "building": "",
+              "moo": "",
+              "soi": "",
+              "road": "",
+              "subDistrict": "",
+              "district": "",
+              "province": "",
+              "postalCode": "",
+              "country": ""
+            },
+            "email": "",
+            "isActive": false,
+            "lastHireDate": "",
+            "firstHireDate": "",
+            "snapshotManagerRef": "",
+            "snapshotOuRef": "",
+            "snapshotPositionRef": "",
+            "snapshotTier": "",
+            "createdOnUtc": "",
+            "createdBy": "",
+            "lastModifiedOnUtc": "",
+            "lastModifiedBy": "",
+            "isDeleted": false,
+            "deletedOnUtc": "",
+            "deletedBy": ""
+          }

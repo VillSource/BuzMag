@@ -1,0 +1,81 @@
+info:
+  name: Changes the current position allocation for a given organization unit
+  type: http
+  seq: 14
+  tags:
+    - Organizations
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/organizations/position-allocations/:allocationId/change"
+  params:
+    - name: allocationId
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "headCount": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/organizations/position-allocations/:allocationId/change"
+      method: POST
+      params:
+        - name: allocationId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "headCount": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "referenceId": "",
+            "position": {
+              "referenceId": "",
+              "name": "",
+              "code": "",
+              "positionTiers": [
+                {
+                  "tier": "",
+                  "key": ""
+                }
+              ],
+              "description": "",
+              "createdOnUtc": "",
+              "createdBy": "",
+              "lastModifiedOnUtc": "",
+              "lastModifiedBy": "",
+              "isDeleted": false,
+              "deletedOnUtc": "",
+              "deletedBy": ""
+            },
+            "headCount": "",
+            "effectiveFrom": "",
+            "effectiveTo": ""
+          }

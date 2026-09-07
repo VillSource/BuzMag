@@ -11,4 +11,8 @@
       <ProjectReference Include="..\..\..\BuildingBlocks\Shared\Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Thinktecture.Runtime.Extensions" />
+    </ItemGroup>
+
 </Project>

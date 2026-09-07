@@ -1,0 +1,6 @@
+info:
+  name: Organizations
+  type: folder
+
+request:
+  auth: inherit

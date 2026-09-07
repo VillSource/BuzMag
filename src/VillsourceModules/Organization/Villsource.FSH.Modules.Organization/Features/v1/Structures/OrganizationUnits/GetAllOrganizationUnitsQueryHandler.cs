@@ -17,23 +17,11 @@ public sealed class GetAllOrganizationUnitsQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        var organizationQuery = string.IsNullOrWhiteSpace(query.OrganizationId) 
-            ? dbContext.Organizations
-                .AsNoTracking()
-                .Include(o => o.Units)
-                .FirstOrDefaultAsync(o => o.IsDefault, cancellationToken)
-            : dbContext.Organizations
-                .AsNoTracking()
-                .Include(o => o.Units)
-                .FirstOrDefaultAsync(o => o.ReferenceId == query.OrganizationId, cancellationToken);
+        var units = await dbContext.OrganizationUnits
+            .Select(ou => ou.ToDto())
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
         
-        var organization = await organizationQuery
-                               .ConfigureAwait(false)
-                           ?? throw new NotFoundException("Organization not found.");
-        
-        var units = organization.Units.Select(ou => ou.ToDto()).ToList();
-        var unitTree = OrganizationUnitDto.BuildTree(units);
-
-        return unitTree;
+        return OrganizationUnitDto.BuildTree(units);
     }
 }

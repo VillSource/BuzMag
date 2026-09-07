@@ -1,0 +1,41 @@
+info:
+  name: Delete a webhook subscription
+  type: http
+  seq: 3
+  tags:
+    - Webhooks
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/webhooks/subscriptions/:id"
+  params:
+    - name: id
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 204 Response
+    description: No Content
+    request:
+      url: "{{baseUrl}}/api/v1/webhooks/subscriptions/:id"
+      method: DELETE
+      params:
+        - name: id
+          value: ""
+          type: path
+    response:
+      status: 204
+      statusText: No Content
+      body:
+        type: text
+        data: ""

@@ -1,0 +1,313 @@
+info:
+  name: Update current tenant theme
+  type: http
+  seq: 12
+  tags:
+    - Tenants
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/tenants/theme"
+  body:
+    type: json
+    data: |-
+      {
+        "lightPalette": {
+          "primary": "",
+          "secondary": "",
+          "tertiary": "",
+          "background": "",
+          "surface": "",
+          "error": "",
+          "warning": "",
+          "success": "",
+          "info": ""
+        },
+        "darkPalette": {
+          "primary": "",
+          "secondary": "",
+          "tertiary": "",
+          "background": "",
+          "surface": "",
+          "error": "",
+          "warning": "",
+          "success": "",
+          "info": ""
+        },
+        "brandAssets": {
+          "logoUrl": "",
+          "logoDarkUrl": "",
+          "faviconUrl": "",
+          "logo": "",
+          "logoDark": "",
+          "favicon": "",
+          "deleteLogo": false,
+          "deleteLogoDark": false,
+          "deleteFavicon": false
+        },
+        "typography": {
+          "fontFamily": "",
+          "headingFontFamily": "",
+          "fontSizeBase": "",
+          "lineHeightBase": ""
+        },
+        "layout": {
+          "borderRadius": "",
+          "defaultElevation": ""
+        },
+        "isDefault": false
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 204 Response
+    description: No Content
+    request:
+      url: "{{baseUrl}}/api/v1/tenants/theme"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "lightPalette": {
+              "primary": "",
+              "secondary": "",
+              "tertiary": "",
+              "background": "",
+              "surface": "",
+              "error": "",
+              "warning": "",
+              "success": "",
+              "info": ""
+            },
+            "darkPalette": {
+              "primary": "",
+              "secondary": "",
+              "tertiary": "",
+              "background": "",
+              "surface": "",
+              "error": "",
+              "warning": "",
+              "success": "",
+              "info": ""
+            },
+            "brandAssets": {
+              "logoUrl": "",
+              "logoDarkUrl": "",
+              "faviconUrl": "",
+              "logo": "",
+              "logoDark": "",
+              "favicon": "",
+              "deleteLogo": false,
+              "deleteLogoDark": false,
+              "deleteFavicon": false
+            },
+            "typography": {
+              "fontFamily": "",
+              "headingFontFamily": "",
+              "fontSizeBase": "",
+              "lineHeightBase": ""
+            },
+            "layout": {
+              "borderRadius": "",
+              "defaultElevation": ""
+            },
+            "isDefault": false
+          }
+    response:
+      status: 204
+      statusText: No Content
+      body:
+        type: text
+        data: ""
+  - name: 400 Response
+    description: Bad Request
+    request:
+      url: "{{baseUrl}}/api/v1/tenants/theme"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "lightPalette": {
+              "primary": "",
+              "secondary": "",
+              "tertiary": "",
+              "background": "",
+              "surface": "",
+              "error": "",
+              "warning": "",
+              "success": "",
+              "info": ""
+            },
+            "darkPalette": {
+              "primary": "",
+              "secondary": "",
+              "tertiary": "",
+              "background": "",
+              "surface": "",
+              "error": "",
+              "warning": "",
+              "success": "",
+              "info": ""
+            },
+            "brandAssets": {
+              "logoUrl": "",
+              "logoDarkUrl": "",
+              "faviconUrl": "",
+              "logo": "",
+              "logoDark": "",
+              "favicon": "",
+              "deleteLogo": false,
+              "deleteLogoDark": false,
+              "deleteFavicon": false
+            },
+            "typography": {
+              "fontFamily": "",
+              "headingFontFamily": "",
+              "fontSizeBase": "",
+              "lineHeightBase": ""
+            },
+            "layout": {
+              "borderRadius": "",
+              "defaultElevation": ""
+            },
+            "isDefault": false
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/tenants/theme"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "lightPalette": {
+              "primary": "",
+              "secondary": "",
+              "tertiary": "",
+              "background": "",
+              "surface": "",
+              "error": "",
+              "warning": "",
+              "success": "",
+              "info": ""
+            },
+            "darkPalette": {
+              "primary": "",
+              "secondary": "",
+              "tertiary": "",
+              "background": "",
+              "surface": "",
+              "error": "",
+              "warning": "",
+              "success": "",
+              "info": ""
+            },
+            "brandAssets": {
+              "logoUrl": "",
+              "logoDarkUrl": "",
+              "faviconUrl": "",
+              "logo": "",
+              "logoDark": "",
+              "favicon": "",
+              "deleteLogo": false,
+              "deleteLogoDark": false,
+              "deleteFavicon": false
+            },
+            "typography": {
+              "fontFamily": "",
+              "headingFontFamily": "",
+              "fontSizeBase": "",
+              "lineHeightBase": ""
+            },
+            "layout": {
+              "borderRadius": "",
+              "defaultElevation": ""
+            },
+            "isDefault": false
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/tenants/theme"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "lightPalette": {
+              "primary": "",
+              "secondary": "",
+              "tertiary": "",
+              "background": "",
+              "surface": "",
+              "error": "",
+              "warning": "",
+              "success": "",
+              "info": ""
+            },
+            "darkPalette": {
+              "primary": "",
+              "secondary": "",
+              "tertiary": "",
+              "background": "",
+              "surface": "",
+              "error": "",
+              "warning": "",
+              "success": "",
+              "info": ""
+            },
+            "brandAssets": {
+              "logoUrl": "",
+              "logoDarkUrl": "",
+              "faviconUrl": "",
+              "logo": "",
+              "logoDark": "",
+              "favicon": "",
+              "deleteLogo": false,
+              "deleteLogoDark": false,
+              "deleteFavicon": false
+            },
+            "typography": {
+              "fontFamily": "",
+              "headingFontFamily": "",
+              "fontSizeBase": "",
+              "lineHeightBase": ""
+            },
+            "layout": {
+              "borderRadius": "",
+              "defaultElevation": ""
+            },
+            "isDefault": false
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Update the theme settings for the current tenant, including colors, typography, and layout.

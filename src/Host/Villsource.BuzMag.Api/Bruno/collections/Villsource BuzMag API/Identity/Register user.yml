@@ -1,0 +1,134 @@
+info:
+  name: Register user
+  type: http
+  seq: 24
+  tags:
+    - Identity
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/identity/register"
+  body:
+    type: json
+    data: |-
+      {
+        "firstName": "",
+        "lastName": "",
+        "email": "",
+        "userName": "",
+        "password": "",
+        "confirmPassword": "",
+        "phoneNumber": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 201 Response
+    description: Created
+    request:
+      url: "{{baseUrl}}/api/v1/identity/register"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "firstName": "",
+            "lastName": "",
+            "email": "",
+            "userName": "",
+            "password": "",
+            "confirmPassword": "",
+            "phoneNumber": ""
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "userId": ""
+          }
+  - name: 400 Response
+    description: Bad Request
+    request:
+      url: "{{baseUrl}}/api/v1/identity/register"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "firstName": "",
+            "lastName": "",
+            "email": "",
+            "userName": "",
+            "password": "",
+            "confirmPassword": "",
+            "phoneNumber": ""
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/register"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "firstName": "",
+            "lastName": "",
+            "email": "",
+            "userName": "",
+            "password": "",
+            "confirmPassword": "",
+            "phoneNumber": ""
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/identity/register"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "firstName": "",
+            "lastName": "",
+            "email": "",
+            "userName": "",
+            "password": "",
+            "confirmPassword": "",
+            "phoneNumber": ""
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Create a new user account.

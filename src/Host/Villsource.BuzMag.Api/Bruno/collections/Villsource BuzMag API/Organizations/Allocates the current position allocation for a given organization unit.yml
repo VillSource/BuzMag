@@ -1,0 +1,83 @@
+info:
+  name: Allocates the current position allocation for a given organization unit
+  type: http
+  seq: 12
+  tags:
+    - Organizations
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/organizations/units/:organizationUnitId/positions"
+  params:
+    - name: organizationUnitId
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "positionId": "",
+        "headCount": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/organizations/units/:organizationUnitId/positions"
+      method: POST
+      params:
+        - name: organizationUnitId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "positionId": "",
+            "headCount": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "referenceId": "",
+            "position": {
+              "referenceId": "",
+              "name": "",
+              "code": "",
+              "positionTiers": [
+                {
+                  "tier": "",
+                  "key": ""
+                }
+              ],
+              "description": "",
+              "createdOnUtc": "",
+              "createdBy": "",
+              "lastModifiedOnUtc": "",
+              "lastModifiedBy": "",
+              "isDeleted": false,
+              "deletedOnUtc": "",
+              "deletedBy": ""
+            },
+            "headCount": "",
+            "effectiveFrom": "",
+            "effectiveTo": ""
+          }

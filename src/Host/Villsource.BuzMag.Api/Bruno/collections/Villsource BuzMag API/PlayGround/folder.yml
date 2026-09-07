@@ -1,0 +1,6 @@
+info:
+  name: PlayGround
+  type: folder
+
+request:
+  auth: inherit

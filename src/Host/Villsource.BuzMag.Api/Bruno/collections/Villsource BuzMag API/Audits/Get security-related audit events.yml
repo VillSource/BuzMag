@@ -1,0 +1,352 @@
+info:
+  name: Get security-related audit events
+  type: http
+  seq: 5
+  tags:
+    - Audits
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/audits/security"
+  params:
+    - name: Action
+      value: None
+      type: query
+      disabled: true
+    - name: Action
+      value: LoginSucceeded
+      type: query
+      disabled: true
+    - name: Action
+      value: LoginFailed
+      type: query
+      disabled: true
+    - name: Action
+      value: TokenIssued
+      type: query
+      disabled: true
+    - name: Action
+      value: TokenRevoked
+      type: query
+      disabled: true
+    - name: Action
+      value: PasswordChanged
+      type: query
+      disabled: true
+    - name: Action
+      value: RoleAssigned
+      type: query
+      disabled: true
+    - name: Action
+      value: RoleRevoked
+      type: query
+      disabled: true
+    - name: Action
+      value: PermissionDenied
+      type: query
+      disabled: true
+    - name: Action
+      value: PolicyFailed
+      type: query
+      disabled: true
+    - name: Action
+      value: ImpersonationStarted
+      type: query
+      disabled: true
+    - name: Action
+      value: ImpersonationEnded
+      type: query
+      disabled: true
+    - name: Action
+      value: "null"
+      type: query
+      disabled: true
+    - name: UserId
+      value: ""
+      type: query
+      disabled: true
+    - name: TenantId
+      value: ""
+      type: query
+      disabled: true
+    - name: FromUtc
+      value: ""
+      type: query
+      disabled: true
+    - name: ToUtc
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/audits/security"
+      method: GET
+      params:
+        - name: Action
+          value: None
+          type: query
+          disabled: true
+        - name: Action
+          value: LoginSucceeded
+          type: query
+          disabled: true
+        - name: Action
+          value: LoginFailed
+          type: query
+          disabled: true
+        - name: Action
+          value: TokenIssued
+          type: query
+          disabled: true
+        - name: Action
+          value: TokenRevoked
+          type: query
+          disabled: true
+        - name: Action
+          value: PasswordChanged
+          type: query
+          disabled: true
+        - name: Action
+          value: RoleAssigned
+          type: query
+          disabled: true
+        - name: Action
+          value: RoleRevoked
+          type: query
+          disabled: true
+        - name: Action
+          value: PermissionDenied
+          type: query
+          disabled: true
+        - name: Action
+          value: PolicyFailed
+          type: query
+          disabled: true
+        - name: Action
+          value: ImpersonationStarted
+          type: query
+          disabled: true
+        - name: Action
+          value: ImpersonationEnded
+          type: query
+          disabled: true
+        - name: Action
+          value: "null"
+          type: query
+          disabled: true
+        - name: UserId
+          value: ""
+          type: query
+          disabled: true
+        - name: TenantId
+          value: ""
+          type: query
+          disabled: true
+        - name: FromUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: ToUtc
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "",
+              "occurredAtUtc": "",
+              "eventType": "None",
+              "severity": "None",
+              "tenantId": "",
+              "userId": "",
+              "userName": "",
+              "traceId": "",
+              "correlationId": "",
+              "requestId": "",
+              "source": "",
+              "tags": ""
+            }
+          ]
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/audits/security"
+      method: GET
+      params:
+        - name: Action
+          value: None
+          type: query
+          disabled: true
+        - name: Action
+          value: LoginSucceeded
+          type: query
+          disabled: true
+        - name: Action
+          value: LoginFailed
+          type: query
+          disabled: true
+        - name: Action
+          value: TokenIssued
+          type: query
+          disabled: true
+        - name: Action
+          value: TokenRevoked
+          type: query
+          disabled: true
+        - name: Action
+          value: PasswordChanged
+          type: query
+          disabled: true
+        - name: Action
+          value: RoleAssigned
+          type: query
+          disabled: true
+        - name: Action
+          value: RoleRevoked
+          type: query
+          disabled: true
+        - name: Action
+          value: PermissionDenied
+          type: query
+          disabled: true
+        - name: Action
+          value: PolicyFailed
+          type: query
+          disabled: true
+        - name: Action
+          value: ImpersonationStarted
+          type: query
+          disabled: true
+        - name: Action
+          value: ImpersonationEnded
+          type: query
+          disabled: true
+        - name: Action
+          value: "null"
+          type: query
+          disabled: true
+        - name: UserId
+          value: ""
+          type: query
+          disabled: true
+        - name: TenantId
+          value: ""
+          type: query
+          disabled: true
+        - name: FromUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: ToUtc
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/audits/security"
+      method: GET
+      params:
+        - name: Action
+          value: None
+          type: query
+          disabled: true
+        - name: Action
+          value: LoginSucceeded
+          type: query
+          disabled: true
+        - name: Action
+          value: LoginFailed
+          type: query
+          disabled: true
+        - name: Action
+          value: TokenIssued
+          type: query
+          disabled: true
+        - name: Action
+          value: TokenRevoked
+          type: query
+          disabled: true
+        - name: Action
+          value: PasswordChanged
+          type: query
+          disabled: true
+        - name: Action
+          value: RoleAssigned
+          type: query
+          disabled: true
+        - name: Action
+          value: RoleRevoked
+          type: query
+          disabled: true
+        - name: Action
+          value: PermissionDenied
+          type: query
+          disabled: true
+        - name: Action
+          value: PolicyFailed
+          type: query
+          disabled: true
+        - name: Action
+          value: ImpersonationStarted
+          type: query
+          disabled: true
+        - name: Action
+          value: ImpersonationEnded
+          type: query
+          disabled: true
+        - name: Action
+          value: "null"
+          type: query
+          disabled: true
+        - name: UserId
+          value: ""
+          type: query
+          disabled: true
+        - name: TenantId
+          value: ""
+          type: query
+          disabled: true
+        - name: FromUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: ToUtc
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Retrieve security audit events such as login, logout, and permission denials.

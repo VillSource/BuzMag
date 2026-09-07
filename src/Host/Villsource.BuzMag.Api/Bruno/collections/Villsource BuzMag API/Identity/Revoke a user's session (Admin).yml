@@ -1,0 +1,103 @@
+info:
+  name: Revoke a user's session (Admin)
+  type: http
+  seq: 34
+  tags:
+    - Identity
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/identity/users/:userId/sessions/:sessionId"
+  params:
+    - name: userId
+      value: ""
+      type: path
+    - name: sessionId
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 204 Response
+    description: No Content
+    request:
+      url: "{{baseUrl}}/api/v1/identity/users/:userId/sessions/:sessionId"
+      method: DELETE
+      params:
+        - name: userId
+          value: ""
+          type: path
+        - name: sessionId
+          value: ""
+          type: path
+    response:
+      status: 204
+      statusText: No Content
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/users/:userId/sessions/:sessionId"
+      method: DELETE
+      params:
+        - name: userId
+          value: ""
+          type: path
+        - name: sessionId
+          value: ""
+          type: path
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/identity/users/:userId/sessions/:sessionId"
+      method: DELETE
+      params:
+        - name: userId
+          value: ""
+          type: path
+        - name: sessionId
+          value: ""
+          type: path
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+  - name: 404 Response
+    description: Not Found
+    request:
+      url: "{{baseUrl}}/api/v1/identity/users/:userId/sessions/:sessionId"
+      method: DELETE
+      params:
+        - name: userId
+          value: ""
+          type: path
+        - name: sessionId
+          value: ""
+          type: path
+    response:
+      status: 404
+      statusText: Not Found
+      body:
+        type: text
+        data: ""
+
+docs: Revoke a specific session for a user. Requires admin permission.

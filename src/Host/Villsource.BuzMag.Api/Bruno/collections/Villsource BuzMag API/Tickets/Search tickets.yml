@@ -1,0 +1,161 @@
+info:
+  name: Search tickets
+  type: http
+  seq: 10
+  tags:
+    - Tickets
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/tickets"
+  params:
+    - name: search
+      value: ""
+      type: query
+      disabled: true
+    - name: status
+      value: Open
+      type: query
+      disabled: true
+    - name: status
+      value: InProgress
+      type: query
+      disabled: true
+    - name: status
+      value: Resolved
+      type: query
+      disabled: true
+    - name: status
+      value: Closed
+      type: query
+      disabled: true
+    - name: status
+      value: "null"
+      type: query
+      disabled: true
+    - name: priority
+      value: Low
+      type: query
+      disabled: true
+    - name: priority
+      value: Medium
+      type: query
+    - name: priority
+      value: High
+      type: query
+      disabled: true
+    - name: priority
+      value: Critical
+      type: query
+      disabled: true
+    - name: assignedToUserId
+      value: ""
+      type: query
+      disabled: true
+    - name: reporterUserId
+      value: ""
+      type: query
+      disabled: true
+    - name: pageNumber
+      value: ""
+      type: query
+      disabled: true
+    - name: pageSize
+      value: ""
+      type: query
+      disabled: true
+    - name: sortBy
+      value: ""
+      type: query
+      disabled: true
+    - name: sortDir
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/tickets"
+      method: GET
+      params:
+        - name: search
+          value: ""
+          type: query
+          disabled: true
+        - name: status
+          value: Open
+          type: query
+          disabled: true
+        - name: status
+          value: InProgress
+          type: query
+          disabled: true
+        - name: status
+          value: Resolved
+          type: query
+          disabled: true
+        - name: status
+          value: Closed
+          type: query
+          disabled: true
+        - name: status
+          value: "null"
+          type: query
+          disabled: true
+        - name: priority
+          value: Low
+          type: query
+          disabled: true
+        - name: priority
+          value: Medium
+          type: query
+        - name: priority
+          value: High
+          type: query
+          disabled: true
+        - name: priority
+          value: Critical
+          type: query
+          disabled: true
+        - name: assignedToUserId
+          value: ""
+          type: query
+          disabled: true
+        - name: reporterUserId
+          value: ""
+          type: query
+          disabled: true
+        - name: pageNumber
+          value: ""
+          type: query
+          disabled: true
+        - name: pageSize
+          value: ""
+          type: query
+          disabled: true
+        - name: sortBy
+          value: ""
+          type: query
+          disabled: true
+        - name: sortDir
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

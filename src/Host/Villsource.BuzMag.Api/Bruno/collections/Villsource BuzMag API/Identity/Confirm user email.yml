@@ -1,0 +1,55 @@
+info:
+  name: Confirm user email
+  type: http
+  seq: 15
+  tags:
+    - Identity
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/identity/confirm-email"
+  params:
+    - name: userId
+      value: ""
+      type: query
+    - name: code
+      value: ""
+      type: query
+    - name: tenant
+      value: ""
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/confirm-email"
+      method: GET
+      params:
+        - name: userId
+          value: ""
+          type: query
+        - name: code
+          value: ""
+          type: query
+        - name: tenant
+          value: ""
+          type: query
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""
+
+docs: Confirm a user's email address.

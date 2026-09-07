@@ -1,0 +1,53 @@
+info:
+  name: Assign or reassign a ticket
+  type: http
+  seq: 5
+  tags:
+    - Tickets
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/tickets/:ticketId/assign"
+  params:
+    - name: ticketId
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "assigneeUserId": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/tickets/:ticketId/assign"
+      method: POST
+      params:
+        - name: ticketId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "assigneeUserId": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

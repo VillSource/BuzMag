@@ -7,4 +7,5 @@ public sealed record UpdatePositionCommand(
     string PositionId,
     string Code,
     string Name,
-    string? Description = null) : ICommand<PositionDto>;
+    string? Description = null,
+    string[]? PositionTier = null) : ICommand<PositionDto>;

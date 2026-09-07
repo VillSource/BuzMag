@@ -1,0 +1,124 @@
+info:
+  name: Manually capture usage snapshots for a tenant + period
+  type: http
+  seq: 16
+  tags:
+    - Billing
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/billing/usage/snapshots/capture"
+  body:
+    type: json
+    data: |-
+      {
+        "tenantId": "",
+        "periodYear": "",
+        "periodMonth": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/billing/usage/snapshots/capture"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "tenantId": "",
+            "periodYear": "",
+            "periodMonth": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          [
+            {
+              "id": "",
+              "tenantId": "",
+              "periodYear": "",
+              "periodMonth": "",
+              "resource": "ApiCalls",
+              "usedUnits": "",
+              "limitUnits": "",
+              "overage": "",
+              "capturedAtUtc": ""
+            }
+          ]
+  - name: 400 Response
+    description: Bad Request
+    request:
+      url: "{{baseUrl}}/api/v1/billing/usage/snapshots/capture"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "tenantId": "",
+            "periodYear": "",
+            "periodMonth": ""
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/billing/usage/snapshots/capture"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "tenantId": "",
+            "periodYear": "",
+            "periodMonth": ""
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/billing/usage/snapshots/capture"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "tenantId": "",
+            "periodYear": "",
+            "periodMonth": ""
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: "Ops endpoint wrapping IUsageReporter.CaptureForPeriodAsync. Idempotent: re-running for the same (tenant, period) returns existing snapshots unchanged. Used for retroactive billing, debugging, and re-runs after fixes."

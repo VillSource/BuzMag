@@ -1,0 +1,6 @@
+info:
+  name: Billing
+  type: folder
+
+request:
+  auth: inherit

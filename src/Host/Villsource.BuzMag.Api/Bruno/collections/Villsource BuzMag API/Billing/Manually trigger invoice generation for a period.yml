@@ -1,0 +1,47 @@
+info:
+  name: Manually trigger invoice generation for a period
+  type: http
+  seq: 11
+  tags:
+    - Billing
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/billing/invoices/generate"
+  body:
+    type: json
+    data: |-
+      {
+        "periodYear": "",
+        "periodMonth": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/billing/invoices/generate"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "periodYear": "",
+            "periodMonth": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

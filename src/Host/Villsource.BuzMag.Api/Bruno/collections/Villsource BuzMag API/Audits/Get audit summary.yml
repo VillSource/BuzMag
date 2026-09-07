@@ -1,0 +1,118 @@
+info:
+  name: Get audit summary
+  type: http
+  seq: 7
+  tags:
+    - Audits
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/audits/summary"
+  params:
+    - name: FromUtc
+      value: ""
+      type: query
+      disabled: true
+    - name: ToUtc
+      value: ""
+      type: query
+      disabled: true
+    - name: TenantId
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/audits/summary"
+      method: GET
+      params:
+        - name: FromUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: ToUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: TenantId
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "eventsByType": {},
+            "eventsBySeverity": {},
+            "eventsBySource": {},
+            "eventsByTenant": {}
+          }
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/audits/summary"
+      method: GET
+      params:
+        - name: FromUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: ToUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: TenantId
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/audits/summary"
+      method: GET
+      params:
+        - name: FromUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: ToUtc
+          value: ""
+          type: query
+          disabled: true
+        - name: TenantId
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Retrieve aggregate counts of audit events by type, severity, source, and tenant.

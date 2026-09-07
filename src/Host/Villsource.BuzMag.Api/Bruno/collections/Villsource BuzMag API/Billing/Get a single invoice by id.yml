@@ -1,0 +1,74 @@
+info:
+  name: Get a single invoice by id
+  type: http
+  seq: 9
+  tags:
+    - Billing
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/billing/invoices/:invoiceId"
+  params:
+    - name: invoiceId
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/billing/invoices/:invoiceId"
+      method: GET
+      params:
+        - name: invoiceId
+          value: ""
+          type: path
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "tenantId": "",
+            "invoiceNumber": "",
+            "periodYear": "",
+            "periodMonth": "",
+            "currency": "",
+            "subtotalAmount": "",
+            "status": "Draft",
+            "createdAtUtc": "",
+            "issuedAtUtc": "",
+            "dueAtUtc": "",
+            "paidAtUtc": "",
+            "voidedAtUtc": "",
+            "notes": "",
+            "lineItems": [
+              {
+                "id": "",
+                "kind": "BaseFee",
+                "resource": "",
+                "description": "",
+                "quantity": "",
+                "unitPrice": "",
+                "amount": ""
+              }
+            ],
+            "purpose": "Usage",
+            "periodStartUtc": "",
+            "periodEndUtc": ""
+          }

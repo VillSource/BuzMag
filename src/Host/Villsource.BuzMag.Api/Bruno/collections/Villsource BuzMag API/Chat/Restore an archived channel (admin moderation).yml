@@ -1,0 +1,41 @@
+info:
+  name: Restore an archived channel (admin moderation)
+  type: http
+  seq: 5
+  tags:
+    - Chat
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/chat/channels/:id/restore"
+  params:
+    - name: id
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/chat/channels/:id/restore"
+      method: POST
+      params:
+        - name: id
+          value: ""
+          type: path
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

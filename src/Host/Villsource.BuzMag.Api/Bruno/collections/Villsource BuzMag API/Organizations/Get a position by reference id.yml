@@ -1,0 +1,63 @@
+info:
+  name: Get a position by reference id
+  type: http
+  seq: 8
+  tags:
+    - Organizations
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/organizations/positions/:positionId"
+  params:
+    - name: positionId
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/organizations/positions/:positionId"
+      method: GET
+      params:
+        - name: positionId
+          value: ""
+          type: path
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "referenceId": "",
+            "name": "",
+            "code": "",
+            "positionTiers": [
+              {
+                "tier": "",
+                "key": ""
+              }
+            ],
+            "description": "",
+            "createdOnUtc": "",
+            "createdBy": "",
+            "lastModifiedOnUtc": "",
+            "lastModifiedBy": "",
+            "isDeleted": false,
+            "deletedOnUtc": "",
+            "deletedBy": ""
+          }

@@ -1,0 +1,144 @@
+info:
+  name: List roles (paged)
+  type: http
+  seq: 3
+  tags:
+    - Identity
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/identity/roles"
+  params:
+    - name: PageNumber
+      value: ""
+      type: query
+      disabled: true
+    - name: PageSize
+      value: ""
+      type: query
+      disabled: true
+    - name: Sort
+      value: ""
+      type: query
+      disabled: true
+    - name: Search
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/identity/roles"
+      method: GET
+      params:
+        - name: PageNumber
+          value: ""
+          type: query
+          disabled: true
+        - name: PageSize
+          value: ""
+          type: query
+          disabled: true
+        - name: Sort
+          value: ""
+          type: query
+          disabled: true
+        - name: Search
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "id": "",
+                "name": "",
+                "description": "",
+                "permissions": ""
+              }
+            ],
+            "pageNumber": "",
+            "pageSize": "",
+            "totalCount": "",
+            "totalPages": "",
+            "hasNext": false,
+            "hasPrevious": false
+          }
+  - name: 401 Response
+    description: Unauthorized
+    request:
+      url: "{{baseUrl}}/api/v1/identity/roles"
+      method: GET
+      params:
+        - name: PageNumber
+          value: ""
+          type: query
+          disabled: true
+        - name: PageSize
+          value: ""
+          type: query
+          disabled: true
+        - name: Sort
+          value: ""
+          type: query
+          disabled: true
+        - name: Search
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: ""
+  - name: 403 Response
+    description: Forbidden
+    request:
+      url: "{{baseUrl}}/api/v1/identity/roles"
+      method: GET
+      params:
+        - name: PageNumber
+          value: ""
+          type: query
+          disabled: true
+        - name: PageSize
+          value: ""
+          type: query
+          disabled: true
+        - name: Sort
+          value: ""
+          type: query
+          disabled: true
+        - name: Search
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 403
+      statusText: Forbidden
+      body:
+        type: text
+        data: ""
+
+docs: Retrieve roles available for the current tenant. Pageable via PageNumber/PageSize; filterable via Search (case-insensitive substring against name + description).

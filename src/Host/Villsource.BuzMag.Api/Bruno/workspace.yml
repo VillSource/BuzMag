@@ -1,0 +1,14 @@
+opencollection: 1.0.0
+info:
+  name: "BuzMag"
+  type: workspace
+
+collections:
+  - name: "SandBox"
+    path: "collections/SandBox"
+  - name: "Villsource BuzMag API"
+    path: "collections/Villsource BuzMag API"
+
+specs:
+
+docs: ''

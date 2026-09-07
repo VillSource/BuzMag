@@ -23,6 +23,8 @@ internal sealed class OrganizationUnitPositionAllocationConfiguration : IEntityT
 
         builder.HasOne(x => x.Unit).WithMany(x => x.PositionAllocations).HasForeignKey(x => x.OrganizationUnitId).IsRequired();
         builder.HasOne(x => x.Position).WithMany().HasForeignKey(x => x.PositionId).IsRequired();
+        
+        builder.HasIndex( nameof(OrganizationUnitPositionAllocation.ReferenceId)).IsUnique();
 
         builder.Ignore(x => x.DomainEvents);
     }

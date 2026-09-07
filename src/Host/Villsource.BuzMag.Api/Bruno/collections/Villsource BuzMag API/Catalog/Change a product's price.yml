@@ -1,0 +1,57 @@
+info:
+  name: Change a product's price
+  type: http
+  seq: 23
+  tags:
+    - Catalog
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/v1/catalog/products/:productId/price"
+  params:
+    - name: productId
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "productId": "",
+        "amount": "",
+        "currency": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/catalog/products/:productId/price"
+      method: PATCH
+      params:
+        - name: productId
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "productId": "",
+            "amount": "",
+            "currency": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

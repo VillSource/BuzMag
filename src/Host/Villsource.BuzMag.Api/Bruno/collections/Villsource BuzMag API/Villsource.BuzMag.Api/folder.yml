@@ -1,0 +1,6 @@
+info:
+  name: Villsource.BuzMag.Api
+  type: folder
+
+request:
+  auth: inherit

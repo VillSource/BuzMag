@@ -1,0 +1,41 @@
+info:
+  name: Soft-delete a ticket (restorable from trash)
+  type: http
+  seq: 12
+  tags:
+    - Tickets
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/tickets/:ticketId"
+  params:
+    - name: ticketId
+      value: ""
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 Response
+    description: OK
+    request:
+      url: "{{baseUrl}}/api/v1/tickets/:ticketId"
+      method: DELETE
+      params:
+        - name: ticketId
+          value: ""
+          type: path
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""
