@@ -7,7 +7,7 @@ using Villsource.Modules.HumanResource.Data;
 using Villsource.Modules.HumanResource.Domain;
 using Villsource.Modules.HumanResource.Mappers;
 
-namespace Villsource.Modules.HumanResource.Features.v1.Employ.UpdateEmployeeInfo;
+namespace Villsource.Modules.HumanResource.Features.v1.Employees.UpdateEmployeeInfo;
 
 public class UpdateEmployeeInfoCommandHandler(HumanResourceDbContext dbContext) : ICommandHandler<UpdateEmployeeInfoCommand, EmployeeDto>
 {

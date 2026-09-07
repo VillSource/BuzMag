@@ -6,7 +6,7 @@ using Villsource.Modules.HumanResource.Domain;
 using Villsource.Modules.HumanResource.Mappers;
 using Villsource.Modules.HumanResource.Services;
 
-namespace Villsource.Modules.HumanResource.Features.v1.Employ.CreateEmployee;
+namespace Villsource.Modules.HumanResource.Features.v1.Employees.CreateEmployee;
 
 public class CreateEmployeeCommandHandler(HumanResourceDbContext dbContext, IEmployeeCodeFactory codeFactory)
     : ICommandHandler<CreateEmployeeCommand, EmployeeDto>

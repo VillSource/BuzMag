@@ -1,12 +1,11 @@
-﻿using FSH.Framework.Core.Exceptions;
-using Mediator;
+﻿using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Villsource.Modules.HumanResource.Contracts.Dtos;
 using Villsource.Modules.HumanResource.Contracts.v1;
 using Villsource.Modules.HumanResource.Data;
 using Villsource.Modules.HumanResource.Mappers;
 
-namespace Villsource.Modules.HumanResource.Features.v1.Employ.GetEmployees;
+namespace Villsource.Modules.HumanResource.Features.v1.Employees.GetEmployees;
 
 public class GetEmployeesQueryHandler(HumanResourceDbContext dbContext) : IQueryHandler<GetEmployeesQuery, ICollection<EmployeeBriefDto>>
 {

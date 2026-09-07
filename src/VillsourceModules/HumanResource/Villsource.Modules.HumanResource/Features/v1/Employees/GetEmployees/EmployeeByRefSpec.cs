@@ -1,7 +1,7 @@
 ﻿using FSH.Framework.Persistence.Specifications;
 using Villsource.Modules.HumanResource.Domain;
 
-namespace Villsource.Modules.HumanResource.Features.v1.Employ.GetEmployees;
+namespace Villsource.Modules.HumanResource.Features.v1.Employees.GetEmployees;
 
 public class EmployeeByRefSpec : Specification<Employee>
 {
