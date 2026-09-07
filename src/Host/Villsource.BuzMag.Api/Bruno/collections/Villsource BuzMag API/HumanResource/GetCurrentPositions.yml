@@ -10,7 +10,7 @@ http:
   url: "{{baseUrl}}/api/v1/employees/:ref/positions/current"
   params:
     - name: ref
-      value: ""
+      value: nPUKFXaOELQ
       type: path
     - name: isPrimary
       value: ""

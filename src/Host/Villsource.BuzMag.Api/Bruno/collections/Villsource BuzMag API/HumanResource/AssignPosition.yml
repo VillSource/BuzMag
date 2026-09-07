@@ -10,21 +10,19 @@ http:
   url: "{{baseUrl}}/api/v1/employees/:ref/positions"
   params:
     - name: ref
-      value: ""
+      value: nPUKFXaOELQ
       type: path
   body:
     type: json
     data: |-
       {
-        "employeeRef": "",
-        "managerRef": "",
-        "organizationUnitRef": "",
-        "positionRef": "",
-        "positionTier": "",
-        "type": "",
-        "isPrimary": false,
-        "effectiveFrom": "",
-        "effectiveTo": ""
+        "managerRef": null,
+        "organizationUnitRef": "ou1",
+        "positionRef": "po1",
+        "positionTier": "MIDTIER",
+        "type": "INITIAL",
+        "isPrimary": true,
+        "effectiveDate": "{{$isoTimestamp}}"
       }
   auth:
     type: bearer

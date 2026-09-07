@@ -23,6 +23,11 @@ public class PositionAssignmentConfiguration : IEntityTypeConfiguration<Position
         builder.Property(p => p.PositionRef).HasMaxLength(VillsourceId.KeySizes).IsRequired();
         builder.Property(p => p.ManagerId);
         
+        builder.HasOne(p=>p.Employee)
+            .WithMany()
+            .HasForeignKey(p=>p.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         builder.HasOne(p=>p.Manager)
             .WithMany()
             .HasForeignKey(p=>p.ManagerId)

@@ -19,6 +19,16 @@ public static class HumanResourceEndpointsExtension
 
     internal sealed record UpdateEmploymentStatusBody(string Status, string? Note, DateTimeOffset EffectiveDate);
 
+    internal sealed record CreatePositionAssignmentBody(
+        string? ManagerRef,
+        string OrganizationUnitRef,
+        string PositionRef,
+        string PositionTier,
+        string Type,
+        bool IsPrimary,
+        DateTimeOffset EffectiveDate
+    );
+
     extension(IEndpointRouteBuilder endpoints)
     {
         public IEndpointRouteBuilder MapHumanResourceEndpoints()
@@ -35,7 +45,7 @@ public static class HumanResourceEndpointsExtension
 
             group.MapCreateEmployeeEndpoint();
             group.MapUpdateEmployeeInfoEndpoint();
-            group.MapAssignPositionEndpoint();
+            group.MapCreatePositionAssignmentEndpoint();
             group.MapUpdateEmploymentStatusEndpoint();
             group.MapTerminateEmploymentEndpoint();
             group.MapGetEmployeesEndpoint();
@@ -80,12 +90,20 @@ public static class HumanResourceEndpointsExtension
                 // .WithSummary("Update employee personal information.")
                 .RequirePermission(HumanResourcePermissions.Employees.Update);
 
-        internal RouteHandlerBuilder MapAssignPositionEndpoint()
+        internal RouteHandlerBuilder MapCreatePositionAssignmentEndpoint()
             => endpoints.MapPost("/{ref}/positions",
-                    async (string @ref, [FromBody] AssignPositionCommand command, IMediator mediator,
+                    async (string @ref, [FromBody] CreatePositionAssignmentBody body, IMediator mediator,
                         CancellationToken cancellationToken) =>
                     {
-                        var result = await mediator.Send(command with { EmployeeRef = @ref }, cancellationToken);
+                        var result = await mediator.Send(new CreatePositionAssignmentCommand(
+                            EmployeeRef: @ref,
+                            ManagerRef: body.ManagerRef,
+                            OrganizationUnitRef: body.OrganizationUnitRef,
+                            PositionRef: body.PositionRef,
+                            PositionTier: body.PositionTier,
+                            Type: body.Type,
+                            IsPrimary: body.IsPrimary,
+                            EffectiveDate: body.EffectiveDate), cancellationToken);
                         return Results.Ok(result);
                     })
                 .Produces<PositionAssignmentDto>()
