@@ -39,7 +39,7 @@ if (builder.Environment.IsProduction())
     Require(config, "JwtOptions:SigningKey");
 }
 
-builder.Services.AddMediator(o =>
+Microsoft.Extensions.DependencyInjection.MediatorDependencyInjectionExtensions.AddMediator(builder.Services, o =>
 {
     o.ServiceLifetime = ServiceLifetime.Scoped;
     o.Assemblies = [
@@ -67,7 +67,9 @@ builder.Services.AddMediator(o =>
         typeof(Villsource.FSH.Modules.Organization.Contracts.OrganizationContractsMarker),
         typeof(Villsource.FSH.Modules.Organization.OrganizationModule),
         typeof(Villsource.Modules.HumanResource.Contracts.HumanResourceContractsMarker),
-        typeof(Villsource.Modules.HumanResource.HumanResourceModule)
+        typeof(Villsource.Modules.HumanResource.HumanResourceModule),
+        typeof(Villsource.Modules.Elsa.Contracts.ElsaContractsMarker),
+        typeof(Villsource.Modules.Elsa.ElsaModule),
     ];
 });
 
@@ -86,6 +88,7 @@ var moduleAssemblies = new Assembly[]
     
     typeof(Villsource.FSH.Modules.Organization.OrganizationModule).Assembly,
     typeof(Villsource.Modules.HumanResource.HumanResourceModule).Assembly,
+    typeof(Villsource.Modules.Elsa.ElsaModule).Assembly,
 };
 
 builder.AddHeroPlatform(o =>
