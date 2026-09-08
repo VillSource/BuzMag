@@ -95,6 +95,10 @@
     <Project Path="VillsourceModules/Core/Villsource.ObjectValue/Villsource.ObjectValue.csproj" />
     <Project Path="VillsourceModules/Core/Villsource.Tool.UniqueKey/Villsource.Tool.UniqueKey.csproj" />
   </Folder>
+  <Folder Name="/VillsourceModules/Elsa/">
+    <Project Path="VillsourceModules/Elsa/Villsource.Modules.Elsa.Contracts/Villsource.Modules.Elsa.Contracts.csproj" />
+    <Project Path="VillsourceModules/Elsa/Villsource.Modules.Elsa/Villsource.Modules.Elsa.csproj" />
+  </Folder>
   <Folder Name="/VillsourceModules/HumanResource/">
     <Project Path="VillsourceModules/HumanResource/Villsource.Modules.HumanResource.Contracts/Villsource.Modules.HumanResource.Contracts.csproj" />
     <Project Path="VillsourceModules/HumanResource/Villsource.Modules.HumanResource/Villsource.Modules.HumanResource.csproj" />
