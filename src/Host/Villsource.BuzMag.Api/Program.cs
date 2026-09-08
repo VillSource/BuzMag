@@ -13,6 +13,7 @@ using FSH.Modules.Tickets;
 using FSH.Modules.Multitenancy.Features.v1.GetTenantStatus;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Villsource.Modules.Elsa;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -122,6 +123,7 @@ app.UseHeroPlatform(p =>
     p.MapRealtime = true;
 });
 
+app.UseElsaMultiTenantDatabases();
 app.MapGet("/", () => Results.Ok(new { message = "hello world!" }))
    .WithTags("PlayGround")
    .AllowAnonymous();

@@ -6,11 +6,11 @@ using ITenantResolver = Elsa.Common.Multitenancy.ITenantResolver;
 
 namespace Villsource.Modules.Elsa;
 
-public class AppTenantResolver(IServiceProvider serviceProvider) : ITenantResolver
+public class AppTenantResolver(IMultiTenantContextAccessor<AppTenantInfo> info) : ITenantResolver
 {
     public Task<TenantResolverResult> ResolveAsync(TenantResolverContext context)
     {
-        var tenantInfo = serviceProvider.GetService<AppTenantInfo>();
+        var tenantInfo = info.MultiTenantContext?.TenantInfo;
         return Task.FromResult(tenantInfo is not null && !string.IsNullOrEmpty(tenantInfo.Id)
             ? TenantResolverResult.Resolved(tenantInfo.Id)
             : TenantResolverResult.Unresolved());
