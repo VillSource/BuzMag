@@ -92,7 +92,7 @@ var migrator = builder.AddProject<Projects.Villsource_BuzMag_DbMigrator>($"{appP
     .WithArgs("apply", "--seed");
 
 // Demo seeder (dev-only): provisions the acme/globex tenants + demo-login users via seed-demo. DOTNET_ENVIRONMENT=Development is required (console host ignores ASPNETCORE_ENVIRONMENT) or seed-demo refuses to run.
-var demoSeeder = builder.AddProject<Projects.Villsource_BuzMag_DbMigrator>($"{appPrefix}-demo-seeder")
+ builder.AddProject<Projects.Villsource_BuzMag_DbMigrator>($"{appPrefix}-demo-seeder")
     .WithReference(postgres)
     .WaitFor(postgres)
     .WaitForCompletion(migrator)
@@ -109,8 +109,6 @@ var api = builder.AddProject<Projects.Villsource_BuzMag_Api>($"{appPrefix}-api")
     .WaitFor(postgres)
     .WaitFor(redis)
     .WaitForCompletion(minioInit)
-    .WaitForCompletion(migrator)
-    .WaitForCompletion(demoSeeder)
     .WithExternalHttpEndpoints()
     .WithEnvironment("DatabaseOptions__Provider", "POSTGRESQL")
     .WithEnvironment("DatabaseOptions__ConnectionString", apiPgConnection)
