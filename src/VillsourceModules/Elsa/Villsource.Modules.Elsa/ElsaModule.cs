@@ -81,6 +81,6 @@ public sealed class ElsaModule : IModule
     {
         ArgumentNullException.ThrowIfNull(endpoints);
 
-        endpoints.MapGet("el", async(IMediator m)=>await m.Send(new Mock()));
+        endpoints.MapGet("el", async(IMediator m)=>await m.Send(new Mock())).AllowAnonymous();
     }
 }
