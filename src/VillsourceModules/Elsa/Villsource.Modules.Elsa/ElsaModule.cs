@@ -22,6 +22,7 @@ using Villsource.Modules.Elsa.Contracts.Authorization;
 using Villsource.Modules.Elsa.Contracts.v1;
 using Villsource.Modules.Elsa.Data;
 using Villsource.Modules.Elsa.Feature.v1;
+using Villsource.Modules.Elsa.Services;
 using ITenantResolver = Elsa.Common.Multitenancy.ITenantResolver;
 
 namespace Villsource.Modules.Elsa;
@@ -82,6 +83,7 @@ public sealed class ElsaModule : IModule
         builder.Services.AddHealthChecks().AddDbContextCheck<ElsaDbContext>(
             name: "db:elsa",
             failureStatus: HealthStatus.Unhealthy);
+        builder.Services.AddElsaStubServices();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
@@ -98,5 +100,7 @@ public sealed class ElsaModule : IModule
         // การใช้งาน: POST /elsa-demo/decision/REQ001?decision=Approve
         group.MapPost("decision/{reqId}", async (string reqId, string decision, IMediator m) => 
             await m.Send(new ApproveRequestCommand(reqId, decision)));
+
+        endpoints.MapLeaveApprovalEndpoints();
     }
 }

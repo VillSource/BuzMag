@@ -18,6 +18,7 @@
     <ItemGroup>
       <PackageReference Include="Elsa" />
       <PackageReference Include="Elsa.Persistence.EFCore.PostgreSql" />
+      <PackageReference Include="Elsa.Scheduling" />
       <PackageReference Include="Elsa.Tenants" />
     </ItemGroup>
 
