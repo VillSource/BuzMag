@@ -10,8 +10,8 @@ namespace Villsource.Modules.Elsa.Activities;
 
 public class PublishFinishStateEvent : CodeActivity
 {
-    public Input<string> ObjectId { get; set; } = null!;
-    public Input<string> Result { get; set; } = null!;
+    public Input<string> ObjectId { get; init; } = null!;
+    public Input<string> Result { get; init; } = null!;
     public Input<Dictionary<string, object>> Context { get; set; } = new([]);
 
     protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
