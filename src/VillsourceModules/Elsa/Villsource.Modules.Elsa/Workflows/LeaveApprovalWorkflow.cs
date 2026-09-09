@@ -144,13 +144,21 @@ public class LeaveApprovalWorkflow : WorkflowBase
                         }
                     }
                 }
+,
+                new PublishFinishStateEvent()
+                { 
+                    ObjectId = new (context => GetDocNo(context)),
+                    Result = new (context => decision.Get(context)?? "!!!") 
+                }
             }
         };
     }
 
+    private static readonly string[] stringArray = new string[] {"approve", "reject"};
+
     // ─── HELPER METHODS (Business Logic & Workflow Configuration) ─────────
 
-// 💡 เปลี่ยน Return Type เป็น IActivity เพราะเราสามารถส่ง Fork กลับไปตรงๆ ได้เลย
+    // 💡 เปลี่ยน Return Type เป็น IActivity เพราะเราสามารถส่ง Fork กลับไปตรงๆ ได้เลย
 
     public static IActivity BuildRaceConditionActivity(Variable<double> daysInAdvance, Variable<string> decision,
         Variable<bool> isFinished)
@@ -165,6 +173,13 @@ public class LeaveApprovalWorkflow : WorkflowBase
                 {
                     Activities =
                     {
+                        new SendToSpecificEmployeeToApprove()
+                        {
+                            ObjectId = new(context => GetDocNo(context)),
+                            RequesterId = new (context=> GetWfInput<string>(context, "RequesterId") ?? ""),
+                            ReviewerId = new ( context => "[TO RESOLVING]"),
+                            Options = new ( context => stringArray),
+                        },
                         new Event("event") { EventName = new("ManagerDecisionEvent"), Result = new(decision) },
                         new UpdateDocumentStatus
                         {

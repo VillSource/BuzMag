@@ -2,13 +2,14 @@
 
 namespace Villsource.Modules.Elsa.Contracts.Events;
 
-public record ApprovalFinishedIntegrationEvent(
+public record WorkflowFinishedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
     string? TenantId,
     string CorrelationId,
     string Source,
     string ObjectId,
-    string FlowIdentifier,
-    string FinalDecision
-) : IIntegrationEvent;
+    string InstanceId,
+    string FlowDefinitionId,
+    string Result,
+    Dictionary<string,object>? Context = null) : IIntegrationEvent;

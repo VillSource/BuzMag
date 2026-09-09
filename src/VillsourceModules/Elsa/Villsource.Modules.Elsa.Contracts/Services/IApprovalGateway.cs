@@ -1,8 +1,9 @@
-﻿using Villsource.Modules.Elsa.Contracts.v1.Approval;
+﻿using Villsource.Modules.Elsa.Contracts.Dtos;
+using Villsource.Modules.Elsa.Contracts.v1.Approval;
 
 namespace Villsource.Modules.Elsa.Contracts.Services;
 
 public interface IApprovalGateway
 {
-    Task<string> StartWorkflowAsync(SubmitToApprovalCommand data,  CancellationToken cancellationToken = default);
+    Task<StartWorkflowResult> StartWorkflowAsync(SubmitToApprovalCommand data,  CancellationToken cancellationToken = default);
 }

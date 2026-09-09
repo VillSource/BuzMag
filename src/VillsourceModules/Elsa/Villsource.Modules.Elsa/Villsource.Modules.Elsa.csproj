@@ -7,12 +7,18 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\BuildingBlocks\Eventing\Eventing.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\Web\Web.csproj" />
+      <ProjectReference Include="..\..\Core\Villsource.Tool.UniqueKey\Villsource.Tool.UniqueKey.csproj" />
       <ProjectReference Include="..\Villsource.Modules.Elsa.Contracts\Villsource.Modules.Elsa.Contracts.csproj" />
     </ItemGroup>
 
+
     <ItemGroup>
-      <Folder Include="Data\Configurations\" />
+        <ProjectReference Include="..\..\Core\Villsource.CodeGen\Villsource.CodeGen.csproj"
+                          OutputItemType="Analyzer"
+                          PrivateAssets="all"
+                          ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
     <ItemGroup>

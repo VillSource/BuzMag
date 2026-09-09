@@ -5,8 +5,8 @@ using Elsa.Persistence.EFCore.Modules.Runtime;
 using Elsa.Tenants.Extensions;
 using Elsa.Tenants.Features;
 using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.Stores;
 using FluentValidation;
+using FSH.Framework.Eventing;
 using FSH.Framework.Persistence;
 using FSH.Framework.Shared.Constants;
 using FSH.Framework.Shared.Multitenancy;
@@ -19,11 +19,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Villsource.Modules.Elsa.Contracts.Authorization;
+using Villsource.Modules.Elsa.Contracts.Services;
 using Villsource.Modules.Elsa.Contracts.v1;
 using Villsource.Modules.Elsa.Data;
 using Villsource.Modules.Elsa.Feature.v1;
 using Villsource.Modules.Elsa.Services;
-using ITenantResolver = Elsa.Common.Multitenancy.ITenantResolver;
 
 namespace Villsource.Modules.Elsa;
 
@@ -38,8 +38,11 @@ public sealed class ElsaModule : IModule
         builder.Services.AddHeroDbContext<ElsaDbContext>();
         builder.Services.AddScoped<IDbInitializer, ElsaDbInitializer>();
         builder.Services.AddValidatorsFromAssembly(typeof(ElsaModule).Assembly);
-
-
+        builder.Services.AddIntegrationEventHandlers(typeof(ElsaModule).Assembly);
+        
+        builder.Services.AddElsaStubServices();
+        builder.Services.AddScoped<IApprovalGateway, ApprovalGateway>();
+        
         builder.Services.AddElsa(elsa =>
         {
             elsa.UseTenants( (TenantsFeature tenants) =>
@@ -83,7 +86,7 @@ public sealed class ElsaModule : IModule
         builder.Services.AddHealthChecks().AddDbContextCheck<ElsaDbContext>(
             name: "db:elsa",
             failureStatus: HealthStatus.Unhealthy);
-        builder.Services.AddElsaStubServices();
+        
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)

@@ -5,6 +5,7 @@ using FSH.Framework.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Villsource.Modules.Elsa.Domain;
 
 namespace Villsource.Modules.Elsa.Data;
 
@@ -15,7 +16,9 @@ public sealed class ElsaDbContext(
     IHostEnvironment environment)
     : BaseDbContext(multiTenantContextAccessor, options, settings, environment)
 {
-    public const string Schema = "elsa";
+    public const string Schema = "workflows";
+
+    public DbSet<ApprovalInbox> ApprovalInbox => Set<ApprovalInbox>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

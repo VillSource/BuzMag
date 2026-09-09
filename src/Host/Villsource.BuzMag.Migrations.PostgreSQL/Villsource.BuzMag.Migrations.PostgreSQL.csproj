@@ -21,6 +21,7 @@
 	  <ProjectReference Include="..\..\Modules\Notifications\Modules.Notifications\Modules.Notifications.csproj" />
 	  <ProjectReference Include="..\..\Modules\Files\Modules.Files\Modules.Files.csproj" />
 	  <ProjectReference Include="..\..\VillsourceModules\BuzMag\BuzMag.csproj" />
+	  <ProjectReference Include="..\..\VillsourceModules\Elsa\Villsource.Modules.Elsa\Villsource.Modules.Elsa.csproj" />
 	  <ProjectReference Include="..\..\VillsourceModules\HumanResource\Villsource.Modules.HumanResource.Contracts\Villsource.Modules.HumanResource.Contracts.csproj" />
 	  <ProjectReference Include="..\..\VillsourceModules\HumanResource\Villsource.Modules.HumanResource\Villsource.Modules.HumanResource.csproj" />
 	</ItemGroup>
