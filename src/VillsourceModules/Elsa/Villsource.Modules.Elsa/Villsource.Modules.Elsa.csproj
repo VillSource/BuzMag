@@ -26,6 +26,7 @@
       <PackageReference Include="Elsa.Persistence.EFCore.PostgreSql" />
       <PackageReference Include="Elsa.Scheduling" />
       <PackageReference Include="Elsa.Tenants" />
+      <PackageReference Include="Elsa.Workflows.Api" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
 
 </Project>

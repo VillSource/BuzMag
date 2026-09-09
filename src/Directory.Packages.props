@@ -13,6 +13,7 @@
     <PackageVersion Include="Elsa.Persistence.EFCore.PostgreSql" Version="3.7.1" />
     <PackageVersion Include="Elsa.Scheduling" Version="3.7.1" />
     <PackageVersion Include="Elsa.Tenants" Version="3.7.1" />
+    <PackageVersion Include="Elsa.Workflows.Api" Version="3.7.1" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />

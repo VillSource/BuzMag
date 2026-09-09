@@ -153,5 +153,5 @@ builder.AddJavaScriptApp($"{appPrefix}-dashboard", "../../../clients/dashboard",
     .WithExternalHttpEndpoints()
     .WithEnvironment("VITE_API_BASE_URL", api.GetEndpoint("https"));
 
-builder.ReplaceDashboardWithGrafana();
+builder.ReplaceDashboardWithGrafana(api);
 await builder.Build().RunAsync();

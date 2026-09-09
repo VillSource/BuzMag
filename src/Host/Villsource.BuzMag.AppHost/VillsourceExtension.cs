@@ -3,7 +3,7 @@ namespace Aspire.Hosting;
 
 internal static class VillsourceExtension
 {
-    public static IDistributedApplicationBuilder ReplaceDashboardWithGrafana(this IDistributedApplicationBuilder builder)
+    public static IDistributedApplicationBuilder ReplaceDashboardWithGrafana(this IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> api)
     {
         ArgumentNullException.ThrowIfNull(builder);
         var lgtm = builder.AddContainer("otel-lgtm", "grafana/otel-lgtm")
@@ -30,6 +30,16 @@ internal static class VillsourceExtension
 
             return Task.CompletedTask;
         });
+        
+        builder.AddContainer($"debug-elsa-studio", "elsaworkflows/elsa-studio-v3", "latest")
+            .WithHttpEndpoint(port: 7000, targetPort: 8080, name: "http")
+            .WithExternalHttpEndpoints()
+            .WithReference(api)
+            .WaitFor(api)
+            .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+            .WithEnvironment("SHELL__DISABLEAUTHORIZATION", "true")
+            .WithEnvironment("ELSASERVER__URL", "https://localhost:7030/elsa/api")
+            .WithLifetime(ContainerLifetime.Persistent);
         
         return builder;
     }

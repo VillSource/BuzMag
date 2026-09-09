@@ -113,6 +113,10 @@ builder.Services.AddHostedService<Villsource.BuzMag.Api.OrphanedOutboxRecurringJ
 
 var app = builder.Build();
 
+#if DEBUG
+app.UseElsaDebugApi();
+#endif
+
 app.UseHeroMultiTenantDatabases();
 app.UseHeroPlatform(p =>
 {

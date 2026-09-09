@@ -79,6 +79,10 @@ public sealed class ElsaModule : IModule
                 
                     ef.RunMigrations = false; 
                 }));
+            
+#if DEBUG
+            elsa.UseWorkflowsApi();
+#endif
 
             elsa.AddWorkflowsFrom<ElsaModule>();
         });
