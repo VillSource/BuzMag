@@ -31,7 +31,6 @@ public class LeaveApprovalWorkflow : WorkflowBase
         builder.WithInput<DateTime[]>("DayToLeave");
         builder.WithInput<string>("RequesterId");
         builder.WithInput<DateTime>("SubmittedDate");
-        builder.WithInput<string>("Property");
 
         // Variables (State)
         var daysInAdvance = builder.WithVariable<double>();

@@ -10,6 +10,6 @@ public record WorkflowFinishedIntegrationEvent(
     string Source,
     string ObjectId,
     string InstanceId,
-    string FlowDefinitionId,
+    string WorkflowName,
     string Result,
     Dictionary<string,object>? Context = null) : IIntegrationEvent;

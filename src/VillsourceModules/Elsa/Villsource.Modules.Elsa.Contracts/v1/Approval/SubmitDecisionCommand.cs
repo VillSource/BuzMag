@@ -3,8 +3,9 @@
 namespace Villsource.Modules.Elsa.Contracts.v1.Approval;
 
 public record SubmitDecisionCommand(
+    string ReviewerId,
     string ObjectId, 
     string InstanceId, 
     string Decision, 
-    string ReviewerId
+    string? Note = null
 ) : ICommand<string>;

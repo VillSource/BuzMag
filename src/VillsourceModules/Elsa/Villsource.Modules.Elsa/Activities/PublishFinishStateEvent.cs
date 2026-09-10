@@ -32,7 +32,7 @@ public class PublishFinishStateEvent : CodeActivity
             Source: SourceName.Workflow,
             ObjectId: ObjectId.Get(context),
             InstanceId: workflowInstanceId,
-            FlowDefinitionId: context.WorkflowExecutionContext.Workflow.Identity.DefinitionId,
+            WorkflowName: context.WorkflowExecutionContext.Workflow.Identity.DefinitionId,
             Result: Result.Get(context),
             Context: Context.Get(context)
         ), context.CancellationToken);

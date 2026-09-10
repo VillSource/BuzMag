@@ -17,7 +17,6 @@ public partial class TrapFinishedWorkflowForTest(
     {
         ArgumentNullException.ThrowIfNull(@event);
         var x = await dbContext.ApprovalInbox
-            // .Where(i => @event.ObjectId == i.ObjectId)
             .Where(i => @event.InstanceId == i.WorkflowInstanceId)
             .Where(i => !i.IsFinished)
             .ToListAsync(ct)

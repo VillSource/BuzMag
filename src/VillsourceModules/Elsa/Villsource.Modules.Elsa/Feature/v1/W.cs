@@ -7,6 +7,8 @@ using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Villsource.Modules.Elsa.Contracts.Services;
+using Villsource.Modules.Elsa.Contracts.v1.Approval;
 
 namespace Villsource.Modules.Elsa.Feature.v1;
 
@@ -20,18 +22,25 @@ public record SubmitLeaveCommand(
     string Property) : ICommand<string>;
 
 public class SubmitLeaveHandler(
-    IWorkflowRuntime workflowRuntime, 
-    ICurrentUser user, 
+    IWorkflowRuntime workflowRuntime,
+    ICurrentUser user,
+    IApprovalGateway approvalGateway,
     ITenantAccessor tenantAccessor) : ICommandHandler<SubmitLeaveCommand, string>
 {
     public async ValueTask<string> Handle(SubmitLeaveCommand command, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
-        
+
         var client = await workflowRuntime.CreateClientAsync(cancellationToken);
-        
+
         var tenant = tenantAccessor.Tenant;
         _ = tenant;
+
+        var c = new Dictionary<string, object>();
+        var x =await approvalGateway.StartNewWorkflowAsync(
+            new SubmitToApprovalCommand(command.DocNo, command.DocNo, "LeaveApprovalWorkflow",
+                user.GetUserId().ToString(), DateTimeOffset.UtcNow, c), cancellationToken);
+        _ = x;
 
         var request = new CreateAndRunWorkflowInstanceRequest
         {
@@ -56,10 +65,6 @@ public class SubmitLeaveHandler(
     }
 }
 
-
-
-
-
 // 💡 1. Command รับค่าจาก API (ใช้ DocNo และ Decision)
 public record ManagerDecisionCommand(string DocNo, string Decision) : ICommand<string>;
 
@@ -69,20 +74,17 @@ public class ManagerDecisionHandler(IEventPublisher eventPublisher) : ICommandHa
     public async ValueTask<string> Handle(ManagerDecisionCommand command, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
-        
+
         // 💡 ยิงสัญญาณเข้าสู่ระบบของ Elsa ให้ไปปลุก Activity 'Event' ที่รออยู่
         await eventPublisher.PublishAsync(
-            eventName: "ManagerDecisionEvent",  // 🔥 ต้องตรงกับชื่อ EventName ใน Workflow
-            correlationId: command.DocNo,       // 🔥 จับคู่กับ Workflow Instance ที่มี DocNo ตรงกัน
-            payload: command.Decision,          // 💡 ส่ง "Approved" หรือ "Rejected" ไปลงตัวแปร decision
+            eventName: "ManagerDecisionEvent", // 🔥 ต้องตรงกับชื่อ EventName ใน Workflow
+            correlationId: command.DocNo, // 🔥 จับคู่กับ Workflow Instance ที่มี DocNo ตรงกัน
+            payload: command.Decision, // 💡 ส่ง "Approved" หรือ "Rejected" ไปลงตัวแปร decision
             cancellationToken: cancellationToken);
 
         return $"Sent '{command.Decision}' to DocNo: {command.DocNo}";
     }
 }
-
-
-
 
 public static class LeaveApprovalEndpoints
 {
@@ -91,8 +93,8 @@ public static class LeaveApprovalEndpoints
         var group = app.MapGroup("/api/v1/leaves").WithTags("Leave Approval Workflow");
 
         group.MapPost("/submit", async (
-                SubmitLeaveCommand command, 
-                ISender mediator, 
+                SubmitLeaveCommand command,
+                ISender mediator,
                 CancellationToken cancellationToken) =>
             {
                 var result = await mediator.Send(command, cancellationToken);
@@ -102,8 +104,8 @@ public static class LeaveApprovalEndpoints
             .WithSummary("สร้างคำขอลาและเริ่ม Workflow");
 
         group.MapPost("/decision", async (
-                ManagerDecisionCommand command, 
-                ISender mediator, 
+                ManagerDecisionCommand command,
+                ISender mediator,
                 CancellationToken cancellationToken) =>
             {
                 var result = await mediator.Send(command, cancellationToken);

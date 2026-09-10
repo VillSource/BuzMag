@@ -17,7 +17,7 @@ public class ResolveRequesterTier : CodeActivity<string>
         var emp = await resolver.GetEmployeeAsync(EmployeeId.Get(context), context.CancellationToken);
         
         // ส่งชื่อตำแหน่งกลับไปเทียบค่าใน Workflow
-        context.SetResult(emp?.PositionTierName ?? "NONE"); 
+        context.SetResult(emp?.PositionTierName ?? "NONE");     
     }
 }
 
