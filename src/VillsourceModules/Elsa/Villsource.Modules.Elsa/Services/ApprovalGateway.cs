@@ -30,13 +30,13 @@ public class ApprovalGateway(
         var workflow = await workflowDefinitionStore.FindAsync(filter, cancellationToken);
         if (workflow is null)
             return StartWorkflowResult.Error($"Workflow Definition with ID {data.FlowDefinitionId} does not exist");
-        var inputs = workflow.Inputs.Select(i => i.Name);
 
         data.ContextData.Add(nameof(data.ObjectId), data.ObjectId);
         data.ContextData.Add(nameof(data.RequestedOn), data.RequestedOn);
         data.ContextData.Add(nameof(data.RequesterId), data.RequesterId);
         data.ContextData.Add(nameof(data.ObjectName), data.ObjectName);
 
+        var inputs = workflow.Inputs.Select(i => i.Name);
         var requiedInputs = inputs
             .Where(i => !data.ContextData.Keys.Contains(i, StringComparer.OrdinalIgnoreCase))
             .Select(i => new ValidationFailure(i, "Required for workflow input"))

@@ -23,6 +23,10 @@ public class SubmitToApprovalCommandHandler(IApprovalGateway gateway)
     {
         var res = await gateway.StartNewWorkflowAsync(command,cancellationToken);
 
-        return res.InstantId ?? "";
+        if (res.IsSuccess())
+            return res.InstantId ?? "";
+        if (res.InnerException is not null)
+            throw res.InnerException;
+        return res.ErrorMessage ?? "Error";
     }
 }

@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text.Json;
 using JsonException = System.Text.Json.JsonException;
 
-namespace Villsource.Modules.Elsa.Workflows;
+namespace Villsource.Modules.Elsa.Core.Workflows;
 
 public static partial class BuzMagWorkflowBaseExtension
 {

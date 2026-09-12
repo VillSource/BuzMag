@@ -26,6 +26,7 @@ using Villsource.Modules.Elsa.Contracts.v1.Approval;
 using Villsource.Modules.Elsa.Data;
 using Villsource.Modules.Elsa.Feature.v1;
 using Villsource.Modules.Elsa.Services;
+using Villsource.Modules.HumanResource.Workflow;
 
 namespace Villsource.Modules.Elsa;
 
@@ -89,6 +90,7 @@ public sealed class ElsaModule : IModule
 #endif
 
             elsa.AddWorkflowsFrom<ElsaModule>();
+            elsa.AddHrWorkflowsModule();
         });
 
         builder.Services.AddHealthChecks().AddDbContextCheck<ElsaDbContext>(

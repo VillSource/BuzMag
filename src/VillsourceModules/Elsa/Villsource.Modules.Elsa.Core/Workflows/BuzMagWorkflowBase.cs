@@ -1,6 +1,6 @@
 ﻿using Elsa.Workflows;
 
-namespace Villsource.Modules.Elsa.Workflows;
+namespace Villsource.Modules.Elsa.Core.Workflows;
 
 
 public record BuzMagWorkflowBaseInput(

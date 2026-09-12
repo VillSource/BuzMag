@@ -1,15 +1,7 @@
-﻿namespace Villsource.Modules.Elsa.Contracts.Services.HrModule;
+﻿using Villsource.Modules.HumanResource.Workflow.Contract.Dtos;
+using Villsource.Modules.HumanResource.Workflow.Contract.Services;
 
-public record EmployeePosition(
-    string OrganizationUnitRef,
-    string PositionRef,
-    string PositionTierName,
-    int PositionTier);
-
-public interface IEmployeeResolver
-{
-    Task<EmployeePosition> GetPosition(string employeeRef);
-}
+namespace Villsource.Modules.HumanResource.Workflow.Services;
 
 public class EmployeeResolverStub : IEmployeeResolver
 {
