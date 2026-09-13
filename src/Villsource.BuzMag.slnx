@@ -99,9 +99,18 @@
     <Project Path="VillsourceModules/HumanResource/Villsource.Modules.HumanResource.Contracts/Villsource.Modules.HumanResource.Contracts.csproj" />
     <Project Path="VillsourceModules/HumanResource/Villsource.Modules.HumanResource/Villsource.Modules.HumanResource.csproj" />
   </Folder>
+  <Folder Name="/VillsourceModules/Oidc/">
+    <Project Path="VillsourceModules/Oidc/Villsource.Modules.Oidc.Contracts/Villsource.Modules.Oidc.Contracts.csproj" />
+    <Project Path="VillsourceModules/Oidc/Villsource.Modules.Oidc/Villsource.Modules.Oidc.csproj" />
+  </Folder>
     
   <Folder Name="/VillsourceModules/Organization/">
     <Project Path="VillsourceModules/Organization/Villsource.FSH.Modules.Organization.Contracts/Villsource.FSH.Modules.Organization.Contracts.csproj" />
     <Project Path="VillsourceModules/Organization/Villsource.FSH.Modules.Organization/Villsource.FSH.Modules.Organization.csproj" />
+  </Folder>
+  <Folder Name="/VillsourceModules/Templates/">
+    <File Path="VillsourceModules/Templates/.template.config/template.json" />
+    <Project Path="VillsourceModules/Templates/Villsource.Modules.BuzMagTemplate.Contracts/Villsource.Modules.BuzMagTemplate.Contracts.csproj" />
+    <Project Path="VillsourceModules/Templates/Villsource.Modules.BuzMagTemplate/Villsource.Modules.BuzMagTemplate.csproj" />
   </Folder>
 </Solution>

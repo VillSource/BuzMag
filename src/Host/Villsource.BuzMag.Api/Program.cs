@@ -67,7 +67,9 @@ builder.Services.AddMediator(o =>
         typeof(Villsource.FSH.Modules.Organization.Contracts.OrganizationContractsMarker),
         typeof(Villsource.FSH.Modules.Organization.OrganizationModule),
         typeof(Villsource.Modules.HumanResource.Contracts.HumanResourceContractsMarker),
-        typeof(Villsource.Modules.HumanResource.HumanResourceModule)
+        typeof(Villsource.Modules.HumanResource.HumanResourceModule),
+        typeof(Villsource.Modules.Oidc.Contracts.OidcContractsMarker),
+        typeof(Villsource.Modules.Oidc.OidcModule),
     ];
 });
 
@@ -86,6 +88,7 @@ var moduleAssemblies = new Assembly[]
     
     typeof(Villsource.FSH.Modules.Organization.OrganizationModule).Assembly,
     typeof(Villsource.Modules.HumanResource.HumanResourceModule).Assembly,
+    typeof(Villsource.Modules.Oidc.OidcModule).Assembly,
 };
 
 builder.AddHeroPlatform(o =>

@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Villsource",
+  "classifications": [ "ModularMonolith", "Module", "BuzMag" ],
+  "name": "Modular Monolith Module Template",
+  "identity": "ModularMonolith.Module.BuzMag",
+  "shortName": "buz-module",
+  "tags": { "language": "C#", "type": "project" },
+  "sourceName": "BuzMagTemplate",
+  "preferNameDirectory": true
+}
