@@ -23,6 +23,7 @@ using Villsource.Modules.Elsa.Contracts.Authorization;
 using Villsource.Modules.Elsa.Contracts.Services;
 using Villsource.Modules.Elsa.Contracts.v1;
 using Villsource.Modules.Elsa.Contracts.v1.Approval;
+using Villsource.Modules.Elsa.Core;
 using Villsource.Modules.Elsa.Data;
 using Villsource.Modules.Elsa.Feature.v1;
 using Villsource.Modules.Elsa.Services;
@@ -90,6 +91,7 @@ public sealed class ElsaModule : IModule
 #endif
 
             elsa.AddWorkflowsFrom<ElsaModule>();
+            elsa.AddCoreWorkflowsModule();
             elsa.AddHrWorkflowsModule();
         });
 

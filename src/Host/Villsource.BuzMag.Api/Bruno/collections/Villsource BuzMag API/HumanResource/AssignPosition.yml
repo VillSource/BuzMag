@@ -10,7 +10,7 @@ http:
   url: "{{baseUrl}}/api/v1/employees/:ref/positions"
   params:
     - name: ref
-      value: nPUKFXaOELQ
+      value: vqECl7j7HiL
       type: path
   body:
     type: json
