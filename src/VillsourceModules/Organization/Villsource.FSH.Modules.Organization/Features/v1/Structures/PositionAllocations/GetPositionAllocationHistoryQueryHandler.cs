@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Villsource.FSH.Modules.Organization.Contracts.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.Structures;
 using Villsource.FSH.Modules.Organization.Data;
+using Villsource.FSH.Modules.Organization.Mappers;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.PositionAllocations;
 

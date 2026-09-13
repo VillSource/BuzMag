@@ -2,20 +2,23 @@ using FSH.Framework.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Villsource.FSH.Modules.Organization.Data;
+namespace Villsource.Modules.Oidc.Data;
 
-public sealed class OrganizationDbInitializer(
-    OrganizationDbContext dbContext,
-    ILogger<OrganizationDbInitializer> logger) : IDbInitializer
+public sealed class OidcDbInitializer(
+    OidcDbContext dbContext,
+    ILogger<OidcDbInitializer> logger) : IDbInitializer
 {
     public async Task MigrateAsync(CancellationToken cancellationToken)
     {
         if ((await dbContext.Database.GetPendingMigrationsAsync(cancellationToken).ConfigureAwait(false)).Any())
         {
             await dbContext.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
-            logger.LogInformation("[Organization] applied migrations");
+            logger.LogInformation("[Oidc] applied migrations");
         }
     }
 
-    public Task SeedAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+    public async Task SeedAsync(CancellationToken cancellationToken)
+    {
+        logger.LogInformation("[Oidc] seeded default organization");
+    }
 }
