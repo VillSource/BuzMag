@@ -28,7 +28,7 @@ public sealed class OidcDbInitializer(
             {
                 ClientId = name,
                 DisplayName = "Elsa Workflows Studio",
-                RedirectUris = { new Uri($"https://oauth.usebruno.com/callback") }, // URL ของ Elsa Studio
+                RedirectUris = { new Uri($"https://oauth.usebruno.com/callback"), new Uri($"http://localhost:5000/authentication/login-callback") }, // URL ของ Elsa Studio
                 PostLogoutRedirectUris = { new Uri($"https://localhost:5000/signout-callback-oidc") },
                 Permissions =
                 {
