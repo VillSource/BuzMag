@@ -23,6 +23,8 @@
 	  <ProjectReference Include="..\..\VillsourceModules\BuzMag\BuzMag.csproj" />
 	  <ProjectReference Include="..\..\VillsourceModules\HumanResource\Villsource.Modules.HumanResource.Contracts\Villsource.Modules.HumanResource.Contracts.csproj" />
 	  <ProjectReference Include="..\..\VillsourceModules\HumanResource\Villsource.Modules.HumanResource\Villsource.Modules.HumanResource.csproj" />
+	  <ProjectReference Include="..\..\VillsourceModules\Oidc\Villsource.Modules.Oidc.Contracts\Villsource.Modules.Oidc.Contracts.csproj" />
+	  <ProjectReference Include="..\..\VillsourceModules\Oidc\Villsource.Modules.Oidc\Villsource.Modules.Oidc.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

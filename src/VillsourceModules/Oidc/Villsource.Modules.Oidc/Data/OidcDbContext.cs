@@ -1,10 +1,12 @@
 using Finbuckle.MultiTenant.Abstractions;
+using Finbuckle.MultiTenant.EntityFrameworkCore.Extensions;
 using FSH.Framework.Persistence.Context;
 using FSH.Framework.Shared.Multitenancy;
 using FSH.Framework.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenIddict.EntityFrameworkCore.Models;
 using Villsource.Modules.Oidc.Domain;
 
 namespace Villsource.Modules.Oidc.Data;
@@ -16,7 +18,7 @@ public sealed class OidcDbContext(
     IHostEnvironment environment)
     : BaseDbContext(multiTenantContextAccessor, options, settings, environment)
 {
-    public const string Schema = "Oidc";
+    public const string Schema = "oidc";
 
     public DbSet<Ping> Pings => Set<Ping>();
 
@@ -28,5 +30,10 @@ public sealed class OidcDbContext(
         // base.OnModelCreating runs LAST so BaseDbContext's auto-apply (ApplyTenantIsolationByDefault)
         // sees fully-configured entities, including child types reached via HasMany navigation.
         base.OnModelCreating(modelBuilder);
+        modelBuilder.UseOpenIddict();
+        modelBuilder.Entity<OpenIddictEntityFrameworkCoreApplication>().IsNotMultiTenant();
+        modelBuilder.Entity<OpenIddictEntityFrameworkCoreAuthorization>().IsNotMultiTenant();
+        modelBuilder.Entity<OpenIddictEntityFrameworkCoreScope>().IsNotMultiTenant();
+        modelBuilder.Entity<OpenIddictEntityFrameworkCoreToken>().IsNotMultiTenant();
     }
 }
