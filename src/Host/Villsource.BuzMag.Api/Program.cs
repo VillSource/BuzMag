@@ -71,6 +71,8 @@ Microsoft.Extensions.DependencyInjection.MediatorDependencyInjectionExtensions.A
         typeof(Villsource.Modules.HumanResource.HumanResourceModule),
         typeof(Villsource.Modules.Elsa.Contracts.ElsaContractsMarker),
         typeof(Villsource.Modules.Elsa.ElsaModule),
+        typeof(Villsource.Modules.Oidc.Contracts.OidcContractsMarker),
+        typeof(Villsource.Modules.Oidc.OidcModule),
     ];
 });
 
@@ -90,6 +92,7 @@ var moduleAssemblies = new Assembly[]
     typeof(Villsource.FSH.Modules.Organization.OrganizationModule).Assembly,
     typeof(Villsource.Modules.HumanResource.HumanResourceModule).Assembly,
     typeof(Villsource.Modules.Elsa.ElsaModule).Assembly,
+    typeof(Villsource.Modules.Oidc.OidcModule).Assembly,
 };
 
 builder.AddHeroPlatform(o =>

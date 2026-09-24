@@ -1,8 +1,7 @@
 ﻿using Villsource.FSH.Modules.Organization.Contracts.Dtos;
 using Villsource.FSH.Modules.Organization.Domain;
-using Villsource.FSH.Modules.Organization.Mappers;
 
-namespace Villsource.FSH.Modules.Organization.Features.v1.Structures.PositionAllocations;
+namespace Villsource.FSH.Modules.Organization.Mappers;
 
 internal static class AllocationMapper
 {
