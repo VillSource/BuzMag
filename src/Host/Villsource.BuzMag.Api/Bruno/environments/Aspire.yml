@@ -4,3 +4,4 @@ variables:
     value: https://localhost:7030
   - secret: true
     name: token
+    description: ""

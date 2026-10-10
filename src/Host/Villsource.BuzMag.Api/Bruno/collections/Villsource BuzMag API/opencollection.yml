@@ -2,6 +2,36 @@ opencollection: 1.0.0
 
 info:
   name: Villsource BuzMag API
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  auth:
+    type: oauth2
+    flow: authorization_code
+    authorizationUrl: "{{baseUrl}}/connect/authorize"
+    accessTokenUrl: "{{baseUrl}}/connect/token"
+    credentials:
+      clientId: root-elsa-studio
+      placement: body
+    scope: openid profile roles
+    pkce: {}
+    tokenConfig:
+      id: credentials
+      placement:
+        header: Bearer
+      source: access_token
+    settings:
+      autoFetchToken: true
 
 docs:
   content: The FSH Starter Kit API for Modular/Multitenant Architecture.

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Villsource.Modules.Oidc.Data;
 
@@ -25,7 +25,7 @@ public static class OpenIddictConfig
 
                 options.AllowRefreshTokenFlow();
 
-                options.RegisterScopes("openid", "profile", "roles", "permissions");
+                options.RegisterScopes("openid", "profile", "email", "roles");
 
                 options.AddDevelopmentEncryptionCertificate()
                     .AddDevelopmentSigningCertificate();

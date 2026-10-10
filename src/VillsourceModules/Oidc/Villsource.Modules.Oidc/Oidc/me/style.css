@@ -1,0 +1,109 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f3f4f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.profile-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    width: 100%;
+    max-width: 500px;
+    overflow: hidden;
+}
+
+.profile-header {
+    background-color: #1f2937;
+    color: #ffffff;
+    padding: 24px;
+    text-align: center;
+}
+
+.profile-header h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.profile-header p {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.claims-content {
+    padding: 24px;
+    min-height: 150px;
+}
+
+.loading-text, .error-text {
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.error-text {
+    color: #ef4444;
+}
+
+.claims-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.claims-table th, .claims-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.claims-table th {
+    color: #4b5563;
+    font-weight: 600;
+    width: 35%;
+    white-space: nowrap;
+}
+
+.claims-table td {
+    color: #111827;
+    word-break: break-all;
+}
+
+.claims-table tr:last-child th,
+.claims-table tr:last-child td {
+    border-bottom: none;
+}
+
+.profile-footer {
+    padding: 20px 24px;
+    background-color: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-logout {
+    background-color: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+}
+
+.btn-logout:hover {
+    background-color: #dc2626;
+}

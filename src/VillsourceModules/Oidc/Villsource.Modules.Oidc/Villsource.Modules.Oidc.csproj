@@ -27,4 +27,10 @@
       <PackageReference Include="OpenIddict.EntityFrameworkCore" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="Oidc\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
 </Project>
