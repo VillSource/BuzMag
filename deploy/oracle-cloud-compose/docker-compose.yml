@@ -173,7 +173,7 @@ services:
             -d buzmag.villsource.com \
             -d villsource.net \
             -d villsource.com \
-            -d ledger.villsource.com \
+            -d ledger.villsource.com
         fi
 
   nginx:
