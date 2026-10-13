@@ -11,7 +11,7 @@ name: fsh
 services:
 
   thecatsledger:
-    image: villsource/the-cats-ledger:v0.0.2 
+    image: villsource/the-cats-ledger:latest
     container_name: the-cats-ledger
     restart: unless-stopped
     ports:
