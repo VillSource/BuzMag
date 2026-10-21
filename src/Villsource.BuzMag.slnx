@@ -95,8 +95,16 @@
     <Project Path="VillsourceModules/Core/Villsource.ObjectValue/Villsource.ObjectValue.csproj" />
     <Project Path="VillsourceModules/Core/Villsource.Tool.UniqueKey/Villsource.Tool.UniqueKey.csproj" />
   </Folder>
+  <Folder Name="/VillsourceModules/Elsa/">
+    <Project Path="VillsourceModules/Elsa/App1/src/App1.Wasm/App1.Wasm.csproj" />
+    <Project Path="VillsourceModules/Elsa/Villsource.Modules.Elsa.Contracts/Villsource.Modules.Elsa.Contracts.csproj" />
+    <Project Path="VillsourceModules/Elsa/Villsource.Modules.Elsa.Core/Villsource.Modules.Elsa.Core.csproj" />
+    <Project Path="VillsourceModules/Elsa/Villsource.Modules.Elsa/Villsource.Modules.Elsa.csproj" />
+  </Folder>
   <Folder Name="/VillsourceModules/HumanResource/">
     <Project Path="VillsourceModules/HumanResource/Villsource.Modules.HumanResource.Contracts/Villsource.Modules.HumanResource.Contracts.csproj" />
+    <Project Path="VillsourceModules/HumanResource/Villsource.Modules.HumanResource.Workflow.Contract/Villsource.Modules.HumanResource.Workflow.Contract.csproj" />
+    <Project Path="VillsourceModules/HumanResource/Villsource.Modules.HumanResource.Workflow/Villsource.Modules.HumanResource.Workflow.csproj" />
     <Project Path="VillsourceModules/HumanResource/Villsource.Modules.HumanResource/Villsource.Modules.HumanResource.csproj" />
   </Folder>
   <Folder Name="/VillsourceModules/Oidc/">

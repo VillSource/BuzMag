@@ -14,7 +14,6 @@ public static class PingEndpoint
                 var res = await mediator.Send(new PingCommand()).ConfigureAwait(false);
                 return res;
             })
-            .AllowAnonymous()
             .WithName("Ping Endpoint");
     }
 }

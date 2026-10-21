@@ -13,6 +13,7 @@ using FSH.Modules.Tickets;
 using FSH.Modules.Multitenancy.Features.v1.GetTenantStatus;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Villsource.Modules.Elsa;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +40,7 @@ if (builder.Environment.IsProduction())
     Require(config, "JwtOptions:SigningKey");
 }
 
-builder.Services.AddMediator(o =>
+Microsoft.Extensions.DependencyInjection.MediatorDependencyInjectionExtensions.AddMediator(builder.Services, o =>
 {
     o.ServiceLifetime = ServiceLifetime.Scoped;
     o.Assemblies = [
@@ -68,6 +69,8 @@ builder.Services.AddMediator(o =>
         typeof(Villsource.FSH.Modules.Organization.OrganizationModule),
         typeof(Villsource.Modules.HumanResource.Contracts.HumanResourceContractsMarker),
         typeof(Villsource.Modules.HumanResource.HumanResourceModule),
+        typeof(Villsource.Modules.Elsa.Contracts.ElsaContractsMarker),
+        typeof(Villsource.Modules.Elsa.ElsaModule),
         typeof(Villsource.Modules.Oidc.Contracts.OidcContractsMarker),
         typeof(Villsource.Modules.Oidc.OidcModule),
     ];
@@ -88,6 +91,7 @@ var moduleAssemblies = new Assembly[]
     
     typeof(Villsource.FSH.Modules.Organization.OrganizationModule).Assembly,
     typeof(Villsource.Modules.HumanResource.HumanResourceModule).Assembly,
+    typeof(Villsource.Modules.Elsa.ElsaModule).Assembly,
     typeof(Villsource.Modules.Oidc.OidcModule).Assembly,
 };
 
@@ -112,6 +116,10 @@ builder.Services.AddHostedService<Villsource.BuzMag.Api.OrphanedOutboxRecurringJ
 
 var app = builder.Build();
 
+#if DEBUG
+app.UseElsaDebugApi();
+#endif
+
 app.UseHeroMultiTenantDatabases();
 app.UseHeroPlatform(p =>
 {
@@ -122,6 +130,7 @@ app.UseHeroPlatform(p =>
     p.MapRealtime = true;
 });
 
+app.UseElsaMultiTenantDatabases();
 app.MapGet("/", () => Results.Ok(new { message = "hello world!" }))
    .WithTags("PlayGround")
    .AllowAnonymous();

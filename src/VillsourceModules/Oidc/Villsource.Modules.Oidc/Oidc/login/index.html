@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in · BuzMag</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<main class="card">
+    <h1>BuzMag</h1>
+    <p class="sub">Sign in to your workspace</p>
+
+    <form id="login-form" novalidate>
+        <div class="field">
+            <label for="tenant">Tenant</label>
+            <input id="tenant" name="tenant" type="text" autocomplete="organization"
+                   autocapitalize="none" spellcheck="false" placeholder="your-company" required />
+        </div>
+        <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="username"
+                   placeholder="you@company.com" required />
+        </div>
+        <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password"
+                   autocomplete="current-password" required />
+        </div>
+
+        <button id="submit" type="submit">Sign in</button>
+        <p id="error" class="error" role="alert" aria-live="polite"></p>
+    </form>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>

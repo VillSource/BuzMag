@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Elsa\Villsource.Modules.Elsa.Core\Villsource.Modules.Elsa.Core.csproj" />
+      <ProjectReference Include="..\..\Organization\Villsource.FSH.Modules.Organization.Contracts\Villsource.FSH.Modules.Organization.Contracts.csproj" />
+      <ProjectReference Include="..\Villsource.Modules.HumanResource.Workflow.Contract\Villsource.Modules.HumanResource.Workflow.Contract.csproj" />
+    </ItemGroup>
+
+</Project>

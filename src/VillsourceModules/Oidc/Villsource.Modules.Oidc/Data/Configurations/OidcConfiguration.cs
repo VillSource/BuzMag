@@ -9,7 +9,7 @@ internal sealed class OidcConfiguration : IEntityTypeConfiguration<Ping>
 {
     public void Configure(EntityTypeBuilder<Ping> builder)
     {
-        builder.ToTable("OrganizationUnits");
+        builder.ToTable("Ping");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedNever();
         builder.Property(x => x.Ref).HasMaxLength(VillsourceId.KeySizes).IsRequired();

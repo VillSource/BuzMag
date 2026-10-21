@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>User Profile</h1>
+        <p>Your current session claims</p>
+    </div>
+
+    <div id="claims-container" class="claims-content">
+        <!-- ข้อมูล claims จะถูกนำมาแสดงที่นี่ผ่าน JavaScript -->
+        <p class="loading-text">Loading user information...</p>
+    </div>
+
+    <div class="profile-footer">
+        <button id="logout-btn" class="btn-logout">Logout</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
