@@ -1,0 +1,223 @@
+# fullstackhero — production docker-compose.
+# Run from this directory:
+#   cp .env.example .env && $EDITOR .env
+#   docker compose up -d --build
+#
+# nginx owns HTTP host routing. TLS certificates can be terminated by an
+# upstream load balancer or added to the nginx service separately.
+
+name: fsh
+
+services:
+
+  thecatsledger:
+    image: villsource/the-cats-ledger:latest
+    container_name: the-cats-ledger
+    restart: unless-stopped
+    user: root
+    volumes:
+      - thecatsledger_data:/app/db/
+    ports:
+      - "8080:8080"
+    environment:
+      LineOptions__ValidAudience: ${ValidAudience}
+      LineOptions__ChannelAccessToken: ${ChannelAccessToken}
+      LineOptions__LIFFID: ${LIFFID}
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: fsh-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fsh
+      POSTGRES_USER: fsh
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - pg_data:/var/lib/postgresql
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fsh -d fsh"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    # Uncomment to expose for host psql / pg_dump access:
+    # ports:
+    #   - "5432:5432"
+
+  redis:
+    image: valkey/valkey:9.1.0-alpine
+    container_name: fsh-redis
+    restart: unless-stopped
+    command:
+      - valkey-server
+      - --requirepass
+      - ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      - --appendonly
+      - "yes"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli -a $$REDIS_PASSWORD PING | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    # Uncomment to expose for host redis-cli:
+    # ports:
+    #   - "6379:6379"
+
+  migrator:
+    build:
+      context: ../..
+      dockerfile: src/Host/Villsource.BuzMag.DbMigrator/Dockerfile
+    image: us-east1-docker.pkg.dev/villsource-490714/villsource/buzmag-dbmigrator
+    container_name: fsh-migrator
+    restart: "no"
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      DatabaseOptions__ConnectionString: Host=postgres;Database=fsh;Username=fsh;Password=${POSTGRES_PASSWORD}
+      CachingOptions__Redis: redis,password=${REDIS_PASSWORD}
+      JwtOptions__SigningKey: ${JWT_SIGNING_KEY:?JWT_SIGNING_KEY is required}
+      Seed__DefaultAdminPassword: ${SEED_ADMIN_PASSWORD:?SEED_ADMIN_PASSWORD is required}
+    command: ["apply", "--seed"]
+
+  api:
+    build:
+      context: ../..
+      dockerfile: src/Host/Villsource.BuzMag.Api/Dockerfile
+    image: us-east1-docker.pkg.dev/villsource-490714/villsource/buzmag-api
+    container_name: fsh-api
+    restart: unless-stopped
+    depends_on:
+      postgres:   { condition: service_healthy }
+      redis:      { condition: service_healthy }
+      migrator:   { condition: service_completed_successfully }
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      DatabaseOptions__ConnectionString: Host=postgres;Database=fsh;Username=fsh;Password=${POSTGRES_PASSWORD}
+      CachingOptions__Redis: redis,password=${REDIS_PASSWORD}
+      JwtOptions__SigningKey: ${JWT_SIGNING_KEY}
+      Seed__DefaultAdminPassword: ${SEED_ADMIN_PASSWORD}
+      Storage__Provider: s3
+      Storage__S3__ServiceUrl: ${S3_ROOT_URL}
+      Storage__S3__AccessKey: ${S3_ROOT_USER}
+      Storage__S3__SecretKey: ${S3_ROOT_PASSWORD}
+      Storage__S3__Bucket: ${S3_ROOT_BUCKET}
+      Storage__S3__Region: ${S3_ROOT_REGION}
+      Storage__S3__ForcePathStyle: "true"
+      Storage__S3__PublicBaseUrl: ${S3_ROOT_PUBLIC_BASE_URL}
+
+      AllowedHosts: "*"
+      HangfireOptions__UserName: ${HANGFIRE_USERNAME:?HANGFIRE_USERNAME is required}
+      HangfireOptions__Password: ${HANGFIRE_PASSWORD:?HANGFIRE_PASSWORD is required}
+      CorsOptions__AllowAll: true
+      CorsOptions__AllowedOrigins__0: ${FSH_ADMIN_URL:?FSH_ADMIN_URL is required}
+      CorsOptions__AllowedOrigins__1: ${FSH_DASHBOARD_URL:?FSH_DASHBOARD_URL is required}
+      OpenTelemetryOptions__Exporter__Otlp__Endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    expose:
+      - "8080"
+
+  admin:
+    build:
+      context: ../../clients/admin
+    image: us-east1-docker.pkg.dev/villsource-490714/villsource/buzmag-admin
+    container_name: fsh-admin
+    restart: unless-stopped
+    depends_on:
+      migrator: { condition: service_completed_successfully }
+    environment:
+      FSH_API_URL: ${FSH_API_URL:?FSH_API_URL is required}
+      FSH_DASHBOARD_URL: ${FSH_DASHBOARD_URL}
+      FSH_DEFAULT_TENANT: ${FSH_DEFAULT_TENANT:-root}
+    expose:
+      - "80"
+
+  dashboard:
+    build:
+      context: ../../clients/dashboard
+    image: us-east1-docker.pkg.dev/villsource-490714/villsource/buzmag-dashboard
+    container_name: fsh-dashboard
+    restart: unless-stopped
+    depends_on:
+      migrator: { condition: service_completed_successfully }
+    environment:
+      FSH_API_URL: ${FSH_API_URL}
+      FSH_DEFAULT_TENANT: ${FSH_DEFAULT_TENANT:-root}
+    expose:
+      - "80"
+
+  certbot-init:
+    image: certbot/certbot:latest
+    container_name: fsh-certbot-init
+    restart: "no"
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+    environment:
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:?LETSENCRYPT_EMAIL is required}
+    volumes:
+      - ./nginx/certs:/etc/letsencrypt
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        if [ ! -f /etc/letsencrypt/live/buzmag.villsource.net/fullchain.pem ]; then
+          certbot certonly --standalone --non-interactive --agree-tos --no-eff-email \
+            --email "$${LETSENCRYPT_EMAIL}" \
+            --cert-name buzmag.villsource.net \
+            -d api.buzmag.villsource.net \
+            -d api.buzmag.villsource.com \
+            -d admin.buzmag.villsource.net \
+            -d admin.buzmag.villsource.com \
+            -d buzmag.villsource.net \
+            -d buzmag.villsource.com \
+            -d villsource.net \
+            -d villsource.com \
+            -d ledger.villsource.com
+        fi
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: fsh-nginx
+    restart: unless-stopped
+    depends_on:
+      api: { condition: service_started }
+      admin: { condition: service_started }
+      dashboard: { condition: service_started }
+      certbot-init: { condition: service_completed_successfully }
+      thecatsledger: { condition: service_started }
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./nginx/certbot:/var/www/certbot:ro
+
+  certbot-renew:
+    image: certbot/certbot:latest
+    container_name: fsh-certbot-renew
+    restart: unless-stopped
+    depends_on:
+      nginx: { condition: service_started }
+    pid: "service:nginx"
+    volumes:
+      - ./nginx/certs:/etc/letsencrypt
+      - ./nginx/certbot:/var/www/certbot
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        while :; do
+          certbot renew --webroot -w /var/www/certbot --deploy-hook 'kill -HUP 1'
+          sleep 12h
+        done
+
+volumes:
+  pg_data:
+  redis_data:
+  minio_data:
+  thecatsledger_data:
