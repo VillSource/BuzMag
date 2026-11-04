@@ -60,32 +60,34 @@ public sealed class OidcModule : IModule
         {
             // ดึง Policy เดิมที่สร้างไว้ก่อนหน้านี้ออกมา
             var existingPolicy = options.GetPolicy("RequiredPermission");
-    
-            if (existingPolicy != null)
+
+            if (existingPolicy == null)
             {
-                // สร้าง Builder โดยโยน Policy เดิมเข้าไป (มันจะก็อปปี้ Requirements และ Schemes เดิมมาทั้งหมด)
-                var policyBuilder = new AuthorizationPolicyBuilder(existingPolicy);
+                return;
+            }
+
+            // สร้าง Builder โดยโยน Policy เดิมเข้าไป (มันจะก็อปปี้ Requirements และ Schemes เดิมมาทั้งหมด)
+            var policyBuilder = new AuthorizationPolicyBuilder(existingPolicy);
         
-                // เพิ่ม Scheme ใหม่เข้าไป
-                policyBuilder.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+            // เพิ่ม Scheme ใหม่เข้าไป
+            policyBuilder.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
         
-                // Build เป็น Policy ตัวใหม่
-                var newPolicy = policyBuilder.Build();
+            // Build เป็น Policy ตัวใหม่
+            var newPolicy = policyBuilder.Build();
         
-                // นำไปเขียนทับ Policy ชื่อเดิมในระบบ (ASP.NET Core จะทำการ Overwrite ให้)
-                options.AddPolicy("RequiredPermission", newPolicy);
+            // นำไปเขียนทับ Policy ชื่อเดิมในระบบ (ASP.NET Core จะทำการ Overwrite ให้)
+            options.AddPolicy("RequiredPermission", newPolicy);
         
-                // สำคัญ: ต้องอัปเดต Default และ Fallback ด้วย 
-                // เพราะโค้ดเดิมของคุณ (options.DefaultPolicy = ...) ได้ผูก reference ไว้กับ Object ของ Policy ตัวเก่าไปแล้ว
-                if (options.DefaultPolicy == existingPolicy)
-                {
-                    options.DefaultPolicy = newPolicy;
-                }
+            // สำคัญ: ต้องอัปเดต Default และ Fallback ด้วย 
+            // เพราะโค้ดเดิมของคุณ (options.DefaultPolicy = ...) ได้ผูก reference ไว้กับ Object ของ Policy ตัวเก่าไปแล้ว
+            if (options.DefaultPolicy == existingPolicy)
+            {
+                options.DefaultPolicy = newPolicy;
+            }
         
-                if (options.FallbackPolicy == existingPolicy)
-                {
-                    options.FallbackPolicy = newPolicy;
-                }
+            if (options.FallbackPolicy == existingPolicy)
+            {
+                options.FallbackPolicy = newPolicy;
             }
         });
         

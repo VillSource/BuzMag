@@ -29,6 +29,8 @@ public static class OpenIddictConfig
 
                 options.AddDevelopmentEncryptionCertificate()
                     .AddDevelopmentSigningCertificate();
+                
+                options.DisableAccessTokenEncryption();
 
                 options.UseAspNetCore()
                     .EnableAuthorizationEndpointPassthrough()

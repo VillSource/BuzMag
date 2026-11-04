@@ -124,10 +124,6 @@ builder.Services.AddHostedService<Villsource.BuzMag.Api.OrphanedOutboxRecurringJ
 
 var app = builder.Build();
 
-#if DEBUG
-app.UseElsaDebugApi();
-#endif
-
 app.UseForwardedHeaders();
 app.UseHeroMultiTenantDatabases();
 app.UseHeroPlatform(p =>
@@ -139,7 +135,6 @@ app.UseHeroPlatform(p =>
     p.MapRealtime = true;
 });
 
-app.UseElsaMultiTenantDatabases();
 app.MapGet("/", () => Results.Ok(new { message = "hello world!" }))
    .WithTags("PlayGround")
    .AllowAnonymous();

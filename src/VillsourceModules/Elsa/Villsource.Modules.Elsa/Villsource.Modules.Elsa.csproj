@@ -24,11 +24,9 @@
       <PackageReference Include="Elsa.Persistence.EFCore.PostgreSql" />
       <PackageReference Include="Elsa.Scheduling" />
       <PackageReference Include="Elsa.Tenants" />
+      <PackageReference Include="Elsa.Tenants.AspNetCore" />
       <PackageReference Include="Elsa.Workflows.Api" Condition="'$(Configuration)' == 'Debug'" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Activities\HrModule\" />
+      <PackageReference Include="OpenIddict.AspNetCore" />
     </ItemGroup>
 
 </Project>

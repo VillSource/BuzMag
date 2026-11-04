@@ -92,6 +92,19 @@ internal sealed class OidcUserClaimsService(
         var subClaim = new Claim(OpenIddictConstants.Claims.Subject, subject);
         subClaim.SetDestinations(OpenIddictConstants.Destinations.AccessToken, OpenIddictConstants.Destinations.IdentityToken);
         identity.AddClaim(subClaim);
+        
+        
+        // Mock Permission for Elsa Workflow
+// #pragma warning disable S125
+#pragma warning disable S125
+//         var permission = new Claim("permissions", "*" );
+#pragma warning restore S125
+// #pragma warning restore S125
+//         permission.SetDestinations(OpenIddictConstants.Destinations.AccessToken);
+//         identity.AddClaim(permission);
+//         var aud = new Claim(OpenIddictConstants.Claims.Audience, "http://localhost:5000" );
+//         aud.SetDestinations(OpenIddictConstants.Destinations.AccessToken);
+//         identity.AddClaim(aud);
 
         // Map FSH claims → OIDC claim names & destinations.
         foreach (var claim in fshClaims)

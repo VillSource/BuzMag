@@ -1,33 +1,27 @@
 using Elsa.Extensions;
-using Elsa.Persistence.EFCore.Extensions;
-using Elsa.Persistence.EFCore.Modules.Management;
-using Elsa.Persistence.EFCore.Modules.Runtime;
-using Elsa.Tenants.Extensions;
-using Elsa.Tenants.Features;
-using Finbuckle.MultiTenant.Abstractions;
 using FluentValidation;
 using FSH.Framework.Core.Context;
 using FSH.Framework.Eventing;
 using FSH.Framework.Persistence;
 using FSH.Framework.Shared.Constants;
-using FSH.Framework.Shared.Multitenancy;
 using FSH.Framework.Web.Modules;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
+using OpenIddict.Validation.AspNetCore;
 using Villsource.Modules.Elsa.Contracts.Authorization;
 using Villsource.Modules.Elsa.Contracts.Services;
 using Villsource.Modules.Elsa.Contracts.v1;
 using Villsource.Modules.Elsa.Contracts.v1.Approval;
-using Villsource.Modules.Elsa.Core;
 using Villsource.Modules.Elsa.Data;
 using Villsource.Modules.Elsa.Feature.v1;
 using Villsource.Modules.Elsa.Services;
-using Villsource.Modules.HumanResource.Workflow;
 
 namespace Villsource.Modules.Elsa;
 
@@ -47,53 +41,7 @@ public sealed class ElsaModule : IModule
         builder.Services.AddElsaStubServices();
         builder.Services.AddScoped<IApprovalGateway, ApprovalGateway>();
 
-        builder.Services.AddElsa(elsa =>
-        {
-            elsa.UseTenants((TenantsFeature tenants) =>
-            {
-                tenants.ConfigureMultitenancy(options =>
-                {
-                    options.TenantResolverPipelineBuilder.Append<AppTenantResolver>();
-                });
-            });
-
-            elsa.UseWorkflowManagement(management =>
-                management.UseEntityFrameworkCore((WorkflowManagementPersistenceFeature ef) =>
-                {
-                    ef.UsePostgreSql(sp =>
-                    {
-                        var tenantInfo = sp.GetService<IMultiTenantContextAccessor<AppTenantInfo>>()?.MultiTenantContext
-                            .TenantInfo;
-                        return (tenantInfo != null && !string.IsNullOrWhiteSpace(tenantInfo.ConnectionString))
-                            ? tenantInfo.ConnectionString
-                            : builder.Configuration["DatabaseOptions:ConnectionString"]!;
-                    });
-
-                    ef.RunMigrations = false;
-                }));
-            elsa.UseWorkflowRuntime(runtime =>
-                runtime.UseEntityFrameworkCore((EFCoreWorkflowRuntimePersistenceFeature ef) =>
-                {
-                    ef.UsePostgreSql(sp =>
-                    {
-                        var tenantInfo = sp.GetService<IMultiTenantContextAccessor<AppTenantInfo>>()?.MultiTenantContext
-                            .TenantInfo;
-                        return (tenantInfo != null && !string.IsNullOrWhiteSpace(tenantInfo?.ConnectionString))
-                            ? tenantInfo.ConnectionString
-                            : builder.Configuration["DatabaseOptions:ConnectionString"]!;
-                    });
-
-                    ef.RunMigrations = false;
-                }));
-
-#if DEBUG
-            elsa.UseWorkflowsApi();
-#endif
-
-            elsa.AddWorkflowsFrom<ElsaModule>();
-            elsa.AddCoreWorkflowsModule();
-            elsa.AddHrWorkflowsModule();
-        });
+        builder.ConfigElsa();
 
         builder.Services.AddHealthChecks().AddDbContextCheck<ElsaDbContext>(
             name: "db:elsa",
@@ -103,38 +51,30 @@ public sealed class ElsaModule : IModule
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         ArgumentNullException.ThrowIfNull(endpoints);
-
-#if DEBUG
-
-        endpoints.MapGet("el", async (IMediator m) => await m.Send(new Mock())).AllowAnonymous();
-        var group = endpoints.MapGroup("elsa-demo").WithTags("Elsa Human-in-the-Loop").AllowAnonymous();
-
-        group.MapPost("submit", async (string name, string reqId, IMediator m) =>
-            await m.Send(new SubmitRequestCommand(name, reqId)));
-
-        // 2. Endpoint สำหรับอนุมัติหรือปฏิเสธ (Resume Workflow)
-        // การใช้งาน: POST /elsa-demo/decision/REQ001?decision=Approve
-        group.MapPost("decision/{reqId}", async (string reqId, string decision, IMediator m) =>
-            await m.Send(new ApproveRequestCommand(reqId, decision)));
-
-        endpoints.MapLeaveApprovalEndpoints();
-#endif
-        var approvalGroup = endpoints.MapGroup("approvals");
-        approvalGroup.MapPost("flows/{definitionId}",
-            async (string definitionId, SubmitApprovalBody body, IMediator mediator, ICurrentUser user) =>
-                await mediator.Send(new SubmitToApprovalCommand(
-                    ObjectId: body.ObjectId,
-                    ObjectName: body.ObjectName,
-                    FlowDefinitionId: definitionId,
-                    RequesterId: user.GetUserId().ToString(),
-                    RequestedOn: DateTimeOffset.UtcNow,
-                    ContextData: new Dictionary<string, object>(body.ContextData, StringComparer.OrdinalIgnoreCase)
-                )));
     }
 
-    public record SubmitApprovalBody(
-        string ObjectId,
-        string ObjectName,
-        Dictionary<string, object> ContextData
-    );
+    public void ConfigureMiddleware(IApplicationBuilder app)
+    {
+        ArgumentNullException.ThrowIfNull(app);
+        
+        app.Use(async (context, next) =>
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            if (context.Request.Path.StartsWithSegments("/elsa/api", StringComparison.OrdinalIgnoreCase))
+            {
+                var authService = context.RequestServices.GetRequiredService<IAuthorizationService>();
+                var result = await authService.AuthorizeAsync(context.User, "RequiredPermission");
+
+                if (!result.Succeeded)
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return;
+                }
+            }
+
+            await next();
+        });
+        app.UseTenants();
+        app.UseWorkflowsApi();
+    }
 }
