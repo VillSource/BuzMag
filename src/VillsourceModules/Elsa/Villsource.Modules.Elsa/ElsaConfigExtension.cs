@@ -1,4 +1,5 @@
 ﻿using Elsa.Extensions;
+using Elsa.Common.Features;
 using Elsa.Persistence.EFCore.Extensions;
 using Elsa.Persistence.EFCore.Modules.Management;
 using Elsa.Persistence.EFCore.Modules.Runtime;
@@ -30,6 +31,9 @@ public static class ElsaConfigExtension
         builder.Services.AddScoped<AppTenantResolver>();
         builder.Services.AddElsa(elsa =>
         {
+            elsa.Configure<MultitenancyFeature>(feature =>
+                feature.UseTenantsProvider<FinbuckleTenantsProvider>());
+
             elsa.UseTenants(tenants =>
             {
                 tenants.ConfigureMultitenancy(options =>
