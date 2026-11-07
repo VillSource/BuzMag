@@ -1,7 +1,7 @@
 info:
   name: Search products (paged, filter by brand/category/active, sortable)
   type: http
-  seq: 19
+  seq: 18
   tags:
     - Catalog
 

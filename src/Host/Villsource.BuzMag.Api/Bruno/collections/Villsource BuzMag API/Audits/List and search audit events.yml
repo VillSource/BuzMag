@@ -125,9 +125,7 @@ http:
       value: ""
       type: query
       disabled: true
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

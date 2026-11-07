@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.ComponentModel;
-using System.Net;
 using System.Security.Claims;
 using Villsource.Modules.Oidc.Services;
 
@@ -13,7 +11,7 @@ namespace Villsource.Modules.Oidc.Features.v1;
 
 public static class LoginPageEndpoint
 {
-    public record LF(string Email, string Password);
+    public sealed record LoginForm(string Email, string Password, string? TwoFactorCode = null);
 
     public static IEndpointRouteBuilder MapLoginPageEndpoints(this IEndpointRouteBuilder endpoints)
     {
@@ -35,17 +33,12 @@ public static class LoginPageEndpoint
         endpoints.MapPost("/connect/login", async (
                 HttpContext context,
                 IOidcUserClaimsService claimsService,
-                [DefaultValue("root")][FromHeader] string tenant,
-                [FromBody] LF data) =>
+                [FromBody] LoginForm data) =>
             {
-                var email = data.Email;
-                var password = data.Password;
-                
                 var identity = await claimsService.BuildOidcIdentityAsync(
-                    tenantId: tenant,
-                    email: email,
-                    password: password,
-                    twoFactorCode: null,
+                    email: data.Email,
+                    password: data.Password,
+                    twoFactorCode: data.TwoFactorCode,
                     requestedScopes: ["openid", "profile", "email", "roles"],
                     ct: context.RequestAborted);
 
@@ -67,12 +60,9 @@ public static class LoginPageEndpoint
         endpoints.MapPost("/connect/loginx", async (
                 HttpContext context,
                 IOidcUserClaimsService claimsService,
-                [DefaultValue("root")] [FromHeader] string tenant,
-                [FromBody] LF data) =>
+                [FromBody] LoginForm data) =>
             {
                 var form = await context.Request.ReadFormAsync();
-                var email = data.Email;
-                var password = data.Password;
                 var returnUrl = form["returnUrl"].ToString();
 
                 if (string.IsNullOrWhiteSpace(returnUrl))
@@ -81,10 +71,9 @@ public static class LoginPageEndpoint
                 }
 
                 var identity = await claimsService.BuildOidcIdentityAsync(
-                    tenantId: tenant,
-                    email: email,
-                    password: password,
-                    twoFactorCode: null,
+                    email: data.Email,
+                    password: data.Password,
+                    twoFactorCode: data.TwoFactorCode,
                     requestedScopes: ["openid", "profile", "email", "roles"],
                     ct: context.RequestAborted);
 

@@ -9,6 +9,9 @@ namespace FSH.Modules.Multitenancy;
 
 public static class Extensions
 {
+#pragma warning disable S1133
+    [Obsolete("This Middleware move to module setup `FSH.Modules.Multitenancy.FSH.Modules.Multitenancy`")]
+#pragma warning restore S1133
     public static WebApplication UseHeroMultiTenantDatabases(this WebApplication app)
     {
         ArgumentNullException.ThrowIfNull(app);

@@ -1,7 +1,7 @@
 info:
   name: Get a category by id
   type: http
-  seq: 15
+  seq: 14
   tags:
     - Catalog
 

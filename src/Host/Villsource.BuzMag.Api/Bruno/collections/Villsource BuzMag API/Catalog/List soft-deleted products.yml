@@ -1,7 +1,7 @@
 info:
   name: List soft-deleted products
   type: http
-  seq: 16
+  seq: 15
   tags:
     - Catalog
 

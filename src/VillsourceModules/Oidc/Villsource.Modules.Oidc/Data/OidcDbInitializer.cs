@@ -6,10 +6,9 @@ using OpenIddict.Abstractions;
 
 namespace Villsource.Modules.Oidc.Data;
 
-public sealed class OidcDbInitializer(
+public sealed partial class OidcDbInitializer(
     OidcDbContext dbContext,
     IOpenIddictApplicationManager manager,
-    IMultiTenantContextAccessor multiTenantContextAccessor,
     ILogger<OidcDbInitializer> logger) : IDbInitializer
 {
     public async Task MigrateAsync(CancellationToken cancellationToken)
@@ -23,48 +22,87 @@ public sealed class OidcDbInitializer(
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
-        var tenantId = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Identifier ?? "root";
-        var name = $"{tenantId}-elsa-studio";
+        string[] defaultPermissions =
+        [
+            OpenIddictConstants.Permissions.Endpoints.Authorization,
+            OpenIddictConstants.Permissions.Endpoints.Token,
+            OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+            OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+            OpenIddictConstants.Permissions.ResponseTypes.Code,
+            OpenIddictConstants.Permissions.Scopes.Email,
+            OpenIddictConstants.Permissions.Scopes.Profile,
+            OpenIddictConstants.Permissions.Scopes.Roles
+        ];
 
-        var client = await manager.FindByClientIdAsync(name, cancellationToken).ConfigureAwait(false);
-        if (client is null)
+        var applications = new[]
         {
-#pragma warning disable S1075
-            var brunoUri = new Uri("https://oauth.usebruno.com/callback");
-            var elsaLoginUri = new Uri("http://localhost:5000/authentication/login-callback");
-            var elsaSignoutUri = new Uri("http://localhost:5000/signout-callback-oidc");
-#pragma warning restore S1075
-
-            await manager.CreateAsync(new OpenIddictApplicationDescriptor
+            new OpenIddictApplicationDescriptor
             {
-                ClientId = name,
+                ClientId = "root-elsa-studio",
                 DisplayName = "Elsa Workflows Studio",
-                RedirectUris =
-                {
-                    brunoUri,
-                    elsaLoginUri
+                ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
+                ClientType = OpenIddictConstants.ClientTypes.Public,
+                RedirectUris = 
+                { 
+                    new Uri($"https://oauth.usebruno.com/callback"), 
+                    new Uri($"http://localhost:5000/authentication/login-callback") 
                 },
-                PostLogoutRedirectUris =
-                {
-                    elsaSignoutUri
-                },
-                Permissions =
-                {
-                    OpenIddictConstants.Permissions.Endpoints.Authorization,
-                    OpenIddictConstants.Permissions.Endpoints.Token,
-                    OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
-                    OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
-                    OpenIddictConstants.Permissions.ResponseTypes.Code,
-                    OpenIddictConstants.Permissions.Scopes.Email,
-                    OpenIddictConstants.Permissions.Scopes.Profile,
-                    OpenIddictConstants.Permissions.Scopes.Roles,
-                }
-            }, cancellationToken).ConfigureAwait(false);
-
-            if (logger.IsEnabled(LogLevel.Information))
+                PostLogoutRedirectUris = { new Uri($"http://localhost:5000/signout-callback-oidc") }
+            },
+            new OpenIddictApplicationDescriptor
             {
-                logger.LogInformation("[Oidc] seeded default Elsa Studio application: {ClientId}", name);
+                ClientId = "scalar",
+                DisplayName = "Scalar Dev tool",
+                ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
+                ClientType = OpenIddictConstants.ClientTypes.Public,
+                RedirectUris = { new Uri($"https://localhost:7030/scalar/") },
+                PostLogoutRedirectUris = { new Uri($"https://localhost:7030/scalar/") }
+            },
+            new OpenIddictApplicationDescriptor
+            {
+                ClientId = "bruno",
+                DisplayName = "Bruno Dev tool",
+                ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
+                ClientType = OpenIddictConstants.ClientTypes.Public,
+                RedirectUris = { new Uri($"https://oauth.usebruno.com/callback") },
+                PostLogoutRedirectUris = { new Uri($"http://localhost:5000") }
+            },
+            new OpenIddictApplicationDescriptor
+            {
+                ClientId = "elsastudio",
+                DisplayName = "Elsa Studio Dev tool",
+                ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
+                ClientType = OpenIddictConstants.ClientTypes.Public,
+                RedirectUris = { new Uri($"http://localhost:5000/authentication/login-callback") },
+                PostLogoutRedirectUris = { new Uri($"http://localhost:5000") }
+            }
+        };
+
+        foreach (var descriptor in applications)
+        {
+            foreach (var permission in defaultPermissions)
+            {
+                descriptor.Permissions.Add(permission);
+            }
+
+            var existingClient = await manager.FindByClientIdAsync(descriptor.ClientId!, cancellationToken).ConfigureAwait(false);
+            
+            if (existingClient is null)
+            {
+                await manager.CreateAsync(descriptor, cancellationToken).ConfigureAwait(false);
+                LogOidcSeededClientId(descriptor.ClientId!);
+            }
+            else
+            {
+                await manager.UpdateAsync(existingClient, descriptor, cancellationToken).ConfigureAwait(false);
+                LogOidcUpdatedClientId(descriptor.ClientId!);
             }
         }
     }
+
+    [LoggerMessage(LogLevel.Information, "[Oidc] seeded default application: {ClientId}")]
+    partial void LogOidcSeededClientId(string clientId);
+
+    [LoggerMessage(LogLevel.Information, "[Oidc] updated existing application: {ClientId}")]
+    partial void LogOidcUpdatedClientId(string clientId);
 }

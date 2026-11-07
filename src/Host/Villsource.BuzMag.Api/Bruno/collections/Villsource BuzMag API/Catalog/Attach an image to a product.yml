@@ -1,7 +1,7 @@
 info:
   name: Attach an image to a product
   type: http
-  seq: 25
+  seq: 24
   tags:
     - Catalog
 

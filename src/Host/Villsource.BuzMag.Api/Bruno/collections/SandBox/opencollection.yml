@@ -21,13 +21,8 @@ request:
     authorizationUrl: "{{baseUrl}}/connect/authorize"
     accessTokenUrl: "{{baseUrl}}/connect/token"
     credentials:
-      clientId: root-elsa-studio
+      clientId: bruno
       placement: body
-    additionalParameters:
-      authorizationRequest:
-        - name: response_mode
-          placement: query
-          value: form_post
     scope: openid profile roles
     pkce: {}
     tokenConfig:

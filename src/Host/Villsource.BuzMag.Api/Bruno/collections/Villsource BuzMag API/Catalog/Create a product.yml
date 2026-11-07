@@ -1,7 +1,7 @@
 info:
   name: Create a product
   type: http
-  seq: 18
+  seq: 17
   tags:
     - Catalog
 

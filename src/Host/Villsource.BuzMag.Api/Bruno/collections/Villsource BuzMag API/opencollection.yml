@@ -32,6 +32,7 @@ request:
       source: access_token
     settings:
       autoFetchToken: true
+      autoRefreshToken: false
 
 docs:
   content: The FSH Starter Kit API for Modular/Multitenant Architecture.
