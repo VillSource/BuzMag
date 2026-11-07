@@ -11,12 +11,17 @@ using Villsource.Modules.Oidc.Domain;
 
 namespace Villsource.Modules.Oidc.Data;
 
-public sealed class OidcDbContext(
-    IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
-    DbContextOptions<OidcDbContext> options,
-    IOptions<DatabaseOptions> settings,
-    IHostEnvironment environment)
-    : BaseDbContext(multiTenantContextAccessor, options, settings, environment)
+#pragma warning disable S125
+// public sealed class OidcDbContext(
+//     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
+//     DbContextOptions<OidcDbContext> options,
+//     IOptions<DatabaseOptions> settings,
+//     IHostEnvironment environment)
+//     : BaseDbContext(multiTenantContextAccessor, options, settings, environment)
+// {
+#pragma warning restore S125
+
+public sealed class OidcDbContext(DbContextOptions<OidcDbContext> options): DbContext(options)
 {
     public const string Schema = "oidc";
 
@@ -29,11 +34,11 @@ public sealed class OidcDbContext(
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(OidcDbContext).Assembly);
         // base.OnModelCreating runs LAST so BaseDbContext's auto-apply (ApplyTenantIsolationByDefault)
         // sees fully-configured entities, including child types reached via HasMany navigation.
-        base.OnModelCreating(modelBuilder);
         modelBuilder.UseOpenIddict();
         modelBuilder.Entity<OpenIddictEntityFrameworkCoreApplication>().IsNotMultiTenant();
         modelBuilder.Entity<OpenIddictEntityFrameworkCoreAuthorization>().IsNotMultiTenant();
         modelBuilder.Entity<OpenIddictEntityFrameworkCoreScope>().IsNotMultiTenant();
         modelBuilder.Entity<OpenIddictEntityFrameworkCoreToken>().IsNotMultiTenant();
+        base.OnModelCreating(modelBuilder);
     }
 }

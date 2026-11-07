@@ -15,6 +15,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using OpenIddict.Validation.AspNetCore;
+using Scalar.AspNetCore;
 using Villsource.Modules.Oidc.Constants;
 using Villsource.Modules.Oidc.Contracts.Authorization;
 using Villsource.Modules.Oidc.Data;
@@ -40,6 +41,12 @@ public sealed class OidcModule : IModule
         builder.Services.AddSingleton<IClaimsTransformation, FshClaimsTransformation>();
 
         builder.Services.AddOidcProvider(builder.Configuration, builder.Environment);
+        
+        builder.Services.AddScoped<OidcSecurityTransformer>();
+        builder.Services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer<OidcSecurityTransformer>();
+        });
 
         builder.Services.AddHealthChecks().AddDbContextCheck<OidcDbContext>(
             name: "db:oidc",
@@ -56,6 +63,12 @@ public sealed class OidcModule : IModule
                 options.SlidingExpiration = true;
                 options.LoginPath = "/api/v1/oidc/login";
             });
+        
+        builder.Services.Configure<ScalarOptions>(options =>
+        {
+            options.Authentication?.PreferredSecuritySchemes = ["OIDC"];
+            options.EnablePersistentAuthentication();
+        });
         
         builder.Services.Configure<AuthorizationOptions>(options =>
         {

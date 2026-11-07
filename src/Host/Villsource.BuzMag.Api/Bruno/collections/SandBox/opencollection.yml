@@ -21,7 +21,7 @@ request:
     authorizationUrl: "{{baseUrl}}/connect/authorize"
     accessTokenUrl: "{{baseUrl}}/connect/token"
     credentials:
-      clientId: root-elsa-studio
+      clientId: bruno
       placement: body
     scope: openid profile roles
     pkce: {}
