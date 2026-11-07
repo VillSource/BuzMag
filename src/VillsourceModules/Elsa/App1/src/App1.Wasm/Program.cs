@@ -19,6 +19,9 @@ using Elsa.Studio.Workflows.Designer.Extensions;
 using Elsa.Studio.Workflows.Extensions;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MyNamespace;
+using System.Net;
+using System.Text;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 var configuration = builder.Configuration;
@@ -45,6 +48,12 @@ services.AddRemoteBackend(backendApiConfig);
 services.AddDashboardModule();
 services.AddWorkflowsModule();
 services.AddLocalizationModule(localizationConfig);
+
+builder.Services.AddTransient<NoContentToOkHandler>();
+builder.Services.ConfigureHttpClientDefaults(config =>
+{
+    config.AddHttpMessageHandler<NoContentToOkHandler>();
+});
 
 var app = builder.Build();
 
@@ -82,4 +91,27 @@ static Type ConfigureAuthentication(IServiceCollection services, IConfiguration 
     }
 
     throw new InvalidOperationException($"Unsupported Authentication:Provider value '{authProvider}'.");
+}
+
+namespace MyNamespace
+{
+#pragma warning disable CA1515
+    public class NoContentToOkHandler : DelegatingHandler
+#pragma warning restore CA1515
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            // รอรับ Response จาก Server
+            var response = await base.SendAsync(request, cancellationToken);
+
+            // ถ้า Server ตอบ 204 No Content ให้จำลองเปลี่ยนเป็น 200 OK + Empty JSON
+            if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                response.StatusCode = HttpStatusCode.OK;
+                response.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+            }
+
+            return response;
+        }
+    }
 }
