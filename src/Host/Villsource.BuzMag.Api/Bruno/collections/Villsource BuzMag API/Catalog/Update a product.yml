@@ -1,7 +1,7 @@
 info:
   name: Update a product
   type: http
-  seq: 20
+  seq: 19
   tags:
     - Catalog
 

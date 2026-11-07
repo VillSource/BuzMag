@@ -1,7 +1,7 @@
 info:
   name: Set the sort order of a product's images
   type: http
-  seq: 28
+  seq: 27
   tags:
     - Catalog
 

@@ -1,7 +1,7 @@
 info:
   name: Promote a product image to thumbnail (cover)
   type: http
-  seq: 27
+  seq: 26
   tags:
     - Catalog
 

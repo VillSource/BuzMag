@@ -1,7 +1,7 @@
 info:
   name: Get a product by id
   type: http
-  seq: 22
+  seq: 21
   tags:
     - Catalog
 

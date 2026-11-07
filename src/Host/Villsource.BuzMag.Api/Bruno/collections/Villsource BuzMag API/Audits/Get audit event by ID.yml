@@ -10,11 +10,9 @@ http:
   url: "{{baseUrl}}/api/v1/audits/:id"
   params:
     - name: id
-      value: ""
+      value: 01a1b529-bb54-7aaa-b415-8afab2057f7f
       type: path
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

@@ -58,10 +58,16 @@ if (string.IsNullOrWhiteSpace(builder.Configuration["JwtOptions:SigningKey"]))
     builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
     {
         ["JwtOptions:SigningKey"] = "fsh-dbmigrator-placeholder-never-mints-tokens-32+",
-        ["JwtOptions:Issuer"] = builder.Configuration["JwtOptions:Issuer"] ?? "fsh.local",
+        ["JwtOptions:Issuer"] = builder.Configuration["JwtOptions:Issuer"] ?? "https://fsh.local/",
         ["JwtOptions:Audience"] = builder.Configuration["JwtOptions:Audience"] ?? "fsh.clients",
     });
 }
+
+// The migrator registers OIDC services to run their database initializer but never serves tokens.
+builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+{
+    ["Oidc:UseDevelopmentCertificates"] = "true",
+});
 
 // Fail-fast with one clear line if DatabaseOptions__ConnectionString is unset, rather than letting
 // host-build-time option validation throw a stack trace.
@@ -106,8 +112,8 @@ Microsoft.Extensions.DependencyInjection.MediatorDependencyInjectionExtensions.A
         typeof(Villsource.FSH.Modules.Organization.OrganizationModule),
         typeof(Villsource.Modules.HumanResource.Contracts.HumanResourceContractsMarker),
         typeof(Villsource.Modules.HumanResource.HumanResourceModule),
-        typeof(Villsource.Modules.Elsa.Contracts.ElsaContractsMarker),
-        typeof(Villsource.Modules.Elsa.ElsaModule),
+        // typeof(Villsource.Modules.Elsa.Contracts.ElsaContractsMarker),
+        // typeof(Villsource.Modules.Elsa.ElsaModule),
         typeof(Villsource.Modules.Oidc.Contracts.OidcContractsMarker),
         typeof(Villsource.Modules.Oidc.OidcModule),
     ];
@@ -128,7 +134,7 @@ var moduleAssemblies = new Assembly[]
     
     typeof(Villsource.FSH.Modules.Organization.OrganizationModule).Assembly,
     typeof(Villsource.Modules.HumanResource.HumanResourceModule).Assembly,
-    typeof(Villsource.Modules.Elsa.ElsaModule).Assembly,
+    // typeof(Villsource.Modules.Elsa.ElsaModule).Assembly,
     typeof(Villsource.Modules.Oidc.OidcModule).Assembly,
 };
 

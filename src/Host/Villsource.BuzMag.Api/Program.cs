@@ -77,8 +77,8 @@ Microsoft.Extensions.DependencyInjection.MediatorDependencyInjectionExtensions.A
         typeof(Villsource.FSH.Modules.Organization.OrganizationModule),
         typeof(Villsource.Modules.HumanResource.Contracts.HumanResourceContractsMarker),
         typeof(Villsource.Modules.HumanResource.HumanResourceModule),
-        typeof(Villsource.Modules.Elsa.Contracts.ElsaContractsMarker),
-        typeof(Villsource.Modules.Elsa.ElsaModule),
+        // typeof(Villsource.Modules.Elsa.Contracts.ElsaContractsMarker),
+        // typeof(Villsource.Modules.Elsa.ElsaModule),
         typeof(Villsource.Modules.Oidc.Contracts.OidcContractsMarker),
         typeof(Villsource.Modules.Oidc.OidcModule),
     ];
@@ -99,7 +99,7 @@ var moduleAssemblies = new Assembly[]
     
     typeof(Villsource.FSH.Modules.Organization.OrganizationModule).Assembly,
     typeof(Villsource.Modules.HumanResource.HumanResourceModule).Assembly,
-    typeof(Villsource.Modules.Elsa.ElsaModule).Assembly,
+    // typeof(Villsource.Modules.Elsa.ElsaModule).Assembly,
     typeof(Villsource.Modules.Oidc.OidcModule).Assembly,
 };
 
@@ -125,7 +125,6 @@ builder.Services.AddHostedService<Villsource.BuzMag.Api.OrphanedOutboxRecurringJ
 var app = builder.Build();
 
 app.UseForwardedHeaders();
-app.UseHeroMultiTenantDatabases();
 app.UseHeroPlatform(p =>
 {
     p.MapModules = true;

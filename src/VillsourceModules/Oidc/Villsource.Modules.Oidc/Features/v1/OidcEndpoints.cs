@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
@@ -18,7 +19,8 @@ public static class OidcEndpoints
     {
         endpoints.MapMethods("/connect/authorize", ["GET", "POST"], async (
             HttpContext context,
-            IOidcUserClaimsService claimsService) =>
+            IOidcUserClaimsService claimsService,
+            IOptions<OidcIdentityTokenOptions> tokenOptions) =>
         {
             var request = context.GetOpenIddictServerRequest()
                           ?? throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
@@ -34,9 +36,9 @@ public static class OidcEndpoints
             var cookieUser = authResult.Principal;
             var subject = cookieUser.FindFirstValue(ClaimTypes.NameIdentifier)
                           ?? cookieUser.FindFirstValue(OpenIddictConstants.Claims.Subject);
-            var tenant = cookieUser.FindFirstValue("tenant") ?? "root";
+            var tenant = cookieUser.FindFirstValue("tenant");
 
-            if (string.IsNullOrEmpty(subject))
+            if (string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(tenant))
             {
                 var returnUrl = $"{context.Request.Path}{context.Request.QueryString}";
                 return Results.Redirect($"/api/v1/oidc/login?returnUrl={Uri.EscapeDataString(returnUrl)}");
@@ -57,6 +59,7 @@ public static class OidcEndpoints
 
             var principal = new ClaimsPrincipal(identity);
             principal.SetScopes(request.GetScopes());
+            principal.SetResources(tokenOptions.Value.Audience);
 
             return Results.SignIn(principal,
                 authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -64,7 +67,10 @@ public static class OidcEndpoints
         .ExcludeFromDescription()
         .AllowAnonymous();
 
-        endpoints.MapPost("/connect/token", async (HttpContext context) =>
+        endpoints.MapPost("/connect/token", async (
+            HttpContext context,
+            IOidcUserClaimsService claimsService,
+            IOptions<OidcIdentityTokenOptions> tokenOptions) =>
         {
             var request = context.GetOpenIddictServerRequest()
                           ?? throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
@@ -81,7 +87,42 @@ public static class OidcEndpoints
                     });
                 }
 
-                return Results.SignIn(result.Principal,
+                ClaimsPrincipal principal = result.Principal;
+                if (request.IsRefreshTokenGrantType())
+                {
+                    var subject = principal.FindFirstValue(OpenIddictConstants.Claims.Subject)
+                                  ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var tenant = principal.FindFirstValue("tenant");
+                    if (string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(tenant))
+                    {
+                        return Results.BadRequest(new
+                        {
+                            error = "invalid_grant",
+                            error_description = "The token is invalid or expired."
+                        });
+                    }
+
+                    var scopes = principal.GetScopes();
+                    var identity = await claimsService.BuildOidcIdentityForSubjectAsync(
+                        subject,
+                        tenant,
+                        scopes,
+                        context.RequestAborted);
+                    if (identity is null)
+                    {
+                        return Results.BadRequest(new
+                        {
+                            error = "invalid_grant",
+                            error_description = "The token is invalid or expired."
+                        });
+                    }
+
+                    principal = new ClaimsPrincipal(identity);
+                    principal.SetScopes(scopes);
+                    principal.SetResources(tokenOptions.Value.Audience);
+                }
+
+                return Results.SignIn(principal,
                     authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
             }
 
@@ -107,9 +148,9 @@ public static class OidcEndpoints
 
             var subject = result.Principal.FindFirstValue(OpenIddictConstants.Claims.Subject)
                           ?? result.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            var tenant = result.Principal.FindFirstValue("tenant") ?? "root";
+            var tenant = result.Principal.FindFirstValue("tenant");
 
-            if (string.IsNullOrEmpty(subject))
+            if (string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(tenant))
             {
                 return Results.NotFound();
             }

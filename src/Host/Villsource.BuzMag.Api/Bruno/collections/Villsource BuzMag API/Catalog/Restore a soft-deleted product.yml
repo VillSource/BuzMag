@@ -1,7 +1,7 @@
 info:
   name: Restore a soft-deleted product
   type: http
-  seq: 17
+  seq: 16
   tags:
     - Catalog
 

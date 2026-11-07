@@ -26,7 +26,7 @@ public static class ElsaConfigExtension
         // global::Elsa.EndpointSecurityOptions.DisableSecurity();
 #pragma warning restore S125
 
-        builder.Services.AddTransient<IClaimsTransformation, ElsaPermissionTransformer>();
+        // builder.Services.AddTransient<IClaimsTransformation, ElsaPermissionTransformer>();
         builder.Services.AddScoped<AppTenantResolver>();
         builder.Services.AddElsa(elsa =>
         {

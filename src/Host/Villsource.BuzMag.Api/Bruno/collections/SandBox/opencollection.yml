@@ -23,11 +23,6 @@ request:
     credentials:
       clientId: root-elsa-studio
       placement: body
-    additionalParameters:
-      authorizationRequest:
-        - name: response_mode
-          placement: query
-          value: form_post
     scope: openid profile roles
     pkce: {}
     tokenConfig:

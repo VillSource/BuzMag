@@ -122,6 +122,7 @@ public sealed class MultitenancyModule : IModule
     public void ConfigureMiddleware(IApplicationBuilder app)
     {
         ArgumentNullException.ThrowIfNull(app);
+        app.UseMultiTenant();
 
         // ── Root-operator header override ──────────────────────────────
         // A "root"-claim caller scopes one request to another tenant via the `tenant` header (post-auth, since

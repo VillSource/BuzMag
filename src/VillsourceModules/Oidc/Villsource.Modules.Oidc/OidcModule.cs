@@ -37,8 +37,9 @@ public sealed class OidcModule : IModule
         builder.Services.AddValidatorsFromAssembly(typeof(OidcModule).Assembly);
 
         builder.Services.AddScoped<IOidcUserClaimsService, OidcUserClaimsService>();
+        builder.Services.AddSingleton<IClaimsTransformation, FshClaimsTransformation>();
 
-        builder.Services.AddOidcProvider(builder.Configuration);
+        builder.Services.AddOidcProvider(builder.Configuration, builder.Environment);
 
         builder.Services.AddHealthChecks().AddDbContextCheck<OidcDbContext>(
             name: "db:oidc",
@@ -68,37 +69,38 @@ public sealed class OidcModule : IModule
 
             // สร้าง Builder โดยโยน Policy เดิมเข้าไป (มันจะก็อปปี้ Requirements และ Schemes เดิมมาทั้งหมด)
             var policyBuilder = new AuthorizationPolicyBuilder(existingPolicy);
-        
+
             // เพิ่ม Scheme ใหม่เข้าไป
             policyBuilder.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
-        
+
             // Build เป็น Policy ตัวใหม่
             var newPolicy = policyBuilder.Build();
-        
+
             // นำไปเขียนทับ Policy ชื่อเดิมในระบบ (ASP.NET Core จะทำการ Overwrite ให้)
             options.AddPolicy("RequiredPermission", newPolicy);
-        
+
             // สำคัญ: ต้องอัปเดต Default และ Fallback ด้วย 
             // เพราะโค้ดเดิมของคุณ (options.DefaultPolicy = ...) ได้ผูก reference ไว้กับ Object ของ Policy ตัวเก่าไปแล้ว
             if (options.DefaultPolicy == existingPolicy)
             {
                 options.DefaultPolicy = newPolicy;
             }
-        
+
             if (options.FallbackPolicy == existingPolicy)
             {
                 options.FallbackPolicy = newPolicy;
             }
         });
-        
-        
+
+
         var assetsPath = Path.Combine(AppContext.BaseDirectory, "Oidc");
         if (!Directory.Exists(assetsPath))
         {
             Directory.CreateDirectory(assetsPath);
         }
-        builder.Services.AddTransient<IStartupFilter>(sp => new OidcStaticFileStartupFilter(assetsPath, "/api/v1/oidc"));
-        
+
+        builder.Services.AddTransient<IStartupFilter>(sp =>
+            new OidcStaticFileStartupFilter(assetsPath, "/api/v1/oidc"));
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
@@ -130,14 +132,32 @@ public sealed class OidcModule : IModule
         appGroup.MapDeleteApplicationEndpoint();
 
         endpoints.MapPost("/connect/logout", async (HttpContext httpContext) =>
+            {
+                await httpContext.SignOutAsync(OidcConstant.CookieScheme);
+                return Results.Ok(new { Message = "Logged out from OIDC session" });
+            })
+            .RequireAuthorization(new Microsoft.AspNetCore.Authorization.AuthorizeAttribute
+            {
+                AuthenticationSchemes = OidcConstant.CookieScheme
+            });
+    }
+
+    public void ConfigureMiddleware(IApplicationBuilder app)
+    {
+        app.Use(async (context, next) =>
         {
-            await httpContext.SignOutAsync(OidcConstant.CookieScheme);
-            return Results.Ok(new { Message = "Logged out from OIDC session" });
-        })
-        .RequireAuthorization(new Microsoft.AspNetCore.Authorization.AuthorizeAttribute
-        {
-            AuthenticationSchemes = OidcConstant.CookieScheme
+            if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
+            {
+                var result =
+                    await context.AuthenticateAsync(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+
+                if (result.Succeeded && result.Principal != null)
+                {
+                    context.User = result.Principal;
+                }
+            }
+
+            await next();
         });
     }
-    
 }

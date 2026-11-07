@@ -1,7 +1,7 @@
 info:
   name: Change a product's price
   type: http
-  seq: 23
+  seq: 22
   tags:
     - Catalog
 
