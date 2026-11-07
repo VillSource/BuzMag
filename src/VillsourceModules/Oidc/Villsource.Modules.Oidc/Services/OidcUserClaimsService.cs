@@ -101,6 +101,14 @@ internal sealed class OidcUserClaimsService(
         subClaim.SetDestinations(OpenIddictConstants.Destinations.AccessToken, OpenIddictConstants.Destinations.IdentityToken);
         identity.AddClaim(subClaim);
 
+
+#if DEBUG
+        // MOCK PERMISSION
+        var permClaim = new Claim("permissions", "*");
+        permClaim.SetDestinations(OpenIddictConstants.Destinations.AccessToken, OpenIddictConstants.Destinations.IdentityToken);
+        identity.AddClaim(permClaim);
+#endif
+        
         var nameIdentifierClaim = new Claim(ClaimTypes.NameIdentifier, subject);
         nameIdentifierClaim.SetDestinations(OpenIddictConstants.Destinations.IdentityToken);
         identity.AddClaim(nameIdentifierClaim);
