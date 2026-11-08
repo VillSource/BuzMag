@@ -5,6 +5,7 @@ using FSH.Framework.Shared.Constants;
 using FSH.Framework.Web.Modules;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using OpenIddict.Validation.AspNetCore;
 using Scalar.AspNetCore;
+using System.IdentityModel.Tokens.Jwt;
 using Villsource.Modules.Oidc.Constants;
 using Villsource.Modules.Oidc.Contracts.Authorization;
 using Villsource.Modules.Oidc.Data;
@@ -52,7 +54,12 @@ public sealed class OidcModule : IModule
             name: "db:oidc",
             failureStatus: HealthStatus.Unhealthy);
 
-        builder.Services.AddAuthentication()
+        builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "DynamicJwtSelector";
+                options.DefaultChallengeScheme = "DynamicJwtSelector";
+                options.DefaultScheme = "DynamicJwtSelector";
+            })
             .AddCookie(OidcConstant.CookieScheme, options =>
             {
                 options.Cookie.Name = OidcConstant.CookieScheme;
@@ -62,6 +69,34 @@ public sealed class OidcModule : IModule
                 options.ExpireTimeSpan = TimeSpan.FromHours(24);
                 options.SlidingExpiration = true;
                 options.LoginPath = "/api/v1/oidc/login";
+            })
+            .AddPolicyScheme("DynamicJwtSelector", "Dynamic JWT Selector", options =>
+            {
+                options.ForwardDefaultSelector = context =>
+                {
+                    var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
+
+                    if (string.IsNullOrEmpty(authHeader) ||
+                        !authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return JwtBearerDefaults.AuthenticationScheme;
+                    }
+
+                    var token = authHeader.Substring("Bearer ".Length).Trim();
+                    var handler = new JwtSecurityTokenHandler();
+
+                    if (handler.CanReadToken(token))
+                    {
+                        var jwtToken = handler.ReadJwtToken(token);
+
+                        if (jwtToken.Header.Alg == "RS256")
+                        {
+                            return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+                        }
+                    }
+
+                    return JwtBearerDefaults.AuthenticationScheme;
+                };
             });
         
         builder.Services.Configure<ScalarOptions>(options =>
