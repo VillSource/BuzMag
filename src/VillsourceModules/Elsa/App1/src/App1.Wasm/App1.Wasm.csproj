@@ -27,5 +27,6 @@
         <PackageReference Include="Elsa.Studio.Workflows" Version="3.7.1"/>
         <PackageReference Include="Elsa.Studio.Workflows.Designer" Version="3.7.1"/>
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="10.0.14" /> <!-- Security Fix -->
+        <PackageReference Update="SonarAnalyzer.CSharp" Version="10.27.0.140913" PrivateAssets="all" />
     </ItemGroup>
 </Project>
