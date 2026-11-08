@@ -14,6 +14,7 @@ internal interface IOidcUserClaimsService
     /// Returns <c>null</c> if credentials are invalid.
     /// </summary>
     Task<ClaimsIdentity?> BuildOidcIdentityAsync(
+        string tenantId,
         string email,
         string password,
         string? twoFactorCode,

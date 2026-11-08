@@ -1,6 +1,10 @@
+using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Abstractions;
 using FSH.Framework.Core.Exceptions;
 using FSH.Framework.Shared.Constants;
+using FSH.Framework.Shared.Multitenancy;
 using FSH.Modules.Identity.Contracts.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenIddict.Abstractions;
 using System.Security.Claims;
@@ -12,12 +16,14 @@ namespace Villsource.Modules.Oidc.Services;
 /// Converts FSH claims into OpenIddict-routable claim sets with correct Destinations.
 /// </summary>
 internal sealed class OidcUserClaimsService(
-    IIdentityService identityService,
+    IMultiTenantStore<AppTenantInfo> tenantStore,
+    IServiceScopeFactory serviceScopeFactory,
     ILogger<OidcUserClaimsService> logger) : IOidcUserClaimsService
 {
     private const string AuthenticationType = "OpenIdConnect";
 
     public async Task<ClaimsIdentity?> BuildOidcIdentityAsync(
+        string tenantId,
         string email,
         string password,
         string? twoFactorCode,
@@ -26,9 +32,21 @@ internal sealed class OidcUserClaimsService(
     {
         ArgumentNullException.ThrowIfNull(email);
         ArgumentNullException.ThrowIfNull(password);
+        ArgumentException.ThrowIfNullOrWhiteSpace(tenantId);
 
         try
         {
+            var tenant = await tenantStore.GetAsync(tenantId).ConfigureAwait(false);
+            if (tenant is null)
+            {
+                return null;
+            }
+
+            using var scope = serviceScopeFactory.CreateScope();
+            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
+                .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+
+            var identityService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
             var result = await identityService
                 .ValidateCredentialsAsync(email, password, twoFactorCode, ct)
                 .ConfigureAwait(false);
@@ -63,6 +81,17 @@ internal sealed class OidcUserClaimsService(
 
         try
         {
+            var tenant = await tenantStore.GetAsync(tenantId).ConfigureAwait(false);
+            if (tenant is null)
+            {
+                return null;
+            }
+
+            using var scope = serviceScopeFactory.CreateScope();
+            scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
+                .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+
+            var identityService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
             var result = await identityService
                 .BuildClaimsForUserAsync(subject, tenantId, ct)
                 .ConfigureAwait(false);

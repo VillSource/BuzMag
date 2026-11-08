@@ -1,5 +1,6 @@
 ﻿using Elsa.Extensions;
 using Elsa.Common.Features;
+using Elsa.Common.Multitenancy;
 using Elsa.Persistence.EFCore.Extensions;
 using Elsa.Persistence.EFCore.Modules.Management;
 using Elsa.Persistence.EFCore.Modules.Runtime;
@@ -47,13 +48,7 @@ public static class ElsaConfigExtension
                 management.UseEntityFrameworkCore(ef =>
                 {
                     ef.UsePostgreSql(sp =>
-                    {
-                        var tenantInfo = ServiceProviderServiceExtensions.GetService<IMultiTenantContextAccessor<AppTenantInfo>>(sp)?.MultiTenantContext
-                            .TenantInfo;
-                        return (tenantInfo != null && !string.IsNullOrWhiteSpace(tenantInfo.ConnectionString))
-                            ? tenantInfo.ConnectionString
-                            : builder.Configuration["DatabaseOptions:ConnectionString"]!;
-                    });
+                        GetTenantConnectionString(sp, builder));
 
                     ef.RunMigrations = false;
                 }));
@@ -62,13 +57,7 @@ public static class ElsaConfigExtension
                 runtime.UseEntityFrameworkCore(ef =>
                 {
                     ef.UsePostgreSql(sp =>
-                    {
-                        var tenantInfo = sp.GetService<IMultiTenantContextAccessor<AppTenantInfo>>()?.MultiTenantContext
-                            .TenantInfo;
-                        return (tenantInfo != null && !string.IsNullOrWhiteSpace(tenantInfo?.ConnectionString))
-                            ? tenantInfo.ConnectionString
-                            : builder.Configuration["DatabaseOptions:ConnectionString"]!;
-                    });
+                        GetTenantConnectionString(sp, builder));
 
                     ef.RunMigrations = false;
                 }));
@@ -78,5 +67,21 @@ public static class ElsaConfigExtension
             elsa.AddCoreWorkflowsModule();
             elsa.AddHrWorkflowsModule();
         });
+    }
+
+    private static string GetTenantConnectionString(IServiceProvider services, IHostApplicationBuilder builder)
+    {
+        var connectionString = services.GetService<IMultiTenantContextAccessor<AppTenantInfo>>()?
+            .MultiTenantContext.TenantInfo?.ConnectionString;
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            return connectionString;
+        }
+
+        connectionString = services.GetService<ITenantAccessor>()?.Tenant?.Configuration?
+            ["ConnectionStrings:PostgreSql"];
+        return !string.IsNullOrWhiteSpace(connectionString)
+            ? connectionString
+            : builder.Configuration["DatabaseOptions:ConnectionString"]!;
     }
 }

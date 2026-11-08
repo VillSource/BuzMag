@@ -17,6 +17,7 @@ public class BuzMagLeaveRequest : BuzMagWorkflowBase
         base.Build(builder);
 
         builder.Name = "LeaveRequest";
+        builder.IsReadonly = true;
         builder.Version = 7;
 
         builder.WithInput<string>("EmployeeId");

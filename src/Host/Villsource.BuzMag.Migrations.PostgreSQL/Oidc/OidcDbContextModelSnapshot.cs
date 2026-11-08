@@ -23,7 +23,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Oidc
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreApplication", b =>
+            modelBuilder.Entity("Villsource.Modules.Oidc.Data.Entities.OidcApplication", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -88,7 +88,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Oidc
                     b.ToTable("OpenIddictApplications", "oidc");
                 });
 
-            modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreAuthorization", b =>
+            modelBuilder.Entity("Villsource.Modules.Oidc.Data.Entities.OidcAuthorization", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -130,7 +130,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Oidc
                     b.ToTable("OpenIddictAuthorizations", "oidc");
                 });
 
-            modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreScope", b =>
+            modelBuilder.Entity("Villsource.Modules.Oidc.Data.Entities.OidcScope", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -171,7 +171,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Oidc
                     b.ToTable("OpenIddictScopes", "oidc");
                 });
 
-            modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreToken", b =>
+            modelBuilder.Entity("Villsource.Modules.Oidc.Data.Entities.OidcToken", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -270,22 +270,22 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Oidc
                     b.ToTable("Ping", "oidc");
                 });
 
-            modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreAuthorization", b =>
+            modelBuilder.Entity("Villsource.Modules.Oidc.Data.Entities.OidcAuthorization", b =>
                 {
-                    b.HasOne("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreApplication", "Application")
+                    b.HasOne("Villsource.Modules.Oidc.Data.Entities.OidcApplication", "Application")
                         .WithMany("Authorizations")
                         .HasForeignKey("ApplicationId");
 
                     b.Navigation("Application");
                 });
 
-            modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreToken", b =>
+            modelBuilder.Entity("Villsource.Modules.Oidc.Data.Entities.OidcToken", b =>
                 {
-                    b.HasOne("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreApplication", "Application")
+                    b.HasOne("Villsource.Modules.Oidc.Data.Entities.OidcApplication", "Application")
                         .WithMany("Tokens")
                         .HasForeignKey("ApplicationId");
 
-                    b.HasOne("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreAuthorization", "Authorization")
+                    b.HasOne("Villsource.Modules.Oidc.Data.Entities.OidcAuthorization", "Authorization")
                         .WithMany("Tokens")
                         .HasForeignKey("AuthorizationId");
 
@@ -294,14 +294,14 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Oidc
                     b.Navigation("Authorization");
                 });
 
-            modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreApplication", b =>
+            modelBuilder.Entity("Villsource.Modules.Oidc.Data.Entities.OidcApplication", b =>
                 {
                     b.Navigation("Authorizations");
 
                     b.Navigation("Tokens");
                 });
 
-            modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreAuthorization", b =>
+            modelBuilder.Entity("Villsource.Modules.Oidc.Data.Entities.OidcAuthorization", b =>
                 {
                     b.Navigation("Tokens");
                 });

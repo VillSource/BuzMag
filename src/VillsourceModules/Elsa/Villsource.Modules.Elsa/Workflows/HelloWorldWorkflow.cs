@@ -12,6 +12,7 @@ public class HelloWorldWorkflow : WorkflowBase
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.Name = "HelloWorldWorkflow";
+        builder.IsReadonly = true;
 
         // ประกาศ Signature ว่า Workflow นี้รับ Input ชื่อ "Message"
         builder.WithInput<string>("Message");

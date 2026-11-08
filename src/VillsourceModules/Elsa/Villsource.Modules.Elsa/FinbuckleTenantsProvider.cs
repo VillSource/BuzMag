@@ -1,6 +1,7 @@
 using Elsa.Common.Multitenancy;
 using Finbuckle.MultiTenant.Abstractions;
 using FSH.Framework.Shared.Multitenancy;
+using Microsoft.Extensions.Configuration;
 
 namespace Villsource.Modules.Elsa;
 
@@ -37,6 +38,12 @@ public sealed class FinbuckleTenantsProvider(IMultiTenantStore<AppTenantInfo> te
     private static Tenant ToTenant(AppTenantInfo tenantInfo) => new()
     {
         Id = tenantInfo.Id,
-        Name = string.IsNullOrWhiteSpace(tenantInfo.Name) ? tenantInfo.Id : tenantInfo.Name
+        Name = string.IsNullOrWhiteSpace(tenantInfo.Name) ? tenantInfo.Id : tenantInfo.Name,
+        Configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:PostgreSql"] = tenantInfo.ConnectionString
+            })
+            .Build()
     };
 }

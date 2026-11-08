@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Villsource.Modules.Oidc.Data;
+using Villsource.Modules.Oidc.Data.Entities;
 
 namespace Villsource.Modules.Oidc;
 
@@ -69,7 +70,8 @@ public static class OpenIddictConfig
             .AddCore(options =>
             {
                 options.UseEntityFrameworkCore()
-                    .UseDbContext<OidcDbContext>(); 
+                    .UseDbContext<OidcDbContext>()
+                    .ReplaceDefaultEntities<OidcApplication, OidcAuthorization, OidcScope, OidcToken, string>();
             })
             .AddServer(options =>
             {
