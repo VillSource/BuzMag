@@ -125,6 +125,14 @@ public sealed class AuditHttpMiddleware
 
     private static async Task RestoreResponseBodyAsync(MemoryStream responseBuffer, Stream originalBody, HttpContext ctx)
     {
+        if (ctx.Response.StatusCode
+            is StatusCodes.Status204NoContent
+            or StatusCodes.Status205ResetContent
+            or StatusCodes.Status304NotModified)
+        {
+            return;
+        }
+        
         responseBuffer.Position = 0;
         ctx.Response.Body = originalBody;
 
