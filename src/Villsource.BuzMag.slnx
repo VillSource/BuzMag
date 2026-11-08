@@ -97,6 +97,7 @@
   </Folder>
   <Folder Name="/VillsourceModules/Elsa/">
     <Project Path="VillsourceModules/Elsa/App1/src/App1.Wasm/App1.Wasm.csproj" />
+    <Project Path="VillsourceModules/Elsa/App2/src/App2.Server/App2.Server.csproj" />
     <Project Path="VillsourceModules/Elsa/Villsource.Modules.Elsa.Contracts/Villsource.Modules.Elsa.Contracts.csproj" />
     <Project Path="VillsourceModules/Elsa/Villsource.Modules.Elsa.Core/Villsource.Modules.Elsa.Core.csproj" />
     <Project Path="VillsourceModules/Elsa/Villsource.Modules.Elsa/Villsource.Modules.Elsa.csproj" />

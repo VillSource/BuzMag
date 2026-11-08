@@ -1,0 +1,11 @@
+<Solution>
+  <!--#if (useServerHosting)-->
+  <Project Path="src/App2.Server/App2.Server.csproj" />
+  <!--#endif-->
+  <!--#if (useWasmHosting)-->
+  <Project Path="src/App2.Wasm/App2.Wasm.csproj" />
+  <!--#endif-->
+  <!--#if (useHybridHosting)-->
+  <Project Path="src/App2.Host/App2.Host.csproj" />
+  <!--#endif-->
+</Solution>

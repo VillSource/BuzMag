@@ -42,10 +42,10 @@ public sealed partial class OidcDbInitializer(
                 DisplayName = "Elsa Workflows Studio",
                 ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
                 ClientType = OpenIddictConstants.ClientTypes.Public,
-                RedirectUris = 
-                { 
-                    new Uri($"https://oauth.usebruno.com/callback"), 
-                    new Uri($"http://localhost:5000/authentication/login-callback") 
+                RedirectUris =
+                {
+                    new Uri($"https://oauth.usebruno.com/callback"),
+                    new Uri($"http://localhost:5000/authentication/login-callback")
                 },
                 PostLogoutRedirectUris = { new Uri($"http://localhost:5000/signout-callback-oidc") }
             },
@@ -73,8 +73,18 @@ public sealed partial class OidcDbInitializer(
                 DisplayName = "Elsa Studio Dev tool",
                 ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
                 ClientType = OpenIddictConstants.ClientTypes.Public,
-                RedirectUris = { new Uri($"http://localhost:5000/authentication/login-callback") },
-                PostLogoutRedirectUris = { new Uri($"http://localhost:5000") }
+                RedirectUris =
+                {
+                    new Uri($"http://localhost:5000/authentication/login-callback"),
+                    new Uri($"http://localhost:5100/signin-oidc"),
+                    new Uri($"https://localhost:5101/signin-oidc"),
+                },
+                PostLogoutRedirectUris = 
+                {
+                    new Uri($"http://localhost:5000"),
+                    new Uri($"http://localhost:5100"),
+                    new Uri($"https://localhost:5101"),
+                },
             }
         };
 
@@ -85,8 +95,9 @@ public sealed partial class OidcDbInitializer(
                 descriptor.Permissions.Add(permission);
             }
 
-            var existingClient = await manager.FindByClientIdAsync(descriptor.ClientId!, cancellationToken).ConfigureAwait(false);
-            
+            var existingClient = await manager.FindByClientIdAsync(descriptor.ClientId!, cancellationToken)
+                .ConfigureAwait(false);
+
             if (existingClient is null)
             {
                 await manager.CreateAsync(descriptor, cancellationToken).ConfigureAwait(false);
