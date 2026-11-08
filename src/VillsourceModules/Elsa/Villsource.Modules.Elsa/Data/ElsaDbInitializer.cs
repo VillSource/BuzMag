@@ -1,6 +1,7 @@
 
 using Elsa.Extensions;
 using Elsa.Common.Multitenancy;
+using Elsa.Persistence.EFCore.Modules.Labels;
 using Elsa.Persistence.EFCore.Modules.Management;
 using Elsa.Persistence.EFCore.Modules.Runtime;
 using Elsa.Workflows;
@@ -30,10 +31,12 @@ public sealed class ElsaDbInitializer(
         var dbContext = services.GetRequiredService<ElsaDbContext>();
         var managementDbContext = services.GetRequiredService<ManagementElsaDbContext>();
         var runtimeDbContext = services.GetRequiredService<RuntimeElsaDbContext>();
+        var labelsDbContext = services.GetRequiredService<LabelsElsaDbContext>();
         UseTenantConnectionString(
             dbContext,
             managementDbContext,
             runtimeDbContext,
+            labelsDbContext,
             tenantContextAccessor.MultiTenantContext.TenantInfo?.ConnectionString);
 
         if ((await dbContext.Database.GetPendingMigrationsAsync(cancellationToken).ConfigureAwait(false)).Any())
@@ -52,6 +55,12 @@ public sealed class ElsaDbInitializer(
         {
             await runtimeDbContext.Database.MigrateAsync(cancellationToken);
             logger.LogInformation("[elsa-runtime] applied migrations");
+        }
+        
+        if ((await labelsDbContext.Database.GetPendingMigrationsAsync(cancellationToken).ConfigureAwait(false)).Any())
+        {
+            await labelsDbContext.Database.MigrateAsync(cancellationToken);
+            logger.LogInformation("[elsa-labels] applied migrations");
         }
 
     }
@@ -89,6 +98,7 @@ public sealed class ElsaDbInitializer(
         ElsaDbContext dbContext,
         ManagementElsaDbContext managementDbContext,
         RuntimeElsaDbContext runtimeDbContext,
+        LabelsElsaDbContext labelsElsaDbContext,
         string? connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
@@ -99,6 +109,8 @@ public sealed class ElsaDbInitializer(
         dbContext.Database.SetConnectionString(connectionString);
         managementDbContext.Database.SetConnectionString(connectionString);
         runtimeDbContext.Database.SetConnectionString(connectionString);
+        labelsElsaDbContext.Database.SetConnectionString(connectionString);
+
     }
 
     private TenantScope CreateElsaTenantScope()

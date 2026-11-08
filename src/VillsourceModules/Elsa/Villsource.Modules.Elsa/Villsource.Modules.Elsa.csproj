@@ -21,11 +21,14 @@
 
     <ItemGroup>
       <PackageReference Include="Elsa" />
+      <PackageReference Include="Elsa.Dashboard.Api" />
+      <PackageReference Include="Elsa.Labels" />
       <PackageReference Include="Elsa.Persistence.EFCore.PostgreSql" />
       <PackageReference Include="Elsa.Scheduling" />
       <PackageReference Include="Elsa.Tenants" />
       <PackageReference Include="Elsa.Tenants.AspNetCore" />
       <PackageReference Include="Elsa.Workflows.Api" Condition="'$(Configuration)' == 'Debug'" />
+      <PackageReference Include="Elsa.Workflows.Runtime.Dashboard" />
       <PackageReference Include="OpenIddict.AspNetCore" />
     </ItemGroup>
 

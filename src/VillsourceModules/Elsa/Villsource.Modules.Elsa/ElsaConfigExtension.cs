@@ -2,6 +2,7 @@
 using Elsa.Common.Features;
 using Elsa.Common.Multitenancy;
 using Elsa.Persistence.EFCore.Extensions;
+using Elsa.Persistence.EFCore.Modules.Labels;
 using Elsa.Persistence.EFCore.Modules.Management;
 using Elsa.Persistence.EFCore.Modules.Runtime;
 using Elsa.Tenants.Extensions;
@@ -66,6 +67,14 @@ public static class ElsaConfigExtension
             elsa.AddWorkflowsFrom<ElsaModule>();
             elsa.AddCoreWorkflowsModule();
             elsa.AddHrWorkflowsModule();
+            elsa.UseLabels(labels => 
+                labels.UseEntityFrameworkCore(ef => 
+                {
+                    ef.UsePostgreSql(sp => GetTenantConnectionString(sp, builder));
+                    ef.RunMigrations = false;
+                }));
+            elsa.UseDashboardApi();
+            elsa.UseWorkflowRuntimeDashboard();
         });
     }
 
