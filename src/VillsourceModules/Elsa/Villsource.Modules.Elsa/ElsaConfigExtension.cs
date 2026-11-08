@@ -75,6 +75,10 @@ public static class ElsaConfigExtension
                 }));
             elsa.UseDashboardApi();
             elsa.UseWorkflowRuntimeDashboard();
+            elsa.UseScheduling(scheduling =>
+            {
+                scheduling.UseHangfireScheduler();
+            });
         });
     }
 
