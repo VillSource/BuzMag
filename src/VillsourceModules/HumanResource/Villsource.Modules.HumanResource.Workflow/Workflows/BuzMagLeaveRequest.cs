@@ -22,8 +22,8 @@ public class BuzMagLeaveRequest : BuzMagWorkflowBase
 
         builder.WithInput<string>("EmployeeId");
         
-        var employeeId = builder.WithVariable<string>("EmployeeId");
-        var employeePosition = builder.WithVariable<object>("EmployeePosition");
+        var employeeId = builder.WithVariable<string>("EmployeeId", string.Empty);
+        var employeePosition = builder.WithVariable<object>("EmployeePosition", string.Empty);
         
         var setEmployeePosition = new SetVariable
         {

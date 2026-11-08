@@ -34,11 +34,11 @@ public class LeaveApprovalWorkflow2 : WorkflowBase
         builder.WithInput<string>("Property");
 
         // Variables (State)
-        var daysInAdvance = builder.WithVariable<double>();
-        var requesterTier = builder.WithVariable<string>();
-        var currentManagerId = builder.WithVariable<string>();
-        var decision = builder.WithVariable<string>();
-        var isFinished = builder.WithVariable<bool>(false);
+        var daysInAdvance = builder.WithVariable<double>("DaysInAdvance", 0);
+        var requesterTier = builder.WithVariable<string>("RequesterTier", "");
+        var currentManagerId = builder.WithVariable<string>("CurrentManagerId", "");
+        var decision = builder.WithVariable<string>("Decision", "");
+        var isFinished = builder.WithVariable<bool>("IsFinished", false);
 
         // ─── 1. NODE DEFINITIONS ───────────────────────────────────────────────
 

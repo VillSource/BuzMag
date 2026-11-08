@@ -16,7 +16,7 @@ public class DocumentApprovalWorkflow : WorkflowBase
         builder.IsReadonly = true;
 
         // สร้างตัวแปรมารับค่า Payload ตอนที่ Workflow ถูกปลุก
-        var decisionVar = builder.WithVariable<object>();
+        var decisionVar = builder.WithVariable<object>("DecisionVar", string.Empty);
 
         builder.Root = new Sequence
         {
