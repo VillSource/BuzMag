@@ -13,6 +13,7 @@ public class DocumentApprovalWorkflow : WorkflowBase
         ArgumentNullException.ThrowIfNull(builder);
         
         builder.Name = "DocumentApprovalWorkflow";
+        builder.IsReadonly = true;
 
         // สร้างตัวแปรมารับค่า Payload ตอนที่ Workflow ถูกปลุก
         var decisionVar = builder.WithVariable<object>();

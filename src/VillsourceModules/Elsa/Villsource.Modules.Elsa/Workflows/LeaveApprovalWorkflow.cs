@@ -23,6 +23,7 @@ public class LeaveApprovalWorkflow : WorkflowBase
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.Name = "LeaveApprovalWorkflow";
+        builder.IsReadonly = true;
 
         // Inputs
         builder.WithInput<string>("DocNo");

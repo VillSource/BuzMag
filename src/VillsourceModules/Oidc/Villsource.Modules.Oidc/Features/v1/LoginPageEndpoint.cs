@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Finbuckle.MultiTenant.Abstractions;
+using FSH.Framework.Shared.Multitenancy;
+using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 using Villsource.Modules.Oidc.Services;
 
@@ -32,10 +35,19 @@ public static class LoginPageEndpoint
         
         endpoints.MapPost("/connect/login", async (
                 HttpContext context,
-                IOidcUserClaimsService claimsService,
+                IMultiTenantContextAccessor<AppTenantInfo> tenantContextAccessor,
+                IServiceProvider services,
                 [FromBody] LoginForm data) =>
             {
+                var tenantId = ResolveTenantId(context, tenantContextAccessor);
+                if (string.IsNullOrWhiteSpace(tenantId))
+                {
+                    return Results.BadRequest(new { error = "A tenant is required to sign in." });
+                }
+
+                var claimsService = services.GetRequiredService<IOidcUserClaimsService>();
                 var identity = await claimsService.BuildOidcIdentityAsync(
+                    tenantId: tenantId,
                     email: data.Email,
                     password: data.Password,
                     twoFactorCode: data.TwoFactorCode,
@@ -59,7 +71,8 @@ public static class LoginPageEndpoint
 
         endpoints.MapPost("/connect/loginx", async (
                 HttpContext context,
-                IOidcUserClaimsService claimsService,
+                IMultiTenantContextAccessor<AppTenantInfo> tenantContextAccessor,
+                IServiceProvider services,
                 [FromBody] LoginForm data) =>
             {
                 var form = await context.Request.ReadFormAsync();
@@ -70,7 +83,15 @@ public static class LoginPageEndpoint
                     returnUrl = "/";
                 }
 
+                var tenantId = ResolveTenantId(context, tenantContextAccessor);
+                if (string.IsNullOrWhiteSpace(tenantId))
+                {
+                    return Results.BadRequest(new { error = "A tenant is required to sign in." });
+                }
+
+                var claimsService = services.GetRequiredService<IOidcUserClaimsService>();
                 var identity = await claimsService.BuildOidcIdentityAsync(
+                    tenantId: tenantId,
                     email: data.Email,
                     password: data.Password,
                     twoFactorCode: data.TwoFactorCode,
@@ -95,5 +116,15 @@ public static class LoginPageEndpoint
             .AllowAnonymous();
 
         return endpoints;
+    }
+
+    private static string? ResolveTenantId(
+        HttpContext context,
+        IMultiTenantContextAccessor<AppTenantInfo> tenantContextAccessor)
+    {
+        var tenantId = tenantContextAccessor.MultiTenantContext.TenantInfo?.Id;
+        return !string.IsNullOrWhiteSpace(tenantId)
+            ? tenantId
+            : context.Request.Headers[MultitenancyConstants.Identifier].ToString();
     }
 }

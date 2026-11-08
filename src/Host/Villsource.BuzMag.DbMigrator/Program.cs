@@ -112,8 +112,8 @@ Microsoft.Extensions.DependencyInjection.MediatorDependencyInjectionExtensions.A
         typeof(Villsource.FSH.Modules.Organization.OrganizationModule),
         typeof(Villsource.Modules.HumanResource.Contracts.HumanResourceContractsMarker),
         typeof(Villsource.Modules.HumanResource.HumanResourceModule),
-        // typeof(Villsource.Modules.Elsa.Contracts.ElsaContractsMarker),
-        // typeof(Villsource.Modules.Elsa.ElsaModule),
+        typeof(Villsource.Modules.Elsa.Contracts.ElsaContractsMarker),
+        typeof(Villsource.Modules.Elsa.ElsaModule),
         typeof(Villsource.Modules.Oidc.Contracts.OidcContractsMarker),
         typeof(Villsource.Modules.Oidc.OidcModule),
     ];
@@ -134,7 +134,7 @@ var moduleAssemblies = new Assembly[]
     
     typeof(Villsource.FSH.Modules.Organization.OrganizationModule).Assembly,
     typeof(Villsource.Modules.HumanResource.HumanResourceModule).Assembly,
-    // typeof(Villsource.Modules.Elsa.ElsaModule).Assembly,
+    typeof(Villsource.Modules.Elsa.ElsaModule).Assembly,
     typeof(Villsource.Modules.Oidc.OidcModule).Assembly,
 };
 
@@ -161,12 +161,15 @@ builder.AddModules(moduleAssemblies);
 // Provide a throwing no-op so the DI graph resolves; the migration code paths don't enqueue jobs.
 builder.Services.AddSingleton<FSH.Framework.Jobs.Services.IJobService, NoOpJobService>();
 
-// Strip every BackgroundService (+ TenantStoreInitializerHostedService) before StartAsync: left running they
-// poll/write tables BEFORE Step 1/2 create them (42P01). StartupValidator + Serilog flush IHostedServices stay.
+// Strip database-dependent hosted services before StartAsync: left running they access tables
+// BEFORE Step 1/2 create them (42P01). StartupValidator + Serilog flush IHostedServices stay.
 foreach (var descriptor in builder.Services
     .Where(d => d.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService)
         && (typeof(Microsoft.Extensions.Hosting.BackgroundService).IsAssignableFrom(d.ImplementationType)
-            || d.ImplementationType?.Name == "TenantStoreInitializerHostedService"))
+            || d.ImplementationType?.Name == "TenantStoreInitializerHostedService"
+            || d.ImplementationType?.FullName?.StartsWith(
+                "Elsa.Common.Multitenancy.HostedServices.",
+                StringComparison.Ordinal) == true))
     .ToList())
 {
     builder.Services.Remove(descriptor);

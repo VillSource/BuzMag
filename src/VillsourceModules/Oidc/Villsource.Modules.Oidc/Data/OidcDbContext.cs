@@ -1,30 +1,17 @@
-using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.EntityFrameworkCore.Extensions;
-using FSH.Framework.Persistence.Context;
-using FSH.Framework.Shared.Multitenancy;
-using FSH.Framework.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using OpenIddict.EntityFrameworkCore.Models;
+using Villsource.Modules.Oidc.Data.Entities;
 using Villsource.Modules.Oidc.Domain;
 
 namespace Villsource.Modules.Oidc.Data;
 
-#pragma warning disable S125
-// public sealed class OidcDbContext(
-//     IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor,
-//     DbContextOptions<OidcDbContext> options,
-//     IOptions<DatabaseOptions> settings,
-//     IHostEnvironment environment)
-//     : BaseDbContext(multiTenantContextAccessor, options, settings, environment)
-// {
-#pragma warning restore S125
-
-public sealed class OidcDbContext(DbContextOptions<OidcDbContext> options): DbContext(options)
+public sealed class OidcDbContext(DbContextOptions<OidcDbContext> options) : DbContext(options)
 {
     public const string Schema = "oidc";
 
+    public DbSet<OidcApplication> Applications => Set<OidcApplication>();
+    public DbSet<OidcAuthorization> Authorizations => Set<OidcAuthorization>();
+    public DbSet<OidcScope> Scopes => Set<OidcScope>();
+    public DbSet<OidcToken> Tokens => Set<OidcToken>();
     public DbSet<Ping> Pings => Set<Ping>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,13 +19,11 @@ public sealed class OidcDbContext(DbContextOptions<OidcDbContext> options): DbCo
         ArgumentNullException.ThrowIfNull(modelBuilder);
         modelBuilder.HasDefaultSchema(Schema);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(OidcDbContext).Assembly);
-        // base.OnModelCreating runs LAST so BaseDbContext's auto-apply (ApplyTenantIsolationByDefault)
-        // sees fully-configured entities, including child types reached via HasMany navigation.
-        modelBuilder.UseOpenIddict();
-        modelBuilder.Entity<OpenIddictEntityFrameworkCoreApplication>().IsNotMultiTenant();
-        modelBuilder.Entity<OpenIddictEntityFrameworkCoreAuthorization>().IsNotMultiTenant();
-        modelBuilder.Entity<OpenIddictEntityFrameworkCoreScope>().IsNotMultiTenant();
-        modelBuilder.Entity<OpenIddictEntityFrameworkCoreToken>().IsNotMultiTenant();
+        modelBuilder.UseOpenIddict<OidcApplication, OidcAuthorization, OidcScope, OidcToken, string>();
+        modelBuilder.Entity<OidcApplication>().ToTable("OpenIddictApplications", Schema);
+        modelBuilder.Entity<OidcAuthorization>().ToTable("OpenIddictAuthorizations", Schema);
+        modelBuilder.Entity<OidcScope>().ToTable("OpenIddictScopes", Schema);
+        modelBuilder.Entity<OidcToken>().ToTable("OpenIddictTokens", Schema);
         base.OnModelCreating(modelBuilder);
     }
 }
