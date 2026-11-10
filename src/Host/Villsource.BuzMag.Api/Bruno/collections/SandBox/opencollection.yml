@@ -23,7 +23,7 @@ request:
     credentials:
       clientId: bruno
       placement: body
-    scope: openid profile roles
+    scope: openid profile offline_access roles
     pkce: {}
     tokenConfig:
       id: credentials
@@ -32,7 +32,7 @@ request:
       source: access_token
     settings:
       autoFetchToken: true
-      autoRefreshToken: false
+      autoRefreshToken: true
 bundled: false
 extensions:
   bruno:
