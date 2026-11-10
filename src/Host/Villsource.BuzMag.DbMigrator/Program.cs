@@ -58,8 +58,8 @@ if (string.IsNullOrWhiteSpace(builder.Configuration["JwtOptions:SigningKey"]))
     builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
     {
         ["JwtOptions:SigningKey"] = "fsh-dbmigrator-placeholder-never-mints-tokens-32+",
-        ["JwtOptions:Issuer"] = builder.Configuration["JwtOptions:Issuer"] ?? "https://fsh.local/",
-        ["JwtOptions:Audience"] = builder.Configuration["JwtOptions:Audience"] ?? "fsh.clients",
+        ["JwtOptions:Issuer"] = builder.Configuration["JwtOptions:Issuer"] ?? "https://buzmag.local/",
+        ["JwtOptions:Audience"] = builder.Configuration["JwtOptions:Audience"] ?? "buzmag.clients",
     });
 }
 
