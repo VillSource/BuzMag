@@ -81,7 +81,7 @@ public static class OpenIddictConfig
                     .SetUserInfoEndpointUris("/connect/userinfo")
                     .SetConfigurationEndpointUris("/.well-known/openid-configuration")
                     .SetJsonWebKeySetEndpointUris("/.well-known/jwks");
-
+                
                 options.AllowAuthorizationCodeFlow()
                     .RequireProofKeyForCodeExchange();
 

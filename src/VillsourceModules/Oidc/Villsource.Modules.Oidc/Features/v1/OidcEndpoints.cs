@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
+using System.Security.Cryptography;
 using Villsource.Modules.Oidc.Services;
 
 namespace Villsource.Modules.Oidc.Features.v1;
@@ -31,6 +32,138 @@ public static class OidcEndpoints
             {
                 var returnUrl = $"{context.Request.Path}{context.Request.QueryString}";
                 return Results.Redirect($"/api/v1/oidc/login?returnUrl={Uri.EscapeDataString(returnUrl)}");
+            }
+
+            var bypassConfirmLogin = context.Request.Query["bypass_confirm_login"].Count > 0;
+            if (!bypassConfirmLogin)
+            {
+                var claims = authResult.Principal.Claims;
+                var rows = string.Join( Environment.NewLine,
+                    claims.Select(c => //lang=html
+                        $"""
+                        <tr>
+                            <td>{System.Net.WebUtility.HtmlEncode(c.Type)}</td>
+                            <td>{System.Net.WebUtility.HtmlEncode(c.Value)}</td>
+                        </tr>
+                        """));
+                
+                var returnUrl = $"{context.Request.Path}{context.Request.QueryString}&bypass_confirm_login=true";
+                var html =  // lang=html
+                    $$$$$$"""
+                              <!DOCTYPE html>
+                              <html>
+                              <head>
+                              <style>
+                                  :root {
+                                      color-scheme: light dark;
+                                  }
+
+                                  body {
+                                      font-family: Inter, Segoe UI, sans-serif;
+                                      max-width: 960px;
+                                      margin: 40px auto;
+                                      padding: 0 20px;
+                                      color: #111827;
+                                      background: #f9fafb;
+                                  }
+
+                                  .card {
+                                      background: white;
+                                      border: 1px solid #e5e7eb;
+                                      border-radius: 12px;
+                                      overflow: hidden;
+                                      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+                                  }
+
+                                  h1 {
+                                      margin: 0 0 20px;
+                                      font-size: 1.5rem;
+                                      font-weight: 600;
+                                  }
+
+                                  table {
+                                      width: 100%;
+                                      border-collapse: collapse;
+                                  }
+
+                                  th {
+                                      text-align: left;
+                                      background: #f3f4f6;
+                                      color: #6b7280;
+                                      font-size: .85rem;
+                                      font-weight: 600;
+                                      padding: 12px 16px;
+                                      border-bottom: 1px solid #e5e7eb;
+                                  }
+
+                                  td {
+                                      padding: 12px 16px;
+                                      border-bottom: 1px solid #f3f4f6;
+                                      vertical-align: top;
+                                  }
+
+                                  code {
+                                      font-family: Consolas, monospace;
+                                      font-size: .9rem;
+                                  }
+
+                                  tr:last-child td {
+                                      border-bottom: none;
+                                  }
+
+                                  .actions {
+                                      margin-top: 20px;
+                                  }
+
+                                  .btn {
+                                      display: inline-block;
+                                      padding: 10px 16px;
+                                      border-radius: 8px;
+                                      background: #111827;
+                                      color: white;
+                                      text-decoration: none;
+                                      font-weight: 500;
+                                  }
+
+                                  .btn:hover {
+                                      opacity: .9;
+                                  }
+                              </style>
+                              </head>
+                              <body>
+
+                                  <h1>Login Confirmation as {{{{{{claims.First(i => i.Type == "fullName").Value}}}}}}</h1>
+
+                                  <div class="actions" style="margin-bottom: 10px;">
+                                      <a class="btn" href="{{{{{{returnUrl}}}}}}">
+                                          Login as {{{{{{claims.First(i => i.Type == "fullName").Value}}}}}}
+                                      </a>
+                                      <form method="post" action="/api/v1/oidc/logout?returnUrl={{{{{{Uri.EscapeDataString(returnUrl)}}}}}}" style="display:inline">
+                                          <button type="submit" class="btn btn-secondary">
+                                             Login as other account 
+                                          </button>
+                                      </form>
+                                  </div>
+                                  
+                                  <div class="card">
+                                      <table>
+                                          <thead>
+                                              <tr>
+                                                  <th>Claim Type</th>
+                                                  <th>Value</th>
+                                              </tr>
+                                          </thead>
+                                          <tbody>
+                                              {{{{{{rows}}}}}}
+                                          </tbody>
+                                      </table>
+                                  </div>
+
+                              </body>
+                              </html>
+                              """; 
+                return Results.Content(html, "text/html");
+
             }
 
             var cookieUser = authResult.Principal;
