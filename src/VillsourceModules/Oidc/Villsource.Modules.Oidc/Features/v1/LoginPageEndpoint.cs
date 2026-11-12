@@ -24,7 +24,10 @@ public static class LoginPageEndpoint
         endpoints.MapPost("/api/v1/oidc/logout", async (HttpContext context) =>
         {
             await context.SignOutAsync(OidcConstant.CookieScheme);
-            return Results.Ok();
+            var returnUrl = context.Request.Query["returnUrl"];
+            if (string.IsNullOrEmpty(returnUrl))
+                return Results.NoContent();
+            return Results.Redirect(returnUrl.ToString());
         }).RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = OidcConstant.CookieScheme });
 
         endpoints.MapGet("/api/v1/oidc/claims", async (HttpContext context) =>
