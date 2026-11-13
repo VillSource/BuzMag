@@ -82,7 +82,7 @@ public sealed class OidcModule : IModule
                         return JwtBearerDefaults.AuthenticationScheme;
                     }
 
-                    var token = authHeader.Substring("Bearer ".Length).Trim();
+                    var token = authHeader["Bearer ".Length..].Trim();
                     var handler = new JwtSecurityTokenHandler();
 
                     if (handler.CanReadToken(token))
@@ -119,7 +119,8 @@ public sealed class OidcModule : IModule
             var policyBuilder = new AuthorizationPolicyBuilder(existingPolicy);
 
             // เพิ่ม Scheme ใหม่เข้าไป
-            policyBuilder.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+            policyBuilder.AuthenticationSchemes.Clear();
+            policyBuilder.AddAuthenticationSchemes("DynamicJwtSelector");
 
             // Build เป็น Policy ตัวใหม่
             var newPolicy = policyBuilder.Build();
