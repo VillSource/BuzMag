@@ -27,6 +27,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Villsource.FSH.Modules.Organization.Data;
+using Villsource.FSH.Modules.Organization.Domain;
 
 namespace Villsource.BuzMag.DbMigrator.DemoSeed;
 
@@ -56,14 +58,24 @@ internal sealed class DemoSeeder
         Name: "Acme Corp",
         AdminEmail: "admin@acme.com",
         Issuer: "fsh.demo.acme",
-        PlanKey: "pro-annual");
+        PlanKey: "pro-annual",
+        OrganizationType: OrganizationTemplateType.TechCompany);
 
     public static readonly DemoTenant Globex = new(
         Id: "globex",
         Name: "Globex",
         AdminEmail: "admin@globex.com",
         Issuer: "fsh.demo.globex",
-        PlanKey: "free");
+        PlanKey: "free",
+        OrganizationType: OrganizationTemplateType.CarDealership);
+    
+    public static readonly DemoTenant Savora = new(
+        Id: "savora",
+        Name: "Savora Dining Group",
+        AdminEmail: "admin@savora.com",
+        Issuer: "fsh.demo.savora",
+        PlanKey: "pro-annual",
+        OrganizationType: OrganizationTemplateType.Restaurant);
 
     public DemoSeeder(IServiceProvider services, IConfiguration config, ILogger<DemoSeeder> logger)
     {
@@ -82,13 +94,14 @@ internal sealed class DemoSeeder
         await EnsureDemoTenantsExistAsync(cancellationToken).ConfigureAwait(false);
         await SeedRootSuperAdminAsync(cancellationToken).ConfigureAwait(false);
 
-        foreach (var demo in new[] { Acme, Globex })
+        foreach (var demo in new[] { Acme, Globex, Savora })
         {
             await SeedTenantSubscriptionAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantUsersAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantCatalogAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantTicketsAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantChatAsync(demo, cancellationToken).ConfigureAwait(false);
+            await SeedTenantOrganizationAsync(demo, cancellationToken).ConfigureAwait(false);
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -115,7 +128,7 @@ internal sealed class DemoSeeder
         var tenantService = scope.ServiceProvider.GetRequiredService<ITenantService>();
         var tenantDb = scope.ServiceProvider.GetRequiredService<TenantDbContext>();
 
-        foreach (var demo in new[] { Acme, Globex })
+        foreach (var demo in new[] { Acme, Globex, Savora })
         {
             var existing = await tenantStore.GetAsync(demo.Id).ConfigureAwait(false);
             if (existing is null)
@@ -694,8 +707,42 @@ internal sealed class DemoSeeder
     }
 
     // ─── Demo content shapes ───────────────────────────────────────────
+    
+    //  Demo Organization 
+    private async Task SeedTenantOrganizationAsync(DemoTenant demo, CancellationToken cancellationToken)
+    {
+        using var scope = _services.CreateScope();
+        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var tenant = await tenantStore.GetAsync(demo.Id).ConfigureAwait(false);
+        if (tenant is null) return;
 
-    internal sealed record DemoTenant(string Id, string Name, string AdminEmail, string Issuer, string PlanKey);
+        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
+            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<OrganizationDbContext>();
+        var ouSet = dbContext.Set<OrganizationUnit>();
+        var positionSet = dbContext.Set<Position>();
+
+        bool alreadySeeded = await ouSet.AnyAsync(cancellationToken).ConfigureAwait(false)
+                             || await positionSet.AnyAsync(cancellationToken).ConfigureAwait(false);
+        if (alreadySeeded) return;
+
+        var (positions, rootCompany) = OrganizationSeedData.Build(demo.OrganizationType, demo.Name);
+
+        await positionSet.AddRangeAsync(positions, cancellationToken).ConfigureAwait(false);
+        await ouSet.AddAsync(rootCompany, cancellationToken).ConfigureAwait(false);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation(
+                "[demo-seed] [{Tenant}] seeded '{Template}' organization ('{RootName}') and {PositionCount} positions",
+                tenant.Id, demo.OrganizationType, rootCompany.Name, positions.Count);
+        }
+    }
+
+    // ─── Demo Organization ───────────────────────────────────────────
+    internal sealed record DemoTenant(string Id, string Name, string AdminEmail, string Issuer, string PlanKey, OrganizationTemplateType OrganizationType);
     internal sealed record DemoUser(
         string UserName,
         string Email,
