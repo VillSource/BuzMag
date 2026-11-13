@@ -38,16 +38,31 @@ public sealed partial class OidcDbInitializer(
         {
             new OpenIddictApplicationDescriptor
             {
-                ClientId = "root-elsa-studio",
-                DisplayName = "Elsa Workflows Studio",
+                ClientId = "buzmag",
+                DisplayName = "BuzMag ERP",
                 ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
                 ClientType = OpenIddictConstants.ClientTypes.Public,
                 RedirectUris =
                 {
-                    new Uri($"https://oauth.usebruno.com/callback"),
-                    new Uri($"http://localhost:5000/authentication/login-callback")
+                    new Uri($"http://127.0.0.1:5173/"),
+                    new Uri($"http://localhost:5173/"),
+                    
+                    new Uri($"http://127.0.0.1:5174/"),
+                    new Uri($"http://localhost:5174/"),
+                    
+                    new Uri($"https://127.0.0.1:5173/"),
+                    new Uri($"https://localhost:5173/"),
+                    
+                    new Uri($"https://127.0.0.1:5174/"),
+                    new Uri($"https://localhost:5174/"),
                 },
-                PostLogoutRedirectUris = { new Uri($"http://localhost:5000/signout-callback-oidc") }
+                PostLogoutRedirectUris = {
+                    new Uri($"http://127.0.0.1:5173"),
+                    new Uri($"http://localhost:5173"),
+                    
+                    new Uri($"http://127.0.0.1:5174"),
+                    new Uri($"http://localhost:5174"),
+                },
             },
             new OpenIddictApplicationDescriptor
             {

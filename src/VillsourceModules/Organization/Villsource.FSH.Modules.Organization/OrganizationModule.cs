@@ -3,7 +3,6 @@ using FluentValidation;
 using FSH.Framework.Persistence;
 using FSH.Framework.Shared.Constants;
 using FSH.Framework.Web.Modules;
-using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -13,9 +12,9 @@ using Microsoft.Extensions.Hosting;
 using Villsource.FSH.Modules.Organization.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.Authorization;
 using Villsource.FSH.Modules.Organization.Data;
-using Villsource.FSH.Modules.Organization.Features.v1.Structures.OrganizationUnits;
-using Villsource.FSH.Modules.Organization.Features.v1.Structures.Positions;
-using Villsource.FSH.Modules.Organization.Features.v1.Structures.PositionAllocations;
+using Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
+using Villsource.FSH.Modules.Organization.Features.v1.PositionAllocations;
+using Villsource.FSH.Modules.Organization.Features.v1.Positions;
 using Villsource.FSH.Modules.Organization.Services;
 
 namespace Villsource.FSH.Modules.Organization;
@@ -50,27 +49,10 @@ public sealed class OrganizationModule : IModule
 
         var group = endpoints.MapGroup("api/v{version:apiVersion}/organizations")
             .WithTags(ApiTags.Organization)
-            .WithApiVersionSet(versionSet)
-            .RequireAuthorization();
+            .WithApiVersionSet(versionSet);
 
-        group.MapGetAllOrganizationUnitEndpoint();
-        group.MapCreateOrganizationUnitEndpoint();
-        group.MapDeleteOrganizationUnitEndpoint();
-        group.MapUpdateOrganizationUnitEndpoint();
-        group.MapMoveOrganizationUnitEndpoint();
-
-        group.MapGetAllPositionsEndpoint();
-        group.MapGetPositionByIdEndpoint();
-        group.MapCreatePositionEndpoint();
-        group.MapUpdatePositionEndpoint();
-        group.MapDeletePositionEndpoint();
-
-        group.MapGetCurrentPositionAllocationsEndpoint();
-        group.MapGetPositionAllocationHistoryEndpoint();
-        group.MapAllocatePositionEndpoint();
-        group.MapChangePositionAllocationEndpoint();
-        group.MapEndPositionAllocationEndpoint();
-
-        group.MapGetPositionTiers();
+        group.MapUnitEndpoints();
+        group.MapPositionsEndpoints();
+        group.MapPositionAllocationEndpoints();
     }
 }

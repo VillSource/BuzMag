@@ -8,13 +8,14 @@ namespace Villsource.FSH.Modules.Organization.Contracts.Authorization;
 /// </summary>
 public static class OrganizationPermissions
 {
-    public static class Structures
+    public static class Units
     {
-        public const string Resource = "Organization.Structur";
+        public const string Resource = "Organization.Unit";
         public const string View = $"Permissions.{Resource}.View";
         public const string Create = $"Permissions.{Resource}.Create";
         public const string Update = $"Permissions.{Resource}.Update";
         public const string Delete = $"Permissions.{Resource}.Delete";
+        public const string Move = $"Permissions.{Resource}.Move";
     }
     
     public static class  Charts
@@ -28,10 +29,11 @@ public static class OrganizationPermissions
 
     public static IReadOnlyList<FshPermission> All { get; } =
     [
-        new("View Organization Structures", ActionConstants.View, Structures.Resource, IsBasic: true),
-        new("Create Organization Structures", ActionConstants.Create, Structures.Resource, IsBasic: false),
-        new("Update Organization Structures", ActionConstants.Update, Structures.Resource, IsBasic: false),
-        new("Delete Organization Structures", ActionConstants.Delete, Structures.Resource, IsBasic: false),
+        new("View Organization Unit", ActionConstants.View, Units.Resource, IsBasic: true),
+        new("Create Organization Unit", ActionConstants.Create, Units.Resource, IsBasic: false),
+        new("Update Organization Unit", ActionConstants.Update, Units.Resource, IsBasic: false),
+        new("Delete Organization Unit", ActionConstants.Delete, Units.Resource, IsBasic: false),
+        new("Move Organization Unit", "Move", Units.Resource, IsBasic: false),
         
         new("View Organization Charts", ActionConstants.View, Charts.Resource, IsBasic: true),
         new("Create Organization Charts", ActionConstants.Create, Charts.Resource, IsBasic: false),

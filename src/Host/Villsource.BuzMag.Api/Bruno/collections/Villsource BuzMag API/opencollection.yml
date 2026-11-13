@@ -23,7 +23,7 @@ request:
     credentials:
       clientId: root-elsa-studio
       placement: body
-    scope: openid profile roles
+    scope: openid profile roles offline_access
     pkce: {}
     tokenConfig:
       id: credentials

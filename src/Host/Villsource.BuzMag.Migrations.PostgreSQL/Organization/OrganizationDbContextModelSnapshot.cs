@@ -17,8 +17,8 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("organization")
-                .HasAnnotation("ProductVersion", "10.0.8")
+                .HasDefaultSchema("core")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -99,7 +99,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .IsUnique()
                         .HasDatabaseName("IX_OrganizationUnits_ReferenceId");
 
-                    b.ToTable("OrganizationUnits", "organization");
+                    b.ToTable("OrganizationUnits", "core");
 
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
@@ -168,7 +168,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .IsUnique()
                         .HasDatabaseName("IX_OrganizationUnitPositionAllocations_ReferenceId");
 
-                    b.ToTable("OrganizationUnitPositionAllocations", "organization");
+                    b.ToTable("OrganizationUnitPositionAllocations", "core");
 
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
@@ -239,7 +239,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .IsUnique()
                         .HasDatabaseName("IX_Positions_ReferenceId");
 
-                    b.ToTable("Positions", "organization");
+                    b.ToTable("Positions", "core");
 
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });

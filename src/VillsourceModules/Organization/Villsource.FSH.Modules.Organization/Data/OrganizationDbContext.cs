@@ -16,7 +16,7 @@ public sealed class OrganizationDbContext(
     IHostEnvironment environment)
     : BaseDbContext(multiTenantContextAccessor, options, settings, environment)
 {
-    public const string Schema = "organization";
+    public const string Schema = "core";
 
     public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
     public DbSet<Position> Positions => Set<Position>();
