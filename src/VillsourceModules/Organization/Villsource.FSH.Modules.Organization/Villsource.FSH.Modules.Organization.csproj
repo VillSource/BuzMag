@@ -8,8 +8,16 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\BuildingBlocks\Web\Web.csproj" />
+      <ProjectReference Include="..\..\Core\Villsource.ObjectValue\Villsource.ObjectValue.csproj" />
       <ProjectReference Include="..\..\Core\Villsource.Tool.UniqueKey\Villsource.Tool.UniqueKey.csproj" />
       <ProjectReference Include="..\Villsource.FSH.Modules.Organization.Contracts\Villsource.FSH.Modules.Organization.Contracts.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Core\Villsource.CodeGen\Villsource.CodeGen.csproj"
+                          OutputItemType="Analyzer"
+                          PrivateAssets="all"
+                          ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
     <ItemGroup>

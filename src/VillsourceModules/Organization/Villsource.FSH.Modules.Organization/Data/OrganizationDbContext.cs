@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Villsource.FSH.Modules.Organization.Domain;
+using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 
 namespace Villsource.FSH.Modules.Organization.Data;
 
@@ -16,11 +17,13 @@ public sealed class OrganizationDbContext(
     IHostEnvironment environment)
     : BaseDbContext(multiTenantContextAccessor, options, settings, environment)
 {
-    public const string Schema = "core";
+    public const string Schema = "organization";
 
     public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
     public DbSet<Position> Positions => Set<Position>();
     public DbSet<OrganizationUnitPositionAllocation> OrganizationUnitPositionAllocations => Set<OrganizationUnitPositionAllocation>();
+    public DbSet<LegalEntity> LegalEntities => Set<LegalEntity>();
+    public DbSet<TaxBranch> TaxBranches => Set<TaxBranch>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
