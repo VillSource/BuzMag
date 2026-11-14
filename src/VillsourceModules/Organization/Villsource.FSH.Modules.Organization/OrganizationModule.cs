@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Villsource.FSH.Modules.Organization.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.Authorization;
 using Villsource.FSH.Modules.Organization.Data;
+using Villsource.FSH.Modules.Organization.Features.v1.LegalEntities;
 using Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
 using Villsource.FSH.Modules.Organization.Features.v1.PositionAllocations;
 using Villsource.FSH.Modules.Organization.Features.v1.Positions;
@@ -54,5 +55,6 @@ public sealed class OrganizationModule : IModule
         group.MapUnitEndpoints();
         group.MapPositionsEndpoints();
         group.MapPositionAllocationEndpoints();
+        group.MapLegalEntityEndpoints();
     }
 }

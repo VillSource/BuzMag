@@ -13,6 +13,7 @@ public class LegalEntityConfiguration : IEntityTypeConfiguration<LegalEntity>
 
         builder.ToTable("LegalEntities");
         builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id).ValueGeneratedNever();
 
         builder.HasIndex(e => e.ReferenceId).IsUnique();
         builder.HasIndex(e => e.Code).IsUnique().HasFilter("\"IsDeleted\" = FALSE");

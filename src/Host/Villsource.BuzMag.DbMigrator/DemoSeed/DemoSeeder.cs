@@ -29,6 +29,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain;
+using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 
 namespace Villsource.BuzMag.DbMigrator.DemoSeed;
 
@@ -102,6 +103,7 @@ internal sealed class DemoSeeder
             await SeedTenantTicketsAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantChatAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantOrganizationAsync(demo, cancellationToken).ConfigureAwait(false);
+            await SeedTenantLegalEntitiesAsync(demo, cancellationToken).ConfigureAwait(false);
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -742,6 +744,42 @@ internal sealed class DemoSeeder
     }
 
     // ─── Demo Organization ───────────────────────────────────────────
+    
+    //  Demo Legal Entities
+    private async Task SeedTenantLegalEntitiesAsync(DemoTenant demo, CancellationToken cancellationToken)
+    {
+        using var scope = _services.CreateScope();
+        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var tenant = await tenantStore.GetAsync(demo.Id).ConfigureAwait(false);
+        if (tenant is null) return;
+
+        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
+            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<OrganizationDbContext>();
+        var legalEntitySet = dbContext.Set<LegalEntity>();
+
+        if (await legalEntitySet.AnyAsync(cancellationToken).ConfigureAwait(false))
+        {
+            return;
+        }
+
+        var legalEntities = LegalEntitySeedData.Build(demo.OrganizationType, demo.Name);
+
+        await legalEntitySet.AddRangeAsync(legalEntities, cancellationToken).ConfigureAwait(false);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation(
+                "[demo-seed] [{Tenant}] seeded {EntityCount} legal entity(s) with {BranchCount} tax branch(es)",
+                tenant.Id,
+                legalEntities.Count,
+                legalEntities.Sum(e => e.Branches.Count));
+        }
+    } 
+    // ─── Demo Legal Entity ───────────────────────────────────────────
+    
     internal sealed record DemoTenant(string Id, string Name, string AdminEmail, string Issuer, string PlanKey, OrganizationTemplateType OrganizationType);
     internal sealed record DemoUser(
         string UserName,

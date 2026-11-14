@@ -1,5 +1,6 @@
 ﻿using FSH.Framework.Core.Domain;
 using Villsource.ObjectValue;
+using Villsource.Tool.UniqueKey;
 
 namespace Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 
@@ -7,16 +8,17 @@ public sealed partial class TaxBranch : BaseEntity<Guid>, IAuditableEntity, ISof
 {
     private TaxBranch() { }
 
+    public string ReferenceId { get; } = VillsourceId.Key;
     public Guid LegalEntityId { get; private set; }
 
-    public string BranchCode { get; private set; } = null!;
+    public string BranchCode { get; private set; } = default!;
     public bool IsHeadOffice { get; private set; }
 
-    public string Name { get; private set; } = null!;
-    public string InternationalName { get; private set; } = null!;
+    public string Name { get; private set; } = default!;
+    public string InternationalName { get; private set; } = default!;
     public string? TaxSubId { get; private set; }
 
-    public Address RegisteredAddress { get; private set; } = null!;
+    public Address RegisteredAddress { get; private set; } = default!;
 
     public bool IsActive { get; private set; } = true;
     public DateTimeOffset? RegisteredDate { get; private set; }

@@ -191,6 +191,10 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTimeOffset?>("RegisteredDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -272,6 +276,10 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .IsUnique()
                         .HasDatabaseName("IX_TaxBranches_LegalEntityId_HeadOffice")
                         .HasFilter("\"IsHeadOffice\" = TRUE AND \"IsDeleted\" = FALSE");
+
+                    b.HasIndex("ReferenceId", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_TaxBranches_ReferenceId");
 
                     b.HasIndex("LegalEntityId", "BranchCode", "TenantId")
                         .IsUnique()

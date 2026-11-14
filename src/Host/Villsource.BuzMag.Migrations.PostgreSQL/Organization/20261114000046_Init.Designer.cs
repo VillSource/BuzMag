@@ -13,7 +13,7 @@ using Villsource.FSH.Modules.Organization.Data;
 namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 {
     [DbContext(typeof(OrganizationDbContext))]
-    [Migration("20261113160613_Init")]
+    [Migration("20261114000046_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -194,6 +194,10 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTimeOffset?>("RegisteredDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -275,6 +279,10 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .IsUnique()
                         .HasDatabaseName("IX_TaxBranches_LegalEntityId_HeadOffice")
                         .HasFilter("\"IsHeadOffice\" = TRUE AND \"IsDeleted\" = FALSE");
+
+                    b.HasIndex("ReferenceId", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_TaxBranches_ReferenceId");
 
                     b.HasIndex("LegalEntityId", "BranchCode", "TenantId")
                         .IsUnique()

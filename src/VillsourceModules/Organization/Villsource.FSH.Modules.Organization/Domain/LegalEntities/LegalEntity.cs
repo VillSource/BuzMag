@@ -197,7 +197,7 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
     }
 
     public void UpdateBranch(
-        Guid branchId,
+        string branchRef,
         string name,
         string internationalName,
         Address registeredAddress,
@@ -209,7 +209,7 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
         ArgumentException.ThrowIfNullOrWhiteSpace(internationalName);
         ArgumentNullException.ThrowIfNull(registeredAddress);
 
-        var branch = GetActiveBranchOrThrow(branchId: branchId);
+        var branch = GetActiveBranchOrThrow(branchRef);
         branch.Update(
             name: name.Trim(),
             internationalName: internationalName.Trim(),
@@ -219,12 +219,12 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
 
         AddTaxBranchUpdatedDomainEvent(branch: branch);
     }
-
-    public void ActivateBranch(Guid branchId)
+    
+    public void ActivateBranch(string branchRef)
     {
         EnsureNotDeleted();
 
-        var branch = GetActiveBranchOrThrow(branchId: branchId);
+        var branch = GetActiveBranchOrThrow(branchRef);
         if (branch.IsActive)
         {
             return;
@@ -234,11 +234,11 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
         AddTaxBranchActivatedDomainEvent(branch: branch);
     }
 
-    public void CloseBranch(Guid branchId, DateTimeOffset? closedDate = null)
+    public void CloseBranch(string branchRef, DateTimeOffset? closedDate = null)
     {
         EnsureNotDeleted();
 
-        var branch = GetActiveBranchOrThrow(branchId: branchId);
+        var branch = GetActiveBranchOrThrow(branchRef);
         if (!branch.IsActive)
         {
             return;
@@ -255,12 +255,12 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
 
         AddTaxBranchClosedDomainEvent(branch: branch);
     }
-
-    public void RemoveBranch(Guid branchId, string? deletedBy = null)
+    
+    public void RemoveBranch(string branchRef, string? deletedBy = null)
     {
         EnsureNotDeleted();
 
-        var branch = GetActiveBranchOrThrow(branchId: branchId);
+        var branch = GetActiveBranchOrThrow(branchRef);
 
         if (branch.IsHeadOffice && _branches.Any(b => !b.IsDeleted && !b.IsHeadOffice))
         {
@@ -274,11 +274,11 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
     #endregion
 
     #region Private Helpers & Validations
-
-    private TaxBranch GetActiveBranchOrThrow(Guid branchId)
+    
+    private TaxBranch GetActiveBranchOrThrow(string branchRef)
     {
-        var branch = _branches.FirstOrDefault(b => b.Id == branchId && !b.IsDeleted);
-        return branch ?? throw new InvalidOperationException($"Tax branch '{branchId}' was not found.");
+        var branch = _branches.FirstOrDefault(b => b.ReferenceId == branchRef && !b.IsDeleted);
+        return branch ?? throw new InvalidOperationException($"Tax branch '{branchRef}' was not found.");
     }
 
     private void EnsureNotDeleted()

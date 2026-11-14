@@ -110,6 +110,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ReferenceId = table.Column<string>(type: "text", nullable: false),
                     LegalEntityId = table.Column<Guid>(type: "uuid", nullable: false),
                     BranchCode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     IsHeadOffice = table.Column<bool>(type: "boolean", nullable: false),
@@ -288,6 +289,13 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                 columns: new[] { "LegalEntityId", "TenantId" },
                 unique: true,
                 filter: "\"IsHeadOffice\" = TRUE AND \"IsDeleted\" = FALSE");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaxBranches_ReferenceId",
+                schema: "organization",
+                table: "TaxBranches",
+                columns: new[] { "ReferenceId", "TenantId" },
+                unique: true);
         }
 
         /// <inheritdoc />
