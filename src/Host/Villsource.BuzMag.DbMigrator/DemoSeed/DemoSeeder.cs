@@ -29,6 +29,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain;
+using Villsource.FSH.Modules.Organization.Domain.CostCenters;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 
 namespace Villsource.BuzMag.DbMigrator.DemoSeed;
@@ -104,6 +105,8 @@ internal sealed class DemoSeeder
             await SeedTenantChatAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantOrganizationAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantLegalEntitiesAsync(demo, cancellationToken).ConfigureAwait(false);
+            await SeedTenantCostCentersAsync(demo, cancellationToken).ConfigureAwait(false);
+            
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -779,6 +782,53 @@ internal sealed class DemoSeeder
         }
     } 
     // ─── Demo Legal Entity ───────────────────────────────────────────
+    
+    
+    // ─── Demo Cost Centers ───────────────────────────────────────────
+    private async Task SeedTenantCostCentersAsync(DemoTenant demo, CancellationToken cancellationToken)
+    {
+        using var scope = _services.CreateScope();
+        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var tenant = await tenantStore.GetAsync(demo.Id).ConfigureAwait(false);
+        if (tenant is null) return;
+
+        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
+            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<OrganizationDbContext>();
+        var costCenterSet = dbContext.Set<CostCenter>();
+
+        if (await costCenterSet.AnyAsync(cancellationToken).ConfigureAwait(false))
+        {
+            return;
+        }
+
+        var legalEntities = await dbContext.Set<LegalEntity>()
+            .Include(e => e.Branches.Where(b => !b.IsDeleted))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        if (legalEntities.Count == 0)
+        {
+            return;
+        }
+
+        var costCenters = CostCenterSeedData.Build(demo.OrganizationType, legalEntities);
+
+        await costCenterSet.AddRangeAsync(costCenters, cancellationToken).ConfigureAwait(false);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation(
+                "[demo-seed] [{Tenant}] seeded {CostCenterCount} cost center(s) across {EntityCount} legal entity(s)",
+                tenant.Id,
+                costCenters.Count,
+                costCenters.Select(c => c.LegalEntityId).Distinct().Count());
+        }
+    }
+    // ─── Demo Cost Centers ───────────────────────────────────────────
     
     internal sealed record DemoTenant(string Id, string Name, string AdminEmail, string Issuer, string PlanKey, OrganizationTemplateType OrganizationType);
     internal sealed record DemoUser(

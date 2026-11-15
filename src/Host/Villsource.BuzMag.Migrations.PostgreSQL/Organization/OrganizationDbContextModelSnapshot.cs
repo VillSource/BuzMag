@@ -24,10 +24,119 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.CostCenters.CostCenter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DefaultTaxBranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("FunctionType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("InternationalName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPostingBlocked")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("LastModifiedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LegalEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<Guid?>("OrgUnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ParentCostCenterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
+                    b.Property<Guid?>("ResponsibleUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("ValidFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ValidTo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefaultTaxBranchId");
+
+                    b.HasIndex("FunctionType");
+
+                    b.HasIndex("ParentCostCenterId");
+
+                    b.HasIndex("ReferenceId", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CostCenters_ReferenceId");
+
+                    b.HasIndex("LegalEntityId", "Code", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CostCenters_LegalEntityId_Code")
+                        .HasFilter("\"IsDeleted\" = FALSE");
+
+                    b.HasIndex("LegalEntityId", "IsActive", "IsPostingBlocked");
+
+                    b.ToTable("CostCenters", "organization");
+
+                    b.HasAnnotation("Finbuckle:MultiTenant", true);
+                });
+
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.LegalEntities.LegalEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("BaseCurrency")
@@ -140,7 +249,6 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.LegalEntities.TaxBranch", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("BranchCode")
@@ -512,6 +620,31 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
 
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.CostCenters.CostCenter", b =>
+                {
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.LegalEntities.TaxBranch", "DefaultTaxBranch")
+                        .WithMany()
+                        .HasForeignKey("DefaultTaxBranchId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.LegalEntities.LegalEntity", "LegalEntity")
+                        .WithMany()
+                        .HasForeignKey("LegalEntityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.CostCenters.CostCenter", "ParentCostCenter")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentCostCenterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("DefaultTaxBranch");
+
+                    b.Navigation("LegalEntity");
+
+                    b.Navigation("ParentCostCenter");
+                });
+
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.LegalEntities.TaxBranch", b =>
                 {
                     b.HasOne("Villsource.FSH.Modules.Organization.Domain.LegalEntities.LegalEntity", null)
@@ -545,6 +678,11 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Navigation("Position");
 
                     b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.CostCenters.CostCenter", b =>
+                {
+                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.LegalEntities.LegalEntity", b =>

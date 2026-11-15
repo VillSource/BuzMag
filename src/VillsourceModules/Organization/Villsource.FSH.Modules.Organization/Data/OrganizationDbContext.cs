@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Villsource.FSH.Modules.Organization.Domain;
+using Villsource.FSH.Modules.Organization.Domain.CostCenters;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 
 namespace Villsource.FSH.Modules.Organization.Data;
@@ -24,6 +25,7 @@ public sealed class OrganizationDbContext(
     public DbSet<OrganizationUnitPositionAllocation> OrganizationUnitPositionAllocations => Set<OrganizationUnitPositionAllocation>();
     public DbSet<LegalEntity> LegalEntities => Set<LegalEntity>();
     public DbSet<TaxBranch> TaxBranches => Set<TaxBranch>();
+    public DbSet<CostCenter> CostCenters => Set<CostCenter>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
