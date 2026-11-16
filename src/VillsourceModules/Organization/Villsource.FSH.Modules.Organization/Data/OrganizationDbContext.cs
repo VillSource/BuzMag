@@ -7,7 +7,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Villsource.FSH.Modules.Organization.Domain;
 using Villsource.FSH.Modules.Organization.Domain.CostCenters;
+using Villsource.FSH.Modules.Organization.Domain.JobGrades;
+using Villsource.FSH.Modules.Organization.Domain.Jobs;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
+using Villsource.FSH.Modules.Organization.Domain.PositionDelegations;
 
 namespace Villsource.FSH.Modules.Organization.Data;
 
@@ -22,10 +25,14 @@ public sealed class OrganizationDbContext(
 
     public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
     public DbSet<Position> Positions => Set<Position>();
+    public DbSet<Domain.v2.Positions.Position> PositionsV2 => Set<Domain.v2.Positions.Position>();
     public DbSet<OrganizationUnitPositionAllocation> OrganizationUnitPositionAllocations => Set<OrganizationUnitPositionAllocation>();
     public DbSet<LegalEntity> LegalEntities => Set<LegalEntity>();
     public DbSet<TaxBranch> TaxBranches => Set<TaxBranch>();
     public DbSet<CostCenter> CostCenters => Set<CostCenter>();
+    public DbSet<JobGrade> JobGrades => Set<JobGrade>();
+    public DbSet<Job> Jobs => Set<Job>();
+    public DbSet<PositionDelegation> PositionDelegations => Set<PositionDelegation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

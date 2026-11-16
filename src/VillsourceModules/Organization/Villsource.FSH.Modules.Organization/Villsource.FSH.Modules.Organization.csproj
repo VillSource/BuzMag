@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\BuildingBlocks\Web\Web.csproj" />
+      <ProjectReference Include="..\..\Core\Villsource.FSH.Exceptions\Villsource.FSH.Exceptions.csproj" />
       <ProjectReference Include="..\..\Core\Villsource.ObjectValue\Villsource.ObjectValue.csproj" />
       <ProjectReference Include="..\..\Core\Villsource.Tool.UniqueKey\Villsource.Tool.UniqueKey.csproj" />
       <ProjectReference Include="..\Villsource.FSH.Modules.Organization.Contracts\Villsource.FSH.Modules.Organization.Contracts.csproj" />

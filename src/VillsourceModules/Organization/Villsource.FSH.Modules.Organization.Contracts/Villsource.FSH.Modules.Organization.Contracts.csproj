@@ -16,4 +16,8 @@
       <PackageReference Include="Thinktecture.Runtime.Extensions" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="v2\" />
+    </ItemGroup>
+
 </Project>

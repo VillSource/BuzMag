@@ -134,6 +134,170 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
 
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.JobGrades.JobGrade", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("InternationalName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("LastModifiedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<int>("RankOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_JobGrades_Code")
+                        .HasFilter("\"IsDeleted\" = FALSE");
+
+                    b.HasIndex("ReferenceId", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_JobGrades_ReferenceId");
+
+                    b.HasIndex("IsActive", "RankOrder", "Code")
+                        .HasFilter("\"IsDeleted\" = FALSE");
+
+                    b.ToTable("JobGrades", "organization");
+
+                    b.HasAnnotation("Finbuckle:MultiTenant", true);
+                });
+
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Jobs.Job", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DefaultJobGradeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("InternationalName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("JobFamily")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("LastModifiedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefaultJobGradeId");
+
+                    b.HasIndex("Code", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Jobs_Code")
+                        .HasFilter("\"IsDeleted\" = FALSE");
+
+                    b.HasIndex("ReferenceId", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Jobs_ReferenceId");
+
+                    b.HasIndex("IsActive", "JobFamily", "Code")
+                        .HasFilter("\"IsDeleted\" = FALSE");
+
+                    b.ToTable("Jobs", "organization");
+
+                    b.HasAnnotation("Finbuckle:MultiTenant", true);
+                });
+
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.LegalEntities.LegalEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -620,6 +784,220 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
 
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.PositionDelegations.PositionDelegation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DelegatePositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DelegationType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("DelegatorPositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DocumentTypeScope")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("LastModifiedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LegalEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
+                    b.Property<string>("RevocationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("RevokedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("RevokedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("ValidFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ValidTo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReferenceId", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PositionDelegations_ReferenceId");
+
+                    b.HasIndex("DelegatePositionId", "ValidFrom", "ValidTo")
+                        .HasFilter("\"IsDeleted\" = FALSE AND \"IsRevoked\" = FALSE");
+
+                    b.HasIndex("DelegatorPositionId", "ValidFrom", "ValidTo")
+                        .HasFilter("\"IsDeleted\" = FALSE AND \"IsRevoked\" = FALSE");
+
+                    b.HasIndex("LegalEntityId", "IsRevoked", "ValidFrom");
+
+                    b.ToTable("PositionDelegations", "organization");
+
+                    b.HasAnnotation("Finbuckle:MultiTenant", true);
+                });
+
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("CostCenterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("DeletedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DottedLinePositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("HeadcountCapacity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("InternationalTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPrimaryLeadership")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("JobGradeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("LastModifiedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LegalEntityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrgUnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReferenceId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
+                    b.Property<Guid?>("ReportsToPositionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset?>("ValidFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ValidTo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CostCenterId");
+
+                    b.HasIndex("DottedLinePositionId");
+
+                    b.HasIndex("JobGradeId");
+
+                    b.HasIndex("JobId");
+
+                    b.HasIndex("ReportsToPositionId");
+
+                    b.HasIndex("LegalEntityId", "ReportsToPositionId")
+                        .HasFilter("\"IsDeleted\" = FALSE");
+
+                    b.HasIndex("ReferenceId", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PositionsV2_ReferenceId");
+
+                    b.HasIndex("LegalEntityId", "Code", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PositionsV2_LegalEntityId_Code")
+                        .HasFilter("\"IsDeleted\" = FALSE");
+
+                    b.HasIndex("LegalEntityId", "OrgUnitId", "IsActive")
+                        .HasFilter("\"IsDeleted\" = FALSE");
+
+                    b.ToTable("PositionsV2", "organization");
+
+                    b.HasAnnotation("Finbuckle:MultiTenant", true);
+                });
+
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.CostCenters.CostCenter", b =>
                 {
                     b.HasOne("Villsource.FSH.Modules.Organization.Domain.LegalEntities.TaxBranch", "DefaultTaxBranch")
@@ -643,6 +1021,17 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Navigation("LegalEntity");
 
                     b.Navigation("ParentCostCenter");
+                });
+
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Jobs.Job", b =>
+                {
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.JobGrades.JobGrade", "DefaultJobGrade")
+                        .WithMany()
+                        .HasForeignKey("DefaultJobGradeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DefaultJobGrade");
                 });
 
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.LegalEntities.TaxBranch", b =>
@@ -680,6 +1069,81 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Navigation("Unit");
                 });
 
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.PositionDelegations.PositionDelegation", b =>
+                {
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", "DelegatePosition")
+                        .WithMany()
+                        .HasForeignKey("DelegatePositionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", "DelegatorPosition")
+                        .WithMany()
+                        .HasForeignKey("DelegatorPositionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.LegalEntities.LegalEntity", "LegalEntity")
+                        .WithMany()
+                        .HasForeignKey("LegalEntityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DelegatePosition");
+
+                    b.Navigation("DelegatorPosition");
+
+                    b.Navigation("LegalEntity");
+                });
+
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", b =>
+                {
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.CostCenters.CostCenter", "CostCenter")
+                        .WithMany()
+                        .HasForeignKey("CostCenterId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", "DottedLinePosition")
+                        .WithMany()
+                        .HasForeignKey("DottedLinePositionId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.JobGrades.JobGrade", "JobGrade")
+                        .WithMany()
+                        .HasForeignKey("JobGradeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.Jobs.Job", "Job")
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.LegalEntities.LegalEntity", "LegalEntity")
+                        .WithMany()
+                        .HasForeignKey("LegalEntityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", "ReportsToPosition")
+                        .WithMany("DirectReports")
+                        .HasForeignKey("ReportsToPositionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CostCenter");
+
+                    b.Navigation("DottedLinePosition");
+
+                    b.Navigation("Job");
+
+                    b.Navigation("JobGrade");
+
+                    b.Navigation("LegalEntity");
+
+                    b.Navigation("ReportsToPosition");
+                });
+
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.CostCenters.CostCenter", b =>
                 {
                     b.Navigation("Children");
@@ -695,6 +1159,11 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Navigation("Children");
 
                     b.Navigation("PositionAllocations");
+                });
+
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", b =>
+                {
+                    b.Navigation("DirectReports");
                 });
 #pragma warning restore 612, 618
         }

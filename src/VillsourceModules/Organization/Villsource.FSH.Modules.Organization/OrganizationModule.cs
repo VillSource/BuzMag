@@ -13,10 +13,14 @@ using Villsource.FSH.Modules.Organization.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.Authorization;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Features.v1.CostCenters;
+using Villsource.FSH.Modules.Organization.Features.v1.JobGrades;
+using Villsource.FSH.Modules.Organization.Features.v1.Jobs;
 using Villsource.FSH.Modules.Organization.Features.v1.LegalEntities;
 using Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
 using Villsource.FSH.Modules.Organization.Features.v1.PositionAllocations;
+using Villsource.FSH.Modules.Organization.Features.v1.PositionDelegations;
 using Villsource.FSH.Modules.Organization.Features.v1.Positions;
+using Villsource.FSH.Modules.Organization.Features.v2.Positions;
 using Villsource.FSH.Modules.Organization.Services;
 
 namespace Villsource.FSH.Modules.Organization;
@@ -54,9 +58,12 @@ public sealed class OrganizationModule : IModule
             .WithApiVersionSet(versionSet);
 
         group.MapUnitEndpoints();
-        group.MapPositionsEndpoints();
         group.MapPositionAllocationEndpoints();
         group.MapLegalEntityEndpoints();
         group.MapCostCenterEndpoints();
+        group.MapJobGradeEndpoints();
+        group.MapJobEndpoints();
+        group.MapPositionDelegationEndpoints();
+        group.MapPositionEndpoints();
     }
 }

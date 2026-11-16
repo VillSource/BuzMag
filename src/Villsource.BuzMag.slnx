@@ -92,6 +92,7 @@
   </Folder>
   <Folder Name="/VillsourceModules/Core/">
     <Project Path="VillsourceModules/Core/Villsource.CodeGen/Villsource.CodeGen.csproj" />
+    <Project Path="VillsourceModules/Core/Villsource.FSH.Exceptions/Villsource.FSH.Exceptions.csproj" />
     <Project Path="VillsourceModules/Core/Villsource.ObjectValue/Villsource.ObjectValue.csproj" />
     <Project Path="VillsourceModules/Core/Villsource.Tool.UniqueKey/Villsource.Tool.UniqueKey.csproj" />
   </Folder>
