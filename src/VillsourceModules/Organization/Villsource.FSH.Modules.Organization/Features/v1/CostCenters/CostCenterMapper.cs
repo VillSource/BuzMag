@@ -2,6 +2,7 @@
 using Riok.Mapperly.Abstractions;
 using Villsource.FSH.Modules.Organization.Contracts.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.v1.CostCenters;
+using Villsource.FSH.Modules.Organization.Contracts.v1.CostCenters.Dtos;
 using Villsource.FSH.Modules.Organization.Domain.CostCenters;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 

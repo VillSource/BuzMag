@@ -1,5 +1,6 @@
 ﻿using Riok.Mapperly.Abstractions;
 using Villsource.FSH.Modules.Organization.Contracts.v1.PositionDelegations;
+using Villsource.FSH.Modules.Organization.Contracts.v1.PositionDelegations.Dtos;
 using Villsource.FSH.Modules.Organization.Domain.JobGrades;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 using Villsource.FSH.Modules.Organization.Domain.PositionDelegations;
