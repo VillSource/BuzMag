@@ -100,6 +100,7 @@ internal sealed class DemoSeeder
             await SeedTenantCatalogAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantTicketsAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantChatAsync(demo, cancellationToken).ConfigureAwait(false);
+            await SeedTenantOrganizationAsync(demo, cancellationToken).ConfigureAwait(false);
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -666,6 +667,31 @@ internal sealed class DemoSeeder
                 tenant.Id, channelCount, messageCount);
         }
     }
+
+    
+    // ─── ORG ───────────────────────────────────────────────────────────
+
+    private async Task SeedTenantOrganizationAsync(DemoTenant demo, CancellationToken cancellationToken)
+    {
+        using var scope = _services.CreateScope();
+        var tenantStore = scope.ServiceProvider.GetRequiredService<IMultiTenantStore<AppTenantInfo>>();
+        var tenant = await tenantStore.GetAsync(demo.Id).ConfigureAwait(false);
+        if (tenant is null) return;
+
+        scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
+            .MultiTenantContext = new MultiTenantContext<AppTenantInfo>(tenant);
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<OrganizationDbContext>();
+        if (await dbContext.LegalEntities.AnyAsync(cancellationToken).ConfigureAwait(false))
+        {
+            return;
+        }
+        
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<OrganizationDemoSeeder>>();
+        var demoSeeder = new OrganizationDemoSeeder(dbContext, logger);
+        await demoSeeder.SeedAsync(cancellationToken);
+    }
+
 
     private static async Task<ChatChannel?> SeedChannelAsync(
         ChatDbContext dbContext,

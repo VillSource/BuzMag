@@ -16,6 +16,7 @@ using Villsource.FSH.Modules.Organization.Features.v1.CostCenters;
 using Villsource.FSH.Modules.Organization.Features.v1.JobGrades;
 using Villsource.FSH.Modules.Organization.Features.v1.Jobs;
 using Villsource.FSH.Modules.Organization.Features.v1.LegalEntities;
+using Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
 using Villsource.FSH.Modules.Organization.Features.v1.PositionDelegations;
 using Villsource.FSH.Modules.Organization.Features.v2.Positions;
 
@@ -51,6 +52,7 @@ public sealed class OrganizationModule : IModule
             .WithTags(ApiTags.Organization)
             .WithApiVersionSet(versionSet);
 
+        group.MapOrganizationUnitEndpoints();
         group.MapLegalEntityEndpoints();
         group.MapCostCenterEndpoints();
         group.MapJobGradeEndpoints();
