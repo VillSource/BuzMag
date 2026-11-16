@@ -1,10 +1,6 @@
 ﻿using FSH.Framework.Core.Domain;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Frozen;
-using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain.Events;
 using Villsource.Tool.UniqueKey;
-using static System.Text.RegularExpressions.Regex;
 
 namespace Villsource.FSH.Modules.Organization.Domain;
 
@@ -25,22 +21,8 @@ public sealed class OrganizationUnit : AggregateRoot<Guid>, IAuditableEntity, IS
     public string? DeletedBy { get; private set; }
 
     public ICollection<OrganizationUnit> Children { get; private set; } = [];
-    public ICollection<OrganizationUnitPositionAllocation> PositionAllocations { get; private set; } = [];
 
     public OrganizationUnit() { }
-
-    public void AllocatePosition(Position position, int? headCount, string? createBy = null)
-    {
-        ArgumentNullException.ThrowIfNull(position);
-
-        var po = OrganizationUnitPositionAllocation.Create(
-            ouId: Id,
-            positionId: position.Id,
-            headCount: headCount,
-            effectiveDate: DateTimeOffset.UtcNow,
-            createBy: createBy);
-        PositionAllocations.Add(po);
-    }
 
     public static OrganizationUnit Create(string code, string name, string? description = null, string? createBy = null)
     {

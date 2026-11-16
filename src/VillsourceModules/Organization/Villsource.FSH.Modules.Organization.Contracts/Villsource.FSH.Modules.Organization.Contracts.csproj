@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="v1\Positions\" />
       <Folder Include="v2\" />
     </ItemGroup>
 

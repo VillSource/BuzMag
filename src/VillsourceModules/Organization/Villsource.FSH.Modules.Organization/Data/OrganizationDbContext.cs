@@ -11,6 +11,7 @@ using Villsource.FSH.Modules.Organization.Domain.JobGrades;
 using Villsource.FSH.Modules.Organization.Domain.Jobs;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 using Villsource.FSH.Modules.Organization.Domain.PositionDelegations;
+using Villsource.FSH.Modules.Organization.Domain.v2.Positions;
 
 namespace Villsource.FSH.Modules.Organization.Data;
 
@@ -25,8 +26,7 @@ public sealed class OrganizationDbContext(
 
     public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
     public DbSet<Position> Positions => Set<Position>();
-    public DbSet<Domain.v2.Positions.Position> PositionsV2 => Set<Domain.v2.Positions.Position>();
-    public DbSet<OrganizationUnitPositionAllocation> OrganizationUnitPositionAllocations => Set<OrganizationUnitPositionAllocation>();
+    public DbSet<Position> PositionsV2 => Set<Position>();
     public DbSet<LegalEntity> LegalEntities => Set<LegalEntity>();
     public DbSet<TaxBranch> TaxBranches => Set<TaxBranch>();
     public DbSet<CostCenter> CostCenters => Set<CostCenter>();

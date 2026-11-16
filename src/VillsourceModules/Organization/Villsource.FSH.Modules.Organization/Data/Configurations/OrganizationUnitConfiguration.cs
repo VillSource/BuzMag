@@ -23,7 +23,6 @@ internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<O
         builder.Property(x => x.Description).HasMaxLength(150);
 
         builder.HasMany(x => x.Children).WithOne().HasForeignKey(x => x.ParenId);
-        builder.HasMany(x => x.PositionAllocations).WithOne().HasForeignKey(x => x.OrganizationUnitId);
 
         builder.HasIndex( nameof(OrganizationUnit.ReferenceId)).IsUnique();
         builder.HasIndex( nameof(OrganizationUnit.Code)).IsUnique();

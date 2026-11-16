@@ -25,4 +25,9 @@
       <PackageReference Include="Riok.Mapperly" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Features\v1\OrganizationUnits\" />
+      <Folder Include="Features\v1\Positions\" />
+    </ItemGroup>
+
 </Project>
