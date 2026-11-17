@@ -10,7 +10,28 @@ namespace Villsource.FSH.Modules.Organization.Domain.JobGrades
         public const int MaxCodeLength = 20;
         public const int MaxNameLength = 150;
         public const int MaxDescriptionLength = 500;
+        public const int MaxCategoryLength = 30;
         public const int MinRankOrder = 1;
+
+        public static readonly string[] AllowedCategories = ["Operational", "Supervisory", "Management", "Executive"];
+
+        public static string? NormalizeAndValidateCategory(string? category)
+        {
+            if (string.IsNullOrWhiteSpace(category))
+            {
+                return null;
+            }
+
+            var match = AllowedCategories.FirstOrDefault(c => string.Equals(c, category.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (match is null)
+            {
+                throw new ArgumentException(
+                    $"JobLevelCategory '{category}' is invalid. Allowed values are: {string.Join(", ", AllowedCategories)}.",
+                    nameof(category));
+            }
+
+            return match;
+        }
 
         [GeneratedRegex(@"^[A-Z0-9\-_]{1,20}$", RegexOptions.CultureInvariant)]
         private static partial Regex CodeRegex();

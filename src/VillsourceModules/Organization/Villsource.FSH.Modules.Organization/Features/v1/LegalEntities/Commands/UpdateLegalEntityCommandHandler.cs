@@ -20,6 +20,7 @@ public sealed class UpdateLegalEntityCommandHandler(
                               .FirstOrDefaultAsync(
                                   predicate: e => e.ReferenceId == request.RefId,
                                   cancellationToken: cancellationToken)
+                              .ConfigureAwait(false)
                           ?? throw new NotFoundException($"Legal entity '{request.RefId}' was not found.");
 
         legalEntity.Update(
@@ -28,9 +29,11 @@ public sealed class UpdateLegalEntityCommandHandler(
             internationalName: request.InternationalName,
             taxId: request.TaxId,
             baseCurrency: request.BaseCurrency,
-            registrationNumber: request.RegistrationNumber);
+            registrationNumber: request.RegistrationNumber,
+            fiscalYearStartMonth: request.FiscalYearStartMonth,
+            timeZoneId: request.TimeZoneId);
 
-        await dbContext.SaveChangesAsync(cancellationToken: cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         return legalEntity.ReferenceId;
     }

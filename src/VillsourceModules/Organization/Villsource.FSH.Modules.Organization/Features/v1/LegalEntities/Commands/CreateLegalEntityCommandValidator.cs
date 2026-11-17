@@ -14,6 +14,8 @@ public sealed class CreateLegalEntityCommandValidator : AbstractValidator<Create
         RuleFor(x => x.TaxId).NotEmpty().MaximumLength(30);
         RuleFor(x => x.BaseCurrency).NotEmpty().Length(3);
         RuleFor(x => x.RegistrationNumber).MaximumLength(50);
+        RuleFor(x => x.FiscalYearStartMonth).InclusiveBetween(1, 12).When(x => x.FiscalYearStartMonth.HasValue);
+        RuleFor(x => x.TimeZoneId).MaximumLength(60).When(x => !string.IsNullOrWhiteSpace(x.TimeZoneId));
 
         When(x => x.Profile is not null, () =>
         {

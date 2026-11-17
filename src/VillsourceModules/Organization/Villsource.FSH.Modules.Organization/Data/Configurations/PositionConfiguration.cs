@@ -29,17 +29,26 @@ public sealed class PositionConfiguration : IEntityTypeConfiguration<Position>
         builder.HasIndex(p => p.JobGradeId);
         builder.HasIndex(p => p.JobId);
         builder.HasIndex(p => p.CostCenterId);
+        builder.HasIndex(p => p.WorkLocationTaxBranchId);
 
         // Column Constraints (Single Source of Truth from PositionRules)
         builder.Property(p => p.ReferenceId).HasMaxLength(VillsourceId.KeySizes).IsRequired();
         builder.Property(p => p.Code).HasMaxLength(PositionRules.MaxCodeLength).IsRequired();
         builder.Property(p => p.Title).HasMaxLength(PositionRules.MaxTitleLength).IsRequired();
         builder.Property(p => p.InternationalTitle).HasMaxLength(PositionRules.MaxTitleLength).IsRequired();
+        builder.Property(p => p.Description).HasMaxLength(PositionRules.MaxDescriptionLength);
+        builder.Property(p => p.ApprovalLimitAmount).HasPrecision(18, 2);
+        builder.Property(p => p.ApprovalLimitCurrency).HasMaxLength(PositionRules.MaxCurrencyLength);
 
         // Relationships
         builder.HasOne(p => p.LegalEntity)
             .WithMany()
             .HasForeignKey(p => p.LegalEntityId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.OrgUnit)
+            .WithMany()
+            .HasForeignKey(p => p.OrgUnitId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(p => p.Job)
@@ -55,6 +64,11 @@ public sealed class PositionConfiguration : IEntityTypeConfiguration<Position>
         builder.HasOne(p => p.CostCenter)
             .WithMany()
             .HasForeignKey(p => p.CostCenterId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne(p => p.WorkLocationTaxBranch)
+            .WithMany()
+            .HasForeignKey(p => p.WorkLocationTaxBranchId)
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne(p => p.ReportsToPosition)

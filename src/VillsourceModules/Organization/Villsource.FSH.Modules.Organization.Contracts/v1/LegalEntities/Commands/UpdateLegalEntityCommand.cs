@@ -9,4 +9,6 @@ public sealed record UpdateLegalEntityCommand(
     string InternationalName,
     string TaxId,
     string BaseCurrency,
-    string? RegistrationNumber = null) : IRequest<string>;
+    string? RegistrationNumber = null,
+    int? FiscalYearStartMonth = null,
+    string? TimeZoneId = null) : IRequest<string>;

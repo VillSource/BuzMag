@@ -179,9 +179,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Villsource Corporation HQ",
             type: "COMPANY",
             description: "สำนักงานใหญ่และศูนย์บริหารงานกลาง",
-            legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            costCenterCode: "CC-1000");
+            legalEntityId: legalEntity.Id );
 
         // Level 1: Divisions (5 สายงานหลัก)
         var ouDivTech = OrganizationUnit.Create(
@@ -190,9 +188,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Technology & Digital Innovation Division",
             type: "DIVISION",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouCorp,
-            costCenterCode: "CC-2000");
+            parent: ouCorp);
 
         var ouDivComm = OrganizationUnit.Create(
             code: "DIV-COMM",
@@ -200,9 +196,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Commercial & Business Growth Division",
             type: "DIVISION",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouCorp,
-            costCenterCode: "CC-3000");
+            parent: ouCorp);
 
         var ouDivOps = OrganizationUnit.Create(
             code: "DIV-OPS",
@@ -210,9 +204,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Operations & Supply Chain Division",
             type: "DIVISION",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouCorp,
-            costCenterCode: "CC-4000");
+            parent: ouCorp);
 
         var ouDivFin = OrganizationUnit.Create(
             code: "DIV-FIN",
@@ -220,9 +212,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Finance, Accounting & Procurement Division",
             type: "DIVISION",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouCorp,
-            costCenterCode: "CC-5000");
+            parent: ouCorp);
 
         var ouDivPeople = OrganizationUnit.Create(
             code: "DIV-PPL",
@@ -230,9 +220,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "People, Culture & Corporate Legal Division",
             type: "DIVISION",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouCorp,
-            costCenterCode: "CC-6000");
+            parent: ouCorp);
 
         // Level 2: Departments (ฝ่ายงานภายใต้แต่ละ Division)
         var ouDeptEng = OrganizationUnit.Create(
@@ -241,9 +229,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Software & Platform Engineering Department",
             type: "DEPARTMENT",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDivTech,
-            costCenterCode: "CC-2100");
+            parent: ouDivTech );
 
         var ouDeptProd = OrganizationUnit.Create(
             code: "DEPT-PROD",
@@ -251,9 +237,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Product Management & UX Department",
             type: "DEPARTMENT",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDivTech,
-            costCenterCode: "CC-2200");
+            parent: ouDivTech );
 
         var ouDeptSec = OrganizationUnit.Create(
             code: "DEPT-SEC",
@@ -261,9 +245,8 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Infrastructure & Cyber Security Department",
             type: "DEPARTMENT",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDivTech,
-            costCenterCode: "CC-2300");
+            parent: ouDivTech
+            );
 
         var ouDeptSales = OrganizationUnit.Create(
             code: "DEPT-SALES",
@@ -271,9 +254,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Enterprise Sales Department",
             type: "DEPARTMENT",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDivComm,
-            costCenterCode: "CC-3100");
+            parent: ouDivComm);
 
         var ouDeptRayongOps = OrganizationUnit.Create(
             code: "DEPT-RYG-OPS",
@@ -281,9 +262,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Eastern Operations & Fulfillment Department (Rayong)",
             type: "DEPARTMENT",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDivOps,
-            costCenterCode: "CC-4100");
+            parent: ouDivOps);
 
         var ouDeptAcct = OrganizationUnit.Create(
             code: "DEPT-ACCT",
@@ -291,9 +270,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Accounting & Taxation Department",
             type: "DEPARTMENT",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDivFin,
-            costCenterCode: "CC-5100");
+            parent: ouDivFin);
 
         var ouDeptProc = OrganizationUnit.Create(
             code: "DEPT-PROC",
@@ -301,9 +278,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Central Procurement Department",
             type: "DEPARTMENT",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDivFin,
-            costCenterCode: "CC-5200");
+            parent: ouDivFin);
 
         var ouDeptHr = OrganizationUnit.Create(
             code: "DEPT-HR",
@@ -311,9 +286,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Human Resources & Payroll Department",
             type: "DEPARTMENT",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDivPeople,
-            costCenterCode: "CC-6100");
+            parent: ouDivPeople);
 
         var ouDeptLegal = OrganizationUnit.Create(
             code: "DEPT-LEGAL",
@@ -321,9 +294,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Legal & Corporate Compliance Department",
             type: "DEPARTMENT",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDivPeople,
-            costCenterCode: "CC-6200");
+            parent: ouDivPeople);
 
         // Level 3: Teams (ทีมปฏิบัติการเฉพาะทาง)
         var ouTeamCoreErp = OrganizationUnit.Create(
@@ -332,9 +303,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Core ERP & Finance Engine Team",
             type: "TEAM",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDeptEng,
-            costCenterCode: "CC-2110");
+            parent: ouDeptEng);
 
         var ouTeamCnxRnd = OrganizationUnit.Create(
             code: "TEAM-CNX-RND",
@@ -342,9 +311,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "AI & Data R&D Team (Chiang Mai Hub)",
             type: "TEAM",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDeptEng,
-            costCenterCode: "CC-2120");
+            parent: ouDeptEng);
 
         // Edge Case: ทีมที่ยังไม่มี ManagerPosition (Vacant Manager) เพื่อทดสอบ Skip-Level Approval Escalation
         var ouTeamDevOps = OrganizationUnit.Create(
@@ -353,9 +320,7 @@ internal sealed class OrganizationDemoSeeder(
             internationalName: "Cloud Platform & SRE Team",
             type: "TEAM",
             legalEntityId: legalEntity.Id,
-            legalEntityRefId: legalEntity.ReferenceId,
-            parent: ouDeptSec,
-            costCenterCode: "CC-2300");
+            parent: ouDeptSec );
 
         await dbContext.OrganizationUnits.AddRangeAsync(
             [

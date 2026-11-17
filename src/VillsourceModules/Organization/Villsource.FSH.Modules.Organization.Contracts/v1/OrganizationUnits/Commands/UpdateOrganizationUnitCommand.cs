@@ -9,4 +9,4 @@ public sealed record UpdateOrganizationUnitCommand(
     string InternationalName,
     string Type,
     string? Description = null,
-    string? CostCenterCode = null) : IRequest<string>;
+    string? DefaultCostCenterRefId = null) : IRequest<string>;

@@ -6,4 +6,4 @@ internal sealed record UpdateOrganizationUnitRequest(
     string InternationalName,
     string Type,
     string? Description = null,
-    string? CostCenterCode = null);
+    string? DefaultCostCenterRefId = null);

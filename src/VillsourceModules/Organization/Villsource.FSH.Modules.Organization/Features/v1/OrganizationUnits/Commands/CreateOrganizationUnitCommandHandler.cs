@@ -1,6 +1,7 @@
 ﻿using FSH.Framework.Core.Exceptions;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
+using Villsource.FSH.Exceptions;
 using Villsource.FSH.Modules.Organization.Contracts.v1.OrganizationUnits.Commands;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain.OrganizationUnits;
@@ -39,6 +40,44 @@ public sealed class CreateOrganizationUnitCommandHandler(OrganizationDbContext d
             legalEntityId = legalEntity.Id;
         }
 
+        var effectiveLegalEntityId = legalEntityId ?? parent?.LegalEntityId;
+        var normalizedCode = request.Code.Trim().ToUpperInvariant();
+
+        if (effectiveLegalEntityId.HasValue)
+        {
+            var codeExists = await dbContext.OrganizationUnits
+                .AnyAsync(ou => ou.LegalEntityId == effectiveLegalEntityId.Value && ou.Code == normalizedCode && !ou.IsDeleted, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (codeExists)
+            {
+                throw new ConflictException($"Organization unit code '{normalizedCode}' already exists in this legal entity.");
+            }
+        }
+
+        Guid? defaultCostCenterId = null;
+        if (!string.IsNullOrWhiteSpace(request.DefaultCostCenterRefId))
+        {
+            var costCenter = await dbContext.CostCenters
+                                 .Where(c => c.ReferenceId == request.DefaultCostCenterRefId)
+                                 .Select(c => new { c.Id, c.LegalEntityId, c.IsActive })
+                                 .FirstOrDefaultAsync(cancellationToken)
+                                 .ConfigureAwait(false)
+                             ?? throw new NotFoundException($"Cost center '{request.DefaultCostCenterRefId}' was not found.");
+
+            if (effectiveLegalEntityId.HasValue && costCenter.LegalEntityId != effectiveLegalEntityId.Value)
+            {
+                throw new InvalidOperationException("Cost center must belong to the same legal entity as the organization unit.");
+            }
+
+            if (!costCenter.IsActive)
+            {
+                throw new InvalidOperationException($"Cost center '{request.DefaultCostCenterRefId}' is inactive.");
+            }
+
+            defaultCostCenterId = costCenter.Id;
+        }
+
         Position? managerPosition = null;
         if (!string.IsNullOrWhiteSpace(request.ManagerPositionRefId))
         {
@@ -49,15 +88,14 @@ public sealed class CreateOrganizationUnitCommandHandler(OrganizationDbContext d
         }
 
         var entity = OrganizationUnit.Create(
-            code: request.Code,
+            code: normalizedCode,
             name: request.Name,
             internationalName: request.InternationalName,
             type: request.Type,
             description: request.Description,
             legalEntityId: legalEntityId,
-            legalEntityRefId: request.LegalEntityRefId,
             parent: parent,
-            costCenterCode: request.CostCenterCode,
+            defaultCostCenterId: defaultCostCenterId,
             managerPosition: managerPosition,
             allowExternalManagerPosition: request.AllowExternalManagerPosition);
 

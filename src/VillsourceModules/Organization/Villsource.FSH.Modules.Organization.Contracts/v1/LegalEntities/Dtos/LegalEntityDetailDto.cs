@@ -9,6 +9,8 @@ public sealed record LegalEntityDetailDto(
     string TaxId,
     string? RegistrationNumber,
     string BaseCurrency,
+    int? FiscalYearStartMonth,
+    string? TimeZoneId,
     CompanyProfileDto Profile,
     IReadOnlyList<TaxBranchDto> Branches,
     DateTimeOffset CreatedOnUtc,

@@ -23,13 +23,27 @@ public sealed class RemoveTaxBranchCommandHandler(
                               .FirstOrDefaultAsync(
                                   predicate: e => e.ReferenceId == request.LegalEntityRefId,
                                   cancellationToken: cancellationToken)
+                              .ConfigureAwait(false)
                           ?? throw new NotFoundException($"Legal entity '{request.LegalEntityRefId}' was not found.");
+
+        var branch = legalEntity.Branches.FirstOrDefault(b => b.ReferenceId == request.RefId)
+                     ?? throw new NotFoundException($"Tax branch '{request.RefId}' was not found in legal entity '{request.LegalEntityRefId}'.");
+
+        var hasCostCenterRef = await dbContext.CostCenters
+            .AnyAsync(cc => cc.DefaultTaxBranchId == branch.Id && !cc.IsDeleted, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (hasCostCenterRef)
+        {
+            throw new InvalidOperationException(
+                $"Cannot remove tax branch '{request.RefId}' while cost centers reference it.");
+        }
 
         legalEntity.RemoveBranch(
             branchRef: request.RefId,
             deletedBy: currentUser.GetUserId().ToString());
 
-        await dbContext.SaveChangesAsync(cancellationToken: cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return request.RefId;
     }

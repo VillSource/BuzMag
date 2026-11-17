@@ -21,13 +21,27 @@ public sealed class CloseTaxBranchCommandHandler(
                               .FirstOrDefaultAsync(
                                   predicate: e => e.ReferenceId == request.LegalEntityRefId,
                                   cancellationToken: cancellationToken)
+                              .ConfigureAwait(false)
                           ?? throw new NotFoundException($"Legal entity '{request.LegalEntityRefId}' was not found.");
+
+        var branch = legalEntity.Branches.FirstOrDefault(b => b.ReferenceId == request.RefId)
+                     ?? throw new NotFoundException($"Tax branch '{request.RefId}' was not found in legal entity '{request.LegalEntityRefId}'.");
+
+        var hasCostCenterRef = await dbContext.CostCenters
+            .AnyAsync(cc => cc.DefaultTaxBranchId == branch.Id && !cc.IsDeleted && cc.IsActive, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (hasCostCenterRef)
+        {
+            throw new InvalidOperationException(
+                $"Cannot close tax branch '{request.RefId}' while it is assigned as DefaultTaxBranchId to active cost centers.");
+        }
 
         legalEntity.CloseBranch(
             branchRef: request.RefId,
             closedDate: request.ClosedDate);
 
-        await dbContext.SaveChangesAsync(cancellationToken: cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return request.RefId;
     }

@@ -8,6 +8,8 @@ public sealed class GetOrganizationUnitByRefIdSpec : Specification<OrganizationU
     public GetOrganizationUnitByRefIdSpec(string refId)
     {
         Where(e => e.ReferenceId == refId);
+        Include(e => e.LegalEntity!);
+        Include(e => e.DefaultCostCenter!);
         Include(e => e.Parent!);
         Include(e => e.ManagerPosition!);
         Include(e => e.Children.Where(c => !c.IsDeleted));

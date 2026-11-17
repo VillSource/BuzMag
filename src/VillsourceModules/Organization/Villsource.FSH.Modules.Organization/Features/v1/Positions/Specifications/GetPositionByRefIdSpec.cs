@@ -9,6 +9,8 @@ public sealed class GetPositionByRefIdSpec : Specification<Position>
     {
         Where(p => p.ReferenceId == refId);
         Include(p => p.LegalEntity!);
+        Include(p => p.OrgUnit!);
+        Include(p => p.WorkLocationTaxBranch!);
         Include(p => p.Job!);
         Include(p => p.JobGrade!);
         Include(p => p.CostCenter!);

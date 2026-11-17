@@ -14,18 +14,22 @@ public sealed class DeletePositionCommandHandler(OrganizationDbContext dbContext
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        // Single DB round-trip: load tracked Position + check direct report or active delegation references
+        // Single DB round-trip: load tracked Position + check direct report, active delegation, OU manager, and dotted line refs
         var target = await dbContext.Positions
                          .Where(p => p.ReferenceId == request.RefId)
                          .Select(p => new
                          {
                              Entity = p,
-                             HasDirectReports = dbContext.Positions.Any(r => r.ReportsToPositionId == p.Id),
+                             HasDirectReports = dbContext.Positions.Any(r => r.ReportsToPositionId == p.Id && !r.IsDeleted),
                              HasActiveDelegations = dbContext.PositionDelegations.Any(d =>
+                                 !d.IsDeleted &&
                                  !d.IsRevoked &&
-                                 (d.DelegatorPositionId == p.Id || d.DelegatePositionId == p.Id))
+                                 (d.DelegatorPositionId == p.Id || d.DelegatePositionId == p.Id)),
+                             IsOuManager = dbContext.OrganizationUnits.Any(ou => !ou.IsDeleted && ou.ManagerPositionId == p.Id),
+                             IsDottedLineTarget = dbContext.Positions.Any(other => !other.IsDeleted && other.DottedLinePositionId == p.Id)
                          })
                          .FirstOrDefaultAsync(cancellationToken)
+                         .ConfigureAwait(false)
                      ?? throw new NotFoundException($"Position '{request.RefId}' was not found.");
 
         if (target.HasDirectReports)
@@ -40,8 +44,20 @@ public sealed class DeletePositionCommandHandler(OrganizationDbContext dbContext
                 "Cannot delete a position while active position delegations reference it.");
         }
 
+        if (target.IsOuManager)
+        {
+            throw new InvalidOperationException(
+                "Cannot delete a position while it is assigned as the manager of an organization unit.");
+        }
+
+        if (target.IsDottedLineTarget)
+        {
+            throw new InvalidOperationException(
+                "Cannot delete a position while positions have a dotted-line reporting relationship to it.");
+        }
+
         target.Entity.Delete(deletedBy: currentUser.GetUserId().ToString());
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return target.Entity.ReferenceId;
     }

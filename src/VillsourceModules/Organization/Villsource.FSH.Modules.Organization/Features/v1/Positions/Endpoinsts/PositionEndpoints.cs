@@ -96,6 +96,50 @@ public static class PositionEndpoints
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapGet("/vacancy-status", async (
+                [FromQuery, Description("Legal entity reference ID.")]
+                string legalEntityRefId,
+                [FromQuery, Description("Optional organization unit reference ID.")]
+                string? orgUnitRefId = null,
+                [FromQuery, Description("Include active positions only.")]
+                bool activeOnly = true,
+                ISender mediator = default!,
+                CancellationToken cancellationToken = default) =>
+            {
+                var result = await mediator.Send(
+                    new GetVacancyStatusQuery(legalEntityRefId, orgUnitRefId, activeOnly),
+                    cancellationToken);
+                return Results.Ok(result);
+            })
+            .WithName("GetPositionVacancyStatus")
+            .WithSummary("Get position headcount and vacancy status")
+            .WithDescription("Queries headcount capacity against vacancies across positions in a legal entity or organization unit.")
+            .Produces<IReadOnlyList<PositionVacancyDto>>(StatusCodes.Status200OK, "application/json")
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapGet("/{refId}/approval-chain", async (
+                [Description("Position reference ID.")]
+                string refId,
+                [FromQuery, Description("Optional document type code for delegation resolution.")]
+                string? documentTypeCode = null,
+                [FromQuery, Description("Optional point-in-time timestamp (defaults to now).")]
+                DateTimeOffset? asOf = null,
+                ISender mediator = default!,
+                CancellationToken cancellationToken = default) =>
+            {
+                var result = await mediator.Send(
+                    new ResolveApprovalAuthorityQuery(refId, documentTypeCode, asOf),
+                    cancellationToken);
+                return Results.Ok(result);
+            })
+            .WithName("ResolveApprovalAuthority")
+            .WithSummary("Resolve approval authority chain with delegations")
+            .WithDescription("Resolves the ordered approval chain from a position, resolving active delegations and skip-level flags.")
+            .Produces<ApprovalChainDto>(StatusCodes.Status200OK, "application/json")
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         group.MapGet("/{refId}/subtree", async (
                 [Description("Root manager position reference ID.")]
                 string refId,

@@ -13,7 +13,7 @@ public sealed record OrganizationUnitDetailDto(
     string? ParentName,
     int Level,
     string HierarchyPath,
-    string? CostCenterCode,
+    string? DefaultCostCenterRefId,
     string? ManagerPositionRefId,
     string? ManagerPositionCode,
     string? ManagerPositionTitle,

@@ -35,6 +35,25 @@ public static class OrganizationUnitEndpoints
             .Produces<PagedResponse<OrganizationUnitSummaryDto>>(StatusCodes.Status200OK, "application/json")
             .ProducesValidationProblem(StatusCodes.Status400BadRequest);
 
+        group.MapGet("/tree", async (
+                [FromQuery] string legalEntityRefId,
+                [FromQuery] int? maxDepth,
+                [FromQuery] bool? activeOnly,
+                ISender mediator,
+                CancellationToken cancellationToken) =>
+            {
+                var result = await mediator.Send(
+                    request: new GetOrganizationTreeQuery(legalEntityRefId, maxDepth, activeOnly ?? true),
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Results.Ok(result);
+            })
+            .WithName("GetOrganizationTree")
+            .WithSummary("Get organization tree")
+            .WithDescription("Retrieves the hierarchical tree of organization units for a legal entity with optional depth filtering.")
+            .Produces<IReadOnlyList<OrganizationTreeNodeDto>>(StatusCodes.Status200OK, "application/json")
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         group.MapGet("/{refId}", async (
                 [Description("Unique reference ID of the organization unit.")] string refId,
                 ISender mediator,

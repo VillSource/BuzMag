@@ -6,6 +6,8 @@ internal static partial class PositionRules
 {
     public const int MaxCodeLength = 50;
     public const int MaxTitleLength = 200;
+    public const int MaxDescriptionLength = 1000;
+    public const int MaxCurrencyLength = 3;
     public const int MinHeadcountCapacity = 1;
 
     [GeneratedRegex(@"^[A-Z0-9\-_]{2,50}$", RegexOptions.CultureInvariant)]

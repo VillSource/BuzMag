@@ -9,6 +9,7 @@ public sealed record JobGradeDetailDto(
     string Name,
     string InternationalName,
     int RankOrder,
+    string? JobLevelCategory,
     string? Description,
     bool IsActive,
     DateTimeOffset CreatedOnUtc,

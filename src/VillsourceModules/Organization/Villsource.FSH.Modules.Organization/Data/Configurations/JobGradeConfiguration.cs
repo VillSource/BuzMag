@@ -25,6 +25,7 @@ namespace Villsource.FSH.Modules.Organization.Data.Configurations
             builder.Property(g => g.Code).HasMaxLength(JobGradeRules.MaxCodeLength).IsRequired();
             builder.Property(g => g.Name).HasMaxLength(JobGradeRules.MaxNameLength).IsRequired();
             builder.Property(g => g.InternationalName).HasMaxLength(JobGradeRules.MaxNameLength).IsRequired();
+            builder.Property(g => g.JobLevelCategory).HasMaxLength(JobGradeRules.MaxCategoryLength);
             builder.Property(g => g.Description).HasMaxLength(JobGradeRules.MaxDescriptionLength);
         }
     }

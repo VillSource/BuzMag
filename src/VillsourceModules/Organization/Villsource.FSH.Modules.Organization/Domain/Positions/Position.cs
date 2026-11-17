@@ -3,6 +3,7 @@ using Villsource.FSH.Modules.Organization.Domain.CostCenters;
 using Villsource.FSH.Modules.Organization.Domain.JobGrades;
 using Villsource.FSH.Modules.Organization.Domain.Jobs;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
+using Villsource.FSH.Modules.Organization.Domain.OrganizationUnits;
 using Villsource.FSH.Modules.Organization.Domain.Positions.Events;
 using Villsource.FSH.Modules.Organization.Features.v1.Positions;
 using Villsource.Tool.UniqueKey;
@@ -21,6 +22,7 @@ public sealed partial class Position : BaseEntity<Guid>, IAuditableEntity, ISoft
     public LegalEntity? LegalEntity { get; private set; } = null!;
 
     public Guid OrgUnitId { get; private set; }
+    public OrganizationUnit? OrgUnit { get; } = null!;
 
     public Guid JobId { get; private set; }
     public Job? Job { get; private set; } = null!;
@@ -43,6 +45,11 @@ public sealed partial class Position : BaseEntity<Guid>, IAuditableEntity, ISoft
     public string Code { get; private set; } = null!;
     public string Title { get; private set; } = null!;
     public string InternationalTitle { get; private set; } = null!;
+    public string? Description { get; private set; }
+    public Guid? WorkLocationTaxBranchId { get; private set; }
+    public TaxBranch? WorkLocationTaxBranch { get; } = null!;
+    public decimal? ApprovalLimitAmount { get; private set; }
+    public string? ApprovalLimitCurrency { get; private set; }
     public int HeadcountCapacity { get; private set; } = 1;
     public bool IsPrimaryLeadership { get; private set; }
 
@@ -59,7 +66,11 @@ public sealed partial class Position : BaseEntity<Guid>, IAuditableEntity, ISoft
         string code,
         string title,
         string internationalTitle,
+        string? description = null,
         Guid? costCenterId = null,
+        Guid? workLocationTaxBranchId = null,
+        decimal? approvalLimitAmount = null,
+        string? approvalLimitCurrency = null,
         Guid? reportsToPositionId = null,
         Guid? dottedLinePositionId = null,
         int headcountCapacity = 1,
@@ -83,6 +94,19 @@ public sealed partial class Position : BaseEntity<Guid>, IAuditableEntity, ISoft
                 $"HeadcountCapacity must be at least {PositionRules.MinHeadcountCapacity}.");
         }
 
+        if (approvalLimitAmount.HasValue && approvalLimitAmount.Value < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(approvalLimitAmount), "ApprovalLimitAmount cannot be negative.");
+        }
+
+        var normalizedCurrency = string.IsNullOrWhiteSpace(approvalLimitCurrency)
+            ? null
+            : approvalLimitCurrency.Trim().ToUpperInvariant();
+        if (normalizedCurrency is not null && normalizedCurrency.Length != PositionRules.MaxCurrencyLength)
+        {
+            throw new ArgumentException("ApprovalLimitCurrency must be a 3-letter currency code.", nameof(approvalLimitCurrency));
+        }
+
         var id = Guid.CreateVersion7();
         PositionRules.ValidateReportingTargets(id, reportsToPositionId, dottedLinePositionId);
 
@@ -97,11 +121,15 @@ public sealed partial class Position : BaseEntity<Guid>, IAuditableEntity, ISoft
             JobId = jobId,
             JobGradeId = jobGradeId,
             CostCenterId = costCenterId,
+            WorkLocationTaxBranchId = workLocationTaxBranchId,
             ReportsToPositionId = reportsToPositionId,
             DottedLinePositionId = dottedLinePositionId,
             Code = normalizedCode,
             Title = title.Trim(),
             InternationalTitle = internationalTitle.Trim(),
+            Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim(),
+            ApprovalLimitAmount = approvalLimitAmount,
+            ApprovalLimitCurrency = normalizedCurrency,
             HeadcountCapacity = headcountCapacity,
             IsPrimaryLeadership = isPrimaryLeadership,
             ValidFrom = utcFrom,
@@ -137,7 +165,11 @@ public sealed partial class Position : BaseEntity<Guid>, IAuditableEntity, ISoft
         string code,
         string title,
         string internationalTitle,
+        string? description = null,
         Guid? costCenterId = null,
+        Guid? workLocationTaxBranchId = null,
+        decimal? approvalLimitAmount = null,
+        string? approvalLimitCurrency = null,
         Guid? reportsToPositionId = null,
         Guid? dottedLinePositionId = null,
         int headcountCapacity = 1,
@@ -161,22 +193,40 @@ public sealed partial class Position : BaseEntity<Guid>, IAuditableEntity, ISoft
                 $"HeadcountCapacity must be at least {PositionRules.MinHeadcountCapacity}.");
         }
 
+        if (approvalLimitAmount.HasValue && approvalLimitAmount.Value < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(approvalLimitAmount), "ApprovalLimitAmount cannot be negative.");
+        }
+
+        var normalizedCurrency = string.IsNullOrWhiteSpace(approvalLimitCurrency)
+            ? null
+            : approvalLimitCurrency.Trim().ToUpperInvariant();
+        if (normalizedCurrency is not null && normalizedCurrency.Length != PositionRules.MaxCurrencyLength)
+        {
+            throw new ArgumentException("ApprovalLimitCurrency must be a 3-letter currency code.", nameof(approvalLimitCurrency));
+        }
+
         PositionRules.ValidateReportingTargets(Id, reportsToPositionId, dottedLinePositionId);
 
         var normalizedCode = PositionRules.NormalizeAndValidateCode(code);
         var normalizedTitle = title.Trim();
         var normalizedIntlTitle = internationalTitle.Trim();
+        var normalizedDesc = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
         var (utcFrom, utcTo) = PositionRules.NormalizeAndValidateValidity(validFrom, validTo);
 
         if (OrgUnitId == orgUnitId &&
             JobId == jobId &&
             JobGradeId == jobGradeId &&
             CostCenterId == costCenterId &&
+            WorkLocationTaxBranchId == workLocationTaxBranchId &&
+            ApprovalLimitAmount == approvalLimitAmount &&
+            string.Equals(ApprovalLimitCurrency, normalizedCurrency, StringComparison.Ordinal) &&
             ReportsToPositionId == reportsToPositionId &&
             DottedLinePositionId == dottedLinePositionId &&
             string.Equals(Code, normalizedCode, StringComparison.Ordinal) &&
             string.Equals(Title, normalizedTitle, StringComparison.Ordinal) &&
             string.Equals(InternationalTitle, normalizedIntlTitle, StringComparison.Ordinal) &&
+            string.Equals(Description, normalizedDesc, StringComparison.Ordinal) &&
             HeadcountCapacity == headcountCapacity &&
             IsPrimaryLeadership == isPrimaryLeadership &&
             ValidFrom == utcFrom &&
@@ -189,11 +239,15 @@ public sealed partial class Position : BaseEntity<Guid>, IAuditableEntity, ISoft
         JobId = jobId;
         JobGradeId = jobGradeId;
         CostCenterId = costCenterId;
+        WorkLocationTaxBranchId = workLocationTaxBranchId;
+        ApprovalLimitAmount = approvalLimitAmount;
+        ApprovalLimitCurrency = normalizedCurrency;
         ReportsToPositionId = reportsToPositionId;
         DottedLinePositionId = dottedLinePositionId;
         Code = normalizedCode;
         Title = normalizedTitle;
         InternationalTitle = normalizedIntlTitle;
+        Description = normalizedDesc;
         HeadcountCapacity = headcountCapacity;
         IsPrimaryLeadership = isPrimaryLeadership;
         ValidFrom = utcFrom;

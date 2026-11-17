@@ -8,4 +8,5 @@ public sealed record CreateJobGradeCommand(
     string InternationalName,
     int RankOrder,
     string? Description = null,
+    string? JobLevelCategory = null,
     bool IsActive = true) : IRequest<string>;

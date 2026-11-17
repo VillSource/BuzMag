@@ -15,6 +15,8 @@ public static partial class PositionMapper
     [MapProperty([nameof(Domain.Positions.Position.LegalEntity), nameof(LegalEntity.ReferenceId)], nameof(PositionDetailDto.LegalEntityRefId))]
     [MapProperty([nameof(Domain.Positions.Position.LegalEntity), nameof(LegalEntity.Code)], nameof(PositionDetailDto.LegalEntityCode))]
     [MapProperty([nameof(Domain.Positions.Position.LegalEntity), nameof(LegalEntity.LegalName)], nameof(PositionDetailDto.LegalEntityName))]
+    [MapPropertyFromSource(nameof(PositionDetailDto.OrgUnitRefId), Use = nameof(GetOrgUnitRefId))]
+    [MapPropertyFromSource(nameof(PositionDetailDto.WorkLocationTaxBranchRefId), Use = nameof(GetWorkLocationTaxBranchRefId))]
     [MapPropertyFromSource(nameof(PositionDetailDto.DirectReports), Use = nameof(MapDirectReports))]
     [MapPropertyFromSource(nameof(PositionDetailDto.CreatedOnUtc), Use = nameof(GetCreatedOnUtc))]
     [MapPropertyFromSource(nameof(PositionDetailDto.LastModifiedOnUtc), Use = nameof(GetLastModifiedOnUtc))]
@@ -34,6 +36,8 @@ public static partial class PositionMapper
     [MapProperty(nameof(CostCenter.ReferenceId), nameof(PositionCostCenterDto.RefId))]
     public static partial PositionCostCenterDto ToCostCenterDto(this CostCenter costCenter);
 
+    private static string? GetOrgUnitRefId(Domain.Positions.Position entity) => entity.OrgUnit?.ReferenceId;
+    private static string? GetWorkLocationTaxBranchRefId(Domain.Positions.Position entity) => entity.WorkLocationTaxBranch?.ReferenceId;
     private static DateTimeOffset GetCreatedOnUtc(Domain.Positions.Position entity) => entity.CreatedOnUtc;
     private static DateTimeOffset? GetLastModifiedOnUtc(Domain.Positions.Position entity) => entity.LastModifiedOnUtc;
 

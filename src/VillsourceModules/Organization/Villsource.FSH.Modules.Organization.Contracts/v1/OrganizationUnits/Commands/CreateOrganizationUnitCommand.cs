@@ -10,6 +10,6 @@ public sealed record CreateOrganizationUnitCommand(
     string? Description = null,
     string? LegalEntityRefId = null,
     string? ParentRefId = null,
-    string? CostCenterCode = null,
+    string? DefaultCostCenterRefId = null,
     string? ManagerPositionRefId = null,
     bool AllowExternalManagerPosition = false) : IRequest<string>;

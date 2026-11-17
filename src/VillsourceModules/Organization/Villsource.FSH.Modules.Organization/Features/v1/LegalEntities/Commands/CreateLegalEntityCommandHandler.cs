@@ -39,12 +39,14 @@ public sealed class CreateLegalEntityCommandHandler(
             headOfficeBranchCode: request.HeadOfficeBranchCode,
             headOfficeName: request.HeadOfficeName,
             headOfficeInternationalName: request.HeadOfficeInternationalName,
-            headOfficeRegisteredDate: request.HeadOfficeRegisteredDate);
+            headOfficeRegisteredDate: request.HeadOfficeRegisteredDate,
+            fiscalYearStartMonth: request.FiscalYearStartMonth,
+            timeZoneId: request.TimeZoneId);
 
         await dbContext.LegalEntities.AddAsync(
             entity: legalEntity,
-            cancellationToken: cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken: cancellationToken);
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+        await dbContext.SaveChangesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         return legalEntity.ReferenceId;
     }

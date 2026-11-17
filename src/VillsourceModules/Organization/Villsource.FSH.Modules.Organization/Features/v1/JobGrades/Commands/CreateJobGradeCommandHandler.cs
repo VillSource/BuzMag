@@ -19,7 +19,7 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.JobGrades.Commands
 
             var normalizedCode = JobGradeRules.NormalizeAndValidateCode(request.Code);
 
-            if (await dbContext.JobGrades.AnyAsync(g => g.Code == normalizedCode, cancellationToken))
+            if (await dbContext.JobGrades.AnyAsync(g => g.Code == normalizedCode, cancellationToken).ConfigureAwait(false))
             {
                 throw new ConflictException($"Job grade code '{normalizedCode}' already exists.");
             }
@@ -30,10 +30,11 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.JobGrades.Commands
                 internationalName: request.InternationalName,
                 rankOrder: request.RankOrder,
                 description: request.Description,
+                jobLevelCategory: request.JobLevelCategory,
                 isActive: request.IsActive);
 
-            await dbContext.JobGrades.AddAsync(entity, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.JobGrades.AddAsync(entity, cancellationToken).ConfigureAwait(false);
+            await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             return entity.ReferenceId;
         }

@@ -5,6 +5,7 @@
         string Name,
         string InternationalName,
         int RankOrder,
-        string? Description = null);
+        string? Description = null,
+        string? JobLevelCategory = null);
 
 }

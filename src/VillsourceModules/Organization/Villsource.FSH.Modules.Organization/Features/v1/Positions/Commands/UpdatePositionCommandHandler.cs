@@ -45,6 +45,7 @@ public sealed class UpdatePositionCommandHandler(OrganizationDbContext dbContext
                                  .FirstOrDefault()
                          })
                          .FirstOrDefaultAsync(cancellationToken)
+                         .ConfigureAwait(false)
                      ?? throw new NotFoundException($"Position '{request.RefId}' was not found.");
 
         if (target.CodeExists)
@@ -74,8 +75,26 @@ public sealed class UpdatePositionCommandHandler(OrganizationDbContext dbContext
 
         var position = target.Entity;
 
+        var (orgUnitId, defaultCostCenterId) = await PositionReferenceResolver.ResolveOrgUnitAsync(
+            dbContext, position.LegalEntityId, request.OrgUnitRefId, cancellationToken).ConfigureAwait(false);
+
+        // If position is leaving its previous OU, clear its manager role on the old OU unless reassigned
+        if (position.OrgUnitId != orgUnitId)
+        {
+            var oldManagedOu = await dbContext.OrganizationUnits
+                .FirstOrDefaultAsync(ou => ou.Id == position.OrgUnitId && ou.ManagerPositionId == position.Id && !ou.IsDeleted, cancellationToken)
+                .ConfigureAwait(false);
+
+            oldManagedOu?.AssignManagerPosition(null);
+        }
+
         var costCenterId = await PositionReferenceResolver.ResolveCostCenterIdAsync(
-            dbContext, position.LegalEntityId, request.CostCenterRefId, cancellationToken);
+            dbContext, position.LegalEntityId, request.CostCenterRefId, cancellationToken).ConfigureAwait(false);
+
+        costCenterId ??= defaultCostCenterId;
+
+        var workLocationTaxBranchId = await PositionReferenceResolver.ResolveWorkLocationTaxBranchIdAsync(
+            dbContext, position.LegalEntityId, request.WorkLocationTaxBranchRefId, cancellationToken).ConfigureAwait(false);
 
         var (reportsToPositionId, dottedLinePositionId) =
             await PositionReferenceResolver.ResolveReportingTargetsAsync(
@@ -84,22 +103,26 @@ public sealed class UpdatePositionCommandHandler(OrganizationDbContext dbContext
                 request.ReportsToPositionRefId,
                 request.DottedLinePositionRefId,
                 position.IsActive,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
         if (reportsToPositionId.HasValue && reportsToPositionId != position.ReportsToPositionId)
         {
             await PositionReferenceResolver.EnsureNoReportingCycleAsync(
-                dbContext, position.LegalEntityId, position.Id, reportsToPositionId.Value, cancellationToken);
+                dbContext, position.LegalEntityId, position.Id, reportsToPositionId.Value, cancellationToken).ConfigureAwait(false);
         }
 
         var changed = position.Update(
-            orgUnitId: request.OrgUnitId,
+            orgUnitId: orgUnitId,
             jobId: target.JobId.Value,
             jobGradeId: target.GradeId.Value,
             code: normalizedCode,
             title: request.Title,
             internationalTitle: request.InternationalTitle,
+            description: request.Description,
             costCenterId: costCenterId,
+            workLocationTaxBranchId: workLocationTaxBranchId,
+            approvalLimitAmount: request.ApprovalLimitAmount,
+            approvalLimitCurrency: request.ApprovalLimitCurrency,
             reportsToPositionId: reportsToPositionId,
             dottedLinePositionId: dottedLinePositionId,
             headcountCapacity: request.HeadcountCapacity,
@@ -109,7 +132,7 @@ public sealed class UpdatePositionCommandHandler(OrganizationDbContext dbContext
 
         if (changed)
         {
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return position.ReferenceId;

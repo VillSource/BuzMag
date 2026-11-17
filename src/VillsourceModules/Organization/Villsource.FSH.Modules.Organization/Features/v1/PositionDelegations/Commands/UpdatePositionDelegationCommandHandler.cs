@@ -21,27 +21,60 @@ public sealed class UpdatePositionDelegationCommandHandler(OrganizationDbContext
         var utcFrom = request.ValidFrom.ToUniversalTime();
         var utcTo = request.ValidTo.ToUniversalTime();
 
-        // Single DB round-trip: fetch tracked entity + check overlapping same-type delegation
+        // Fetch tracked entity + other overlapping delegations
         var target = await dbContext.PositionDelegations
                          .Where(d => d.ReferenceId == request.RefId)
                          .Select(d => new
                          {
                              Entity = d,
-                             HasOverlap = dbContext.PositionDelegations.Any(other =>
-                                 other.DelegatorPositionId == d.DelegatorPositionId &&
-                                 other.Id != d.Id &&
-                                 !other.IsRevoked &&
-                                 other.DelegationType == delegationType &&
-                                 other.ValidFrom < utcTo &&
-                                 other.ValidTo > utcFrom)
+                             Overlaps = dbContext.PositionDelegations
+                                 .Where(other =>
+                                     other.DelegatorPositionId == d.DelegatorPositionId &&
+                                     other.Id != d.Id &&
+                                     !other.IsRevoked &&
+                                     !other.IsDeleted &&
+                                     other.ValidFrom < utcTo &&
+                                     other.ValidTo > utcFrom)
+                                 .Select(other => new { other.DelegationType, other.DocumentTypeScope })
+                                 .ToList()
                          })
                          .FirstOrDefaultAsync(cancellationToken)
+                         .ConfigureAwait(false)
                      ?? throw new NotFoundException($"Position delegation '{request.RefId}' was not found.");
 
-        if (target.HasOverlap)
+        if (delegationType == DelegationType.SpecificDocuments)
         {
-            throw new ConflictException(
-                "An active delegation of the same type already overlaps with the specified validity period.");
+            var newDocScopes = (request.DocumentTypeScope ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(s => s.ToUpperInvariant())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var existing in target.Overlaps)
+            {
+                if (existing.DelegationType != DelegationType.SpecificDocuments)
+                {
+                    throw new ConflictException(
+                        "An active delegation with broader authority already overlaps with the specified validity period.");
+                }
+
+                var existingDocs = (existing.DocumentTypeScope ?? string.Empty)
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(s => s.ToUpperInvariant());
+
+                if (existingDocs.Any(d => newDocScopes.Contains(d)))
+                {
+                    throw new ConflictException(
+                        "An active delegation for one or more of the specified document types already overlaps with the validity period.");
+                }
+            }
+        }
+        else
+        {
+            if (target.Overlaps.Count > 0)
+            {
+                throw new ConflictException(
+                    "An active delegation already overlaps with the specified validity period.");
+            }
         }
 
         var changed = target.Entity.Update(
@@ -53,7 +86,7 @@ public sealed class UpdatePositionDelegationCommandHandler(OrganizationDbContext
 
         if (changed)
         {
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return target.Entity.ReferenceId;

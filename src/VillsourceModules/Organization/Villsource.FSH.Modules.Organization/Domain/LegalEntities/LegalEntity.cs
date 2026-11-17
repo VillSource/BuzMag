@@ -20,6 +20,8 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
     public string TaxId { get; private set; } = null!;
     public string? RegistrationNumber { get; private set; }
     public string BaseCurrency { get; private set; } = null!;
+    public int? FiscalYearStartMonth { get; private set; }
+    public string? TimeZoneId { get; private set; }
 
     public CompanyProfile Profile { get; private set; } = new();
     public IReadOnlyCollection<TaxBranch> Branches => _branches.AsReadOnly();
@@ -37,7 +39,9 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
         string? headOfficeBranchCode = null,
         string? headOfficeName = null,
         string? headOfficeInternationalName = null,
-        DateTimeOffset? headOfficeRegisteredDate = null)
+        DateTimeOffset? headOfficeRegisteredDate = null,
+        int? fiscalYearStartMonth = null,
+        string? timeZoneId = null)
     {
         var normalizedCode = NormalizeCode(code: code);
         var normalizedCountry = NormalizeAndValidateCountryCode(countryCode: countryCode);
@@ -46,6 +50,12 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
             taxId: taxId);
         var normalizedRegNo = NormalizeOptionalCode(value: registrationNumber);
         var normalizedCurrency = NormalizeAndValidateCurrency(currency: baseCurrency);
+        var normalizedTimeZone = NormalizeAndValidateTimeZone(timeZoneId: timeZoneId);
+
+        if (fiscalYearStartMonth.HasValue && (fiscalYearStartMonth.Value < 1 || fiscalYearStartMonth.Value > 12))
+        {
+            throw new ArgumentOutOfRangeException(nameof(fiscalYearStartMonth), "FiscalYearStartMonth must be between 1 and 12.");
+        }
 
         ArgumentException.ThrowIfNullOrWhiteSpace(legalName);
         ArgumentException.ThrowIfNullOrWhiteSpace(internationalName);
@@ -60,6 +70,8 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
             TaxId = normalizedTaxId,
             RegistrationNumber = normalizedRegNo,
             BaseCurrency = normalizedCurrency,
+            FiscalYearStartMonth = fiscalYearStartMonth,
+            TimeZoneId = normalizedTimeZone,
             Profile = profile is not null ? CloneProfile(profile: profile) : new CompanyProfile()
         };
 
@@ -91,7 +103,9 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
         string internationalName,
         string taxId,
         string baseCurrency,
-        string? registrationNumber = null)
+        string? registrationNumber = null,
+        int? fiscalYearStartMonth = null,
+        string? timeZoneId = null)
     {
         EnsureNotDeleted();
 
@@ -101,6 +115,12 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
             taxId: taxId);
         var normalizedRegNo = NormalizeOptionalCode(value: registrationNumber);
         var normalizedCurrency = NormalizeAndValidateCurrency(currency: baseCurrency);
+        var normalizedTimeZone = NormalizeAndValidateTimeZone(timeZoneId: timeZoneId);
+
+        if (fiscalYearStartMonth.HasValue && (fiscalYearStartMonth.Value < 1 || fiscalYearStartMonth.Value > 12))
+        {
+            throw new ArgumentOutOfRangeException(nameof(fiscalYearStartMonth), "FiscalYearStartMonth must be between 1 and 12.");
+        }
 
         ArgumentException.ThrowIfNullOrWhiteSpace(legalName);
         ArgumentException.ThrowIfNullOrWhiteSpace(internationalName);
@@ -111,6 +131,8 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
         TaxId = normalizedTaxId;
         RegistrationNumber = normalizedRegNo;
         BaseCurrency = normalizedCurrency;
+        FiscalYearStartMonth = fiscalYearStartMonth;
+        TimeZoneId = normalizedTimeZone;
 
         AddLegalEntityUpdatedDomainEvent();
     }
@@ -336,6 +358,29 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
         }
 
         return normalized;
+    }
+
+    private static string? NormalizeAndValidateTimeZone(string? timeZoneId)
+    {
+        if (string.IsNullOrWhiteSpace(timeZoneId))
+        {
+            return null;
+        }
+
+        var trimmed = timeZoneId.Trim();
+        try
+        {
+            _ = TimeZoneInfo.FindSystemTimeZoneById(trimmed);
+            return trimmed;
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            throw new ArgumentException($"Time zone '{trimmed}' is not recognized.", nameof(timeZoneId));
+        }
+        catch (InvalidTimeZoneException)
+        {
+            throw new ArgumentException($"Time zone '{trimmed}' is invalid.", nameof(timeZoneId));
+        }
     }
 
     #endregion

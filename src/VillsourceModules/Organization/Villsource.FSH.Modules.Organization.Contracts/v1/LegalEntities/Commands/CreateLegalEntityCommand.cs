@@ -17,4 +17,6 @@ public sealed record CreateLegalEntityCommand(
     string? HeadOfficeBranchCode = null,
     string? HeadOfficeName = null,
     string? HeadOfficeInternationalName = null,
-    DateTimeOffset? HeadOfficeRegisteredDate = null) : IRequest<string>;
+    DateTimeOffset? HeadOfficeRegisteredDate = null,
+    int? FiscalYearStartMonth = null,
+    string? TimeZoneId = null) : IRequest<string>;

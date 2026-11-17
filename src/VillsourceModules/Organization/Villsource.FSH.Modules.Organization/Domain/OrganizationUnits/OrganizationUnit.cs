@@ -1,4 +1,6 @@
 ﻿using FSH.Framework.Core.Domain;
+using Villsource.FSH.Modules.Organization.Domain.CostCenters;
+using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 using Villsource.FSH.Modules.Organization.Domain.OrganizationUnits.Events;
 using Villsource.FSH.Modules.Organization.Features.v1.Positions;
 using Villsource.Tool.UniqueKey;
@@ -20,7 +22,7 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
     public string? Description { get; private set; }
 
     public Guid? LegalEntityId { get; private set; }
-    public string? LegalEntityRefId { get; private set; }
+    public LegalEntity? LegalEntity { get; } = null!;
 
     public Guid? ParentId { get; private set; }
     public OrganizationUnit? Parent { get; private set; } = null!;
@@ -28,7 +30,8 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
     public int Level { get; private set; }
     public string HierarchyPath { get; private set; } = null!;
 
-    public string? CostCenterCode { get; private set; }
+    public Guid? DefaultCostCenterId { get; private set; }
+    public CostCenter? DefaultCostCenter { get; } = null!;
 
     public Guid? ManagerPositionId { get; private set; }
     public Position? ManagerPosition { get; private set; }
@@ -44,9 +47,8 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
         string type,
         string? description = null,
         Guid? legalEntityId = null,
-        string? legalEntityRefId = null,
         OrganizationUnit? parent = null,
-        string? costCenterCode = null,
+        Guid? defaultCostCenterId = null,
         Position? managerPosition = null,
         bool allowExternalManagerPosition = false)
     {
@@ -69,10 +71,9 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
             Type = type.Trim().ToUpperInvariant(),
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim(),
             LegalEntityId = legalEntityId ?? parent?.LegalEntityId,
-            LegalEntityRefId = string.IsNullOrWhiteSpace(legalEntityRefId) ? parent?.LegalEntityRefId : legalEntityRefId.Trim(),
             ParentId = parent?.Id,
             Level = parent is null ? 0 : parent.Level + 1,
-            CostCenterCode = string.IsNullOrWhiteSpace(costCenterCode) ? null : costCenterCode.Trim().ToUpperInvariant(),
+            DefaultCostCenterId = defaultCostCenterId ?? parent?.DefaultCostCenterId,
             IsActive = true
         };
 
@@ -114,7 +115,7 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
         string internationalName,
         string type,
         string? description = null,
-        string? costCenterCode = null)
+        Guid? defaultCostCenterId = null)
     {
         EnsureNotDeleted();
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
@@ -127,7 +128,7 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
         InternationalName = internationalName.Trim();
         Type = type.Trim().ToUpperInvariant();
         Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
-        CostCenterCode = string.IsNullOrWhiteSpace(costCenterCode) ? null : costCenterCode.Trim().ToUpperInvariant();
+        DefaultCostCenterId = defaultCostCenterId;
 
         AddDomainEvent(DomainEvent.Create((id, ts) =>
             new OrganizationUnitUpdatedDomainEvent(

@@ -27,7 +27,7 @@ public sealed class CreateOrganizationUnitCommandValidator : AbstractValidator<C
         RuleFor(x => x.Description).MaximumLength(1000);
         RuleFor(x => x.LegalEntityRefId).MaximumLength(VillsourceId.KeySizes).When(x => !string.IsNullOrWhiteSpace(x.LegalEntityRefId));
         RuleFor(x => x.ParentRefId).MaximumLength(VillsourceId.KeySizes).When(x => !string.IsNullOrWhiteSpace(x.ParentRefId));
+        RuleFor(x => x.DefaultCostCenterRefId).MaximumLength(VillsourceId.KeySizes).When(x => !string.IsNullOrWhiteSpace(x.DefaultCostCenterRefId));
         RuleFor(x => x.ManagerPositionRefId).MaximumLength(VillsourceId.KeySizes).When(x => !string.IsNullOrWhiteSpace(x.ManagerPositionRefId));
-        RuleFor(x => x.CostCenterCode).MaximumLength(50);
     }
 }

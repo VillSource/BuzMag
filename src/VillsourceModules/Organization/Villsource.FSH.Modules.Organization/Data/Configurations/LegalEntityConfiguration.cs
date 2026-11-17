@@ -27,6 +27,8 @@ public class LegalEntityConfiguration : IEntityTypeConfiguration<LegalEntity>
         builder.Property(e => e.TaxId).HasMaxLength(30).IsRequired();
         builder.Property(e => e.RegistrationNumber).HasMaxLength(50);
         builder.Property(e => e.BaseCurrency).HasMaxLength(3).IsRequired();
+        builder.Property(e => e.FiscalYearStartMonth);
+        builder.Property(e => e.TimeZoneId).HasMaxLength(60);
 
         builder.ComplexProperty(e => e.Profile, profile =>
         {

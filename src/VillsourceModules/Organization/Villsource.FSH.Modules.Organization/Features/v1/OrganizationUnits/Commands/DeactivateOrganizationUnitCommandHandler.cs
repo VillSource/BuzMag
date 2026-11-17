@@ -15,14 +15,35 @@ public sealed class DeactivateOrganizationUnitCommandHandler(OrganizationDbConte
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var entity = await dbContext.OrganizationUnits
-                         .FirstOrDefaultAsync(e => e.ReferenceId == request.RefId, cancellationToken)
+        var target = await dbContext.OrganizationUnits
+                         .Where(e => e.ReferenceId == request.RefId)
+                         .Select(e => new
+                         {
+                             Entity = e,
+                             HasActiveChildren = dbContext.OrganizationUnits.Any(c =>
+                                 !c.IsDeleted && c.IsActive && c.HierarchyPath.StartsWith(e.HierarchyPath) && c.Id != e.Id),
+                             HasActivePositions = dbContext.Positions.Any(p =>
+                                 !p.IsDeleted && p.IsActive && p.OrgUnitId == e.Id)
+                         })
+                         .FirstOrDefaultAsync(cancellationToken)
                          .ConfigureAwait(false)
                      ?? throw new NotFoundException($"OrganizationUnit '{request.RefId}' was not found.");
 
-        entity.Deactivate();
+        if (target.HasActiveChildren)
+        {
+            throw new InvalidOperationException(
+                $"Cannot deactivate OrganizationUnit '{request.RefId}' while active child organization units still exist.");
+        }
+
+        if (target.HasActivePositions)
+        {
+            throw new InvalidOperationException(
+                $"Cannot deactivate OrganizationUnit '{request.RefId}' while active positions still belong to it.");
+        }
+
+        target.Entity.Deactivate();
 
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return entity.ReferenceId;
+        return target.Entity.ReferenceId;
     }
 }

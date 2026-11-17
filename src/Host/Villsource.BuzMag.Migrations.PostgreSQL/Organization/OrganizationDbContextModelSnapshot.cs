@@ -171,6 +171,10 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("JobLevelCategory")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
@@ -330,6 +334,9 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Property<DateTimeOffset?>("DeletedOnUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("FiscalYearStartMonth")
+                        .HasColumnType("integer");
+
                     b.Property<string>("InternationalName")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -366,6 +373,10 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("TimeZoneId")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Profile", "Villsource.FSH.Modules.Organization.Domain.LegalEntities.LegalEntity.Profile#CompanyProfile", b1 =>
                         {
@@ -573,15 +584,14 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<string>("CostCenterCode")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CreatedOnUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DefaultCostCenterId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("text");
@@ -618,10 +628,6 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Property<Guid?>("LegalEntityId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("LegalEntityRefId")
-                        .HasMaxLength(11)
-                        .HasColumnType("character varying(11)");
-
                     b.Property<int>("Level")
                         .HasColumnType("integer");
 
@@ -652,6 +658,8 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DefaultCostCenterId");
+
                     b.HasIndex("HierarchyPath");
 
                     b.HasIndex("LegalEntityId");
@@ -663,6 +671,11 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.HasIndex("ReferenceId", "TenantId")
                         .IsUnique()
                         .HasDatabaseName("IX_OrganizationUnits_ReferenceId");
+
+                    b.HasIndex("LegalEntityId", "Code", "TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_OrganizationUnits_LegalEntityId_Code")
+                        .HasFilter("\"IsDeleted\" = FALSE");
 
                     b.ToTable("OrganizationUnits", "organization");
 
@@ -765,10 +778,18 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.HasAnnotation("Finbuckle:MultiTenant", true);
                 });
 
-            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", b =>
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Positions.Position", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
+
+                    b.Property<decimal?>("ApprovalLimitAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("ApprovalLimitCurrency")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -789,6 +810,10 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.Property<DateTimeOffset?>("DeletedOnUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<Guid?>("DottedLinePositionId")
                         .HasColumnType("uuid");
@@ -851,6 +876,9 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Property<DateTimeOffset?>("ValidTo")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("WorkLocationTaxBranchId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CostCenterId");
@@ -861,7 +889,11 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.HasIndex("JobId");
 
+                    b.HasIndex("OrgUnitId");
+
                     b.HasIndex("ReportsToPositionId");
+
+                    b.HasIndex("WorkLocationTaxBranchId");
 
                     b.HasIndex("LegalEntityId", "ReportsToPositionId")
                         .HasFilter("\"IsDeleted\" = FALSE");
@@ -930,7 +962,17 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.OrganizationUnits.OrganizationUnit", b =>
                 {
-                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", "ManagerPosition")
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.CostCenters.CostCenter", "DefaultCostCenter")
+                        .WithMany()
+                        .HasForeignKey("DefaultCostCenterId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.LegalEntities.LegalEntity", "LegalEntity")
+                        .WithMany()
+                        .HasForeignKey("LegalEntityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.Positions.Position", "ManagerPosition")
                         .WithMany()
                         .HasForeignKey("ManagerPositionId")
                         .OnDelete(DeleteBehavior.NoAction);
@@ -940,6 +982,10 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.NoAction);
 
+                    b.Navigation("DefaultCostCenter");
+
+                    b.Navigation("LegalEntity");
+
                     b.Navigation("ManagerPosition");
 
                     b.Navigation("Parent");
@@ -947,13 +993,13 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.PositionDelegations.PositionDelegation", b =>
                 {
-                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", "DelegatePosition")
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.Positions.Position", "DelegatePosition")
                         .WithMany()
                         .HasForeignKey("DelegatePositionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", "DelegatorPosition")
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.Positions.Position", "DelegatorPosition")
                         .WithMany()
                         .HasForeignKey("DelegatorPositionId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -972,14 +1018,14 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Navigation("LegalEntity");
                 });
 
-            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", b =>
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Positions.Position", b =>
                 {
                     b.HasOne("Villsource.FSH.Modules.Organization.Domain.CostCenters.CostCenter", "CostCenter")
                         .WithMany()
                         .HasForeignKey("CostCenterId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", "DottedLinePosition")
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.Positions.Position", "DottedLinePosition")
                         .WithMany()
                         .HasForeignKey("DottedLinePositionId")
                         .OnDelete(DeleteBehavior.NoAction);
@@ -1002,10 +1048,21 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", "ReportsToPosition")
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.OrganizationUnits.OrganizationUnit", "OrgUnit")
+                        .WithMany()
+                        .HasForeignKey("OrgUnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.Positions.Position", "ReportsToPosition")
                         .WithMany("DirectReports")
                         .HasForeignKey("ReportsToPositionId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Villsource.FSH.Modules.Organization.Domain.LegalEntities.TaxBranch", "WorkLocationTaxBranch")
+                        .WithMany()
+                        .HasForeignKey("WorkLocationTaxBranchId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("CostCenter");
 
@@ -1017,7 +1074,11 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
 
                     b.Navigation("LegalEntity");
 
+                    b.Navigation("OrgUnit");
+
                     b.Navigation("ReportsToPosition");
+
+                    b.Navigation("WorkLocationTaxBranch");
                 });
 
             modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.CostCenters.CostCenter", b =>
@@ -1035,7 +1096,7 @@ namespace Villsource.BuzMag.Migrations.PostgreSQL.Organization
                     b.Navigation("Children");
                 });
 
-            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.v2.Positions.Position", b =>
+            modelBuilder.Entity("Villsource.FSH.Modules.Organization.Domain.Positions.Position", b =>
                 {
                     b.Navigation("DirectReports");
                 });

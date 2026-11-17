@@ -6,6 +6,67 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.Positions;
 
 internal static class PositionReferenceResolver
 {
+    public static async Task<(Guid OrgUnitId, Guid? DefaultCostCenterId)> ResolveOrgUnitAsync(
+        OrganizationDbContext dbContext,
+        Guid legalEntityId,
+        string orgUnitRefId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(orgUnitRefId);
+
+        var ou = await dbContext.OrganizationUnits
+                     .AsNoTracking()
+                     .Where(o => o.ReferenceId == orgUnitRefId)
+                     .Select(o => new { o.Id, o.LegalEntityId, o.IsActive, o.DefaultCostCenterId })
+                     .FirstOrDefaultAsync(cancellationToken)
+                     .ConfigureAwait(false)
+                 ?? throw new NotFoundException($"OrganizationUnit '{orgUnitRefId}' was not found.");
+
+        if (ou.LegalEntityId != legalEntityId)
+        {
+            throw new InvalidOperationException($"OrganizationUnit '{orgUnitRefId}' does not belong to the specified legal entity.");
+        }
+
+        if (!ou.IsActive)
+        {
+            throw new InvalidOperationException($"OrganizationUnit '{orgUnitRefId}' is inactive.");
+        }
+
+        return (ou.Id, ou.DefaultCostCenterId);
+    }
+
+    public static async Task<Guid?> ResolveWorkLocationTaxBranchIdAsync(
+        OrganizationDbContext dbContext,
+        Guid legalEntityId,
+        string? taxBranchRefId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(taxBranchRefId))
+        {
+            return null;
+        }
+
+        var branch = await dbContext.TaxBranches
+                         .AsNoTracking()
+                         .Where(b => b.ReferenceId == taxBranchRefId)
+                         .Select(b => new { b.Id, b.LegalEntityId, b.IsActive })
+                         .FirstOrDefaultAsync(cancellationToken)
+                         .ConfigureAwait(false)
+                     ?? throw new NotFoundException($"Tax branch '{taxBranchRefId}' was not found.");
+
+        if (branch.LegalEntityId != legalEntityId)
+        {
+            throw new InvalidOperationException("Work location tax branch must belong to the same legal entity.");
+        }
+
+        if (!branch.IsActive)
+        {
+            throw new InvalidOperationException($"Tax branch '{taxBranchRefId}' is inactive.");
+        }
+
+        return branch.Id;
+    }
+
     public static async Task<Guid?> ResolveCostCenterIdAsync(
         OrganizationDbContext dbContext,
         Guid legalEntityId,

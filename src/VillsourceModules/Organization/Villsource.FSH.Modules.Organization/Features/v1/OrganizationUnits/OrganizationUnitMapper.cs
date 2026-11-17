@@ -9,9 +9,11 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
 public static partial class OrganizationUnitMapper
 {
     [MapProperty(nameof(OrganizationUnit.ReferenceId), nameof(OrganizationUnitDetailDto.RefId))]
+    [MapPropertyFromSource(nameof(OrganizationUnitDetailDto.LegalEntityRefId), Use = nameof(GetLegalEntityRefId))]
     [MapPropertyFromSource(nameof(OrganizationUnitDetailDto.ParentRefId), Use = nameof(GetParentRefId))]
     [MapPropertyFromSource(nameof(OrganizationUnitDetailDto.ParentCode), Use = nameof(GetParentCode))]
     [MapPropertyFromSource(nameof(OrganizationUnitDetailDto.ParentName), Use = nameof(GetParentName))]
+    [MapPropertyFromSource(nameof(OrganizationUnitDetailDto.DefaultCostCenterRefId), Use = nameof(GetDefaultCostCenterRefId))]
     [MapPropertyFromSource(nameof(OrganizationUnitDetailDto.ManagerPositionRefId), Use = nameof(GetManagerPositionRefId))]
     [MapPropertyFromSource(nameof(OrganizationUnitDetailDto.ManagerPositionCode), Use = nameof(GetManagerPositionCode))]
     [MapPropertyFromSource(nameof(OrganizationUnitDetailDto.ManagerPositionTitle), Use = nameof(GetManagerPositionTitle))]
@@ -25,6 +27,8 @@ public static partial class OrganizationUnitMapper
     [MapPropertyFromSource(nameof(OrganizationUnitChildDto.ManagerPositionTitle), Use = nameof(GetManagerPositionTitle))]
     public static partial OrganizationUnitChildDto ToChildDto(this OrganizationUnit entity);
 
+    private static string? GetLegalEntityRefId(OrganizationUnit entity) => entity.LegalEntity?.ReferenceId;
+    private static string? GetDefaultCostCenterRefId(OrganizationUnit entity) => entity.DefaultCostCenter?.ReferenceId;
     private static string? GetParentRefId(OrganizationUnit entity) => entity.Parent?.ReferenceId;
     private static string? GetParentCode(OrganizationUnit entity) => entity.Parent?.Code;
     private static string? GetParentName(OrganizationUnit entity) => entity.Parent?.Name;

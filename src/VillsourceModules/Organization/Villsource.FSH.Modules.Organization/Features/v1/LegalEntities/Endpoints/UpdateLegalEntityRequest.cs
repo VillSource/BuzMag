@@ -6,4 +6,6 @@ internal sealed record UpdateLegalEntityRequest(
     string InternationalName,
     string TaxId,
     string BaseCurrency,
-    string? RegistrationNumber = null);
+    string? RegistrationNumber = null,
+    int? FiscalYearStartMonth = null,
+    string? TimeZoneId = null);

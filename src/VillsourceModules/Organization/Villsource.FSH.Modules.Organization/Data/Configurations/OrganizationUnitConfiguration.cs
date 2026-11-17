@@ -16,9 +16,13 @@ public sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<Org
         builder.Property(e => e.Id).ValueGeneratedNever();
 
         builder.HasIndex(e => e.ReferenceId).IsUnique();
+        builder.HasIndex(e => new { e.LegalEntityId, e.Code })
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = FALSE");
 
         builder.HasIndex(e => e.ParentId);
         builder.HasIndex(e => e.LegalEntityId);
+        builder.HasIndex(e => e.DefaultCostCenterId);
         builder.HasIndex(e => e.ManagerPositionId);
         builder.HasIndex(e => e.HierarchyPath);
 
@@ -28,13 +32,21 @@ public sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<Org
         builder.Property(e => e.InternationalName).HasMaxLength(250).IsRequired();
         builder.Property(e => e.Type).HasMaxLength(30).IsRequired();
         builder.Property(e => e.Description).HasMaxLength(1000);
-        builder.Property(e => e.LegalEntityRefId).HasMaxLength(VillsourceId.KeySizes);
         builder.Property(e => e.HierarchyPath).HasMaxLength(1000).IsRequired();
-        builder.Property(e => e.CostCenterCode).HasMaxLength(50);
+
+        builder.HasOne(e => e.LegalEntity)
+            .WithMany()
+            .HasForeignKey(e => e.LegalEntityId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(e => e.Parent)
             .WithMany(e => e.Children)
             .HasForeignKey(e => e.ParentId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne(e => e.DefaultCostCenter)
+            .WithMany()
+            .HasForeignKey(e => e.DefaultCostCenterId)
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne(e => e.ManagerPosition)

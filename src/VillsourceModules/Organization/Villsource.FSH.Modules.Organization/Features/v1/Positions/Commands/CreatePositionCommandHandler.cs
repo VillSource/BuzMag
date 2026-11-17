@@ -26,6 +26,7 @@ public sealed class CreatePositionCommandHandler(OrganizationDbContext dbContext
                                CodeExists = dbContext.Positions.Any(p => p.LegalEntityId == le.Id && p.Code == normalizedCode)
                            })
                            .FirstOrDefaultAsync(cancellationToken)
+                           .ConfigureAwait(false)
                        ?? throw new NotFoundException($"Legal entity '{request.LegalEntityRefId}' was not found.");
 
         if (leLookup.CodeExists)
@@ -64,8 +65,16 @@ public sealed class CreatePositionCommandHandler(OrganizationDbContext dbContext
             jobGradeId = grade.Id;
         }
 
+        var (orgUnitId, defaultCostCenterId) = await PositionReferenceResolver.ResolveOrgUnitAsync(
+            dbContext, leLookup.Id, request.OrgUnitRefId, cancellationToken).ConfigureAwait(false);
+
         var costCenterId = await PositionReferenceResolver.ResolveCostCenterIdAsync(
-            dbContext, leLookup.Id, request.CostCenterRefId, cancellationToken);
+            dbContext, leLookup.Id, request.CostCenterRefId, cancellationToken).ConfigureAwait(false);
+
+        costCenterId ??= defaultCostCenterId;
+
+        var workLocationTaxBranchId = await PositionReferenceResolver.ResolveWorkLocationTaxBranchIdAsync(
+            dbContext, leLookup.Id, request.WorkLocationTaxBranchRefId, cancellationToken).ConfigureAwait(false);
 
         var (reportsToPositionId, dottedLinePositionId) =
             await PositionReferenceResolver.ResolveReportingTargetsAsync(
@@ -74,17 +83,21 @@ public sealed class CreatePositionCommandHandler(OrganizationDbContext dbContext
                 request.ReportsToPositionRefId,
                 request.DottedLinePositionRefId,
                 request.IsActive,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
         var position = Domain.Positions.Position.Create(
             legalEntityId: leLookup.Id,
-            orgUnitId: request.OrgUnitId,
+            orgUnitId: orgUnitId,
             jobId: job.Id,
             jobGradeId: jobGradeId,
             code: normalizedCode,
             title: request.Title,
             internationalTitle: request.InternationalTitle,
+            description: request.Description,
             costCenterId: costCenterId,
+            workLocationTaxBranchId: workLocationTaxBranchId,
+            approvalLimitAmount: request.ApprovalLimitAmount,
+            approvalLimitCurrency: request.ApprovalLimitCurrency,
             reportsToPositionId: reportsToPositionId,
             dottedLinePositionId: dottedLinePositionId,
             headcountCapacity: request.HeadcountCapacity,
@@ -93,8 +106,8 @@ public sealed class CreatePositionCommandHandler(OrganizationDbContext dbContext
             validTo: request.ValidTo,
             isActive: request.IsActive);
 
-        await dbContext.Positions.AddAsync(position, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.Positions.AddAsync(position, cancellationToken).ConfigureAwait(false);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return position.ReferenceId;
     }

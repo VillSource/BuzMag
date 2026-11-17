@@ -52,7 +52,7 @@ public sealed class SearchOrganizationUnitsSpec : Specification<OrganizationUnit
         if (!string.IsNullOrWhiteSpace(request.LegalEntityRefId))
         {
             var legalEntityRefId = request.LegalEntityRefId.Trim();
-            Where(e => e.LegalEntityRefId == legalEntityRefId);
+            Where(e => e.LegalEntity != null && e.LegalEntity.ReferenceId == legalEntityRefId);
         }
 
         if (!string.IsNullOrWhiteSpace(request.Type))
@@ -86,7 +86,7 @@ public sealed class SearchOrganizationUnitsSpec : Specification<OrganizationUnit
             e.Name,
             e.InternationalName,
             e.Type,
-            e.LegalEntityRefId,
+            e.LegalEntity != null ? e.LegalEntity.ReferenceId : null,
             e.Parent != null ? e.Parent.ReferenceId : null,
             e.Parent != null ? e.Parent.Name : null,
             e.Level,

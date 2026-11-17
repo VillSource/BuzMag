@@ -8,4 +8,5 @@ public sealed record UpdateJobGradeCommand(
     string Name,
     string InternationalName,
     int RankOrder,
-    string? Description = null) : IRequest<string>;
+    string? Description = null,
+    string? JobLevelCategory = null) : IRequest<string>;
