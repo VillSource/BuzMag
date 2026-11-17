@@ -45,7 +45,7 @@ public sealed class GetAuditByIdQueryHandler : IQueryHandler<GetAuditByIdQuery, 
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "Failed to parse audit payload JSON for record {AuditId}.", query.Id);
-            payload = JsonDocument.Parse("{}").RootElement.Clone();
+            payload = JsonElement.Parse("{}").Clone();
         }
 
         return new AuditDetailDto

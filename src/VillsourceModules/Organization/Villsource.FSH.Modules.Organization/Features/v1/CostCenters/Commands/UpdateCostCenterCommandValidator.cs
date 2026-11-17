@@ -1,0 +1,34 @@
+﻿using FluentValidation;
+using Villsource.FSH.Modules.Organization.Contracts.v1.CostCenters.Commands;
+using Villsource.Tool.UniqueKey;
+
+namespace Villsource.FSH.Modules.Organization.Features.v1.CostCenters.Commands;
+
+public sealed class UpdateCostCenterCommandValidator : AbstractValidator<UpdateCostCenterCommand>
+{
+    public UpdateCostCenterCommandValidator()
+    {
+        RuleFor(x => x.RefId).ValidRefId();
+        RuleFor(x => x.Code).ValidCostCenterCode();
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+        RuleFor(x => x.InternationalName).NotEmpty().MaximumLength(250);
+        RuleFor(x => x.Description).MaximumLength(1000);
+        RuleFor(x => x.FunctionType).ValidFunctionTypeKey();
+
+        RuleFor(x => x.ParentCostCenterRefId)
+            .MaximumLength(VillsourceId.KeySizes)
+            .NotEqual(x => x.RefId)
+            .WithMessage("A cost center cannot be its own parent.")
+            .When(x => !string.IsNullOrWhiteSpace(x.ParentCostCenterRefId));
+
+        RuleFor(x => x.DefaultTaxBranchRefId)
+            .MaximumLength(VillsourceId.KeySizes)
+            .When(x => !string.IsNullOrWhiteSpace(x.DefaultTaxBranchRefId));
+
+        RuleFor(x => x.ValidTo)
+            .GreaterThanOrEqualTo(x => x.ValidFrom!.Value)
+            .When(x => x.ValidFrom.HasValue && x.ValidTo.HasValue)
+            .WithMessage("ValidTo must be greater than or equal to ValidFrom.");
+    }
+}
+

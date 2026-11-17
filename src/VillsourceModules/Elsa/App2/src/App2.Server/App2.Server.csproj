@@ -25,5 +25,6 @@
         <PackageReference Include="Elsa.Studio.Localization.BlazorServer" Version="3.9.0"/>
         <PackageReference Include="Elsa.Studio.Workflows" Version="3.9.0"/>
         <PackageReference Include="Elsa.Studio.Workflows.Designer" Version="3.9.0"/>
+        <PackageReference Update="SonarAnalyzer.CSharp" Version="10.27.0.140913" PrivateAssets="all" />
     </ItemGroup>
 </Project>

@@ -1,6 +1,5 @@
 ﻿using Riok.Mapperly.Abstractions;
 using System.Diagnostics.CodeAnalysis;
-using Villsource.FSH.Modules.Organization.Contracts.v1.LegalEntities;
 using Villsource.FSH.Modules.Organization.Contracts.v1.LegalEntities.Dtos;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 

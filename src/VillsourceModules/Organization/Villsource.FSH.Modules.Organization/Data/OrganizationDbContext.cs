@@ -5,14 +5,13 @@ using FSH.Framework.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Villsource.FSH.Modules.Organization.Domain;
 using Villsource.FSH.Modules.Organization.Domain.CostCenters;
 using Villsource.FSH.Modules.Organization.Domain.JobGrades;
 using Villsource.FSH.Modules.Organization.Domain.Jobs;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 using Villsource.FSH.Modules.Organization.Domain.OrganizationUnits;
 using Villsource.FSH.Modules.Organization.Domain.PositionDelegations;
-using Villsource.FSH.Modules.Organization.Domain.v2.Positions;
+using Villsource.FSH.Modules.Organization.Domain.Positions;
 
 namespace Villsource.FSH.Modules.Organization.Data;
 
@@ -27,7 +26,6 @@ public sealed class OrganizationDbContext(
 
     public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
     public DbSet<Position> Positions => Set<Position>();
-    public DbSet<Position> PositionsV2 => Set<Position>();
     public DbSet<LegalEntity> LegalEntities => Set<LegalEntity>();
     public DbSet<TaxBranch> TaxBranches => Set<TaxBranch>();
     public DbSet<CostCenter> CostCenters => Set<CostCenter>();

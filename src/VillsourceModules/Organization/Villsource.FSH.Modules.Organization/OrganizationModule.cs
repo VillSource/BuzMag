@@ -18,7 +18,8 @@ using Villsource.FSH.Modules.Organization.Features.v1.Jobs;
 using Villsource.FSH.Modules.Organization.Features.v1.LegalEntities;
 using Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
 using Villsource.FSH.Modules.Organization.Features.v1.PositionDelegations;
-using Villsource.FSH.Modules.Organization.Features.v2.Positions;
+using Villsource.FSH.Modules.Organization.Features.v1.PositionDelegations.Endpoints;
+using Villsource.FSH.Modules.Organization.Features.v1.Positions.Endpoinsts;
 
 namespace Villsource.FSH.Modules.Organization;
 

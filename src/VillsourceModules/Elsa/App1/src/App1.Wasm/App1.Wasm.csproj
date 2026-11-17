@@ -6,6 +6,7 @@
         <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
         <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
         <DisableBuildCompression>true</DisableBuildCompression>
+        <NuGetAudit>false</NuGetAudit>
     </PropertyGroup>
 
     <ItemGroup>
