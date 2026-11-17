@@ -1,15 +1,14 @@
-﻿using FSH.Framework.Shared.Persistence;
+﻿using System.ComponentModel;
+using FSH.Framework.Shared.Persistence;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.ComponentModel;
 using Villsource.FSH.Modules.Organization.Contracts.v1.OrganizationUnits.Commands;
-using Villsource.FSH.Modules.Organization.Contracts.v1.OrganizationUnits.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.OrganizationUnits.Queries;
 
-namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
+namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits.Endpoints;
 
 public static class OrganizationUnitEndpoints
 {
@@ -22,35 +21,33 @@ public static class OrganizationUnitEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         group.MapGet("/", async (
-                [AsParameters] SearchOrganizationUnitsQuery query,
+                [AsParameters] SearchOrganizationUnitsRequest request,
                 ISender mediator,
                 CancellationToken cancellationToken) =>
             {
-                var result = await mediator.Send(request: query, cancellationToken: cancellationToken).ConfigureAwait(false);
-                return Results.Ok(result);
+                var result = await mediator.Send(request: request.ToQuery(), cancellationToken: cancellationToken).ConfigureAwait(false);
+                return Results.Ok(result.ToResponse());
             })
             .WithName("SearchOrganizationUnits")
             .WithSummary("Search organization units")
             .WithDescription("Searches and paginates organization units with optional hierarchy, legal entity, manager position, and vacancy filters.")
-            .Produces<PagedResponse<OrganizationUnitSummaryDto>>(StatusCodes.Status200OK, "application/json")
+            .Produces<PagedResponse<OrganizationUnitSummaryResponse>>(StatusCodes.Status200OK, "application/json")
             .ProducesValidationProblem(StatusCodes.Status400BadRequest);
 
         group.MapGet("/tree", async (
-                [FromQuery] string legalEntityRefId,
-                [FromQuery] int? maxDepth,
-                [FromQuery] bool? activeOnly,
+                [AsParameters] GetOrganizationTreeRequest request,
                 ISender mediator,
                 CancellationToken cancellationToken) =>
             {
                 var result = await mediator.Send(
-                    request: new GetOrganizationTreeQuery(legalEntityRefId, maxDepth, activeOnly ?? true),
+                    request: request.ToQuery(),
                     cancellationToken: cancellationToken).ConfigureAwait(false);
-                return Results.Ok(result);
+                return Results.Ok(result.ToResponse());
             })
             .WithName("GetOrganizationTree")
             .WithSummary("Get organization tree")
             .WithDescription("Retrieves the hierarchical tree of organization units for a legal entity with optional depth filtering.")
-            .Produces<IReadOnlyList<OrganizationTreeNodeDto>>(StatusCodes.Status200OK, "application/json")
+            .Produces<IReadOnlyList<OrganizationTreeNodeResponse>>(StatusCodes.Status200OK, "application/json")
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
@@ -62,12 +59,12 @@ public static class OrganizationUnitEndpoints
                 var result = await mediator.Send(
                     request: new GetOrganizationUnitByRefIdQuery(RefId: refId),
                     cancellationToken: cancellationToken).ConfigureAwait(false);
-                return Results.Ok(result);
+                return Results.Ok(result.ToResponse());
             })
             .WithName("GetOrganizationUnit")
             .WithSummary("Get organization unit by reference ID")
             .WithDescription("Retrieves detailed organization unit information including its designated manager position, parent, and active child units.")
-            .Produces<OrganizationUnitDetailDto>(StatusCodes.Status200OK, "application/json")
+            .Produces<OrganizationUnitDetailResponse>(StatusCodes.Status200OK, "application/json")
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         group.MapGet("/{refId}/leadership-chain", async (
@@ -78,20 +75,20 @@ public static class OrganizationUnitEndpoints
                 var result = await mediator.Send(
                     request: new GetOrganizationUnitLeadershipChainQuery(RefId: refId),
                     cancellationToken: cancellationToken).ConfigureAwait(false);
-                return Results.Ok(result);
+                return Results.Ok(result.ToResponse());
             })
             .WithName("GetOrganizationUnitLeadershipChain")
             .WithSummary("Get bottom-up leadership position chain")
             .WithDescription("Returns ordered manager positions from the target organization unit up to the root unit so downstream approval/HR resolvers can handle vacant manager positions and skip-level escalation.")
-            .Produces<OrganizationUnitLeadershipChainDto>(StatusCodes.Status200OK, "application/json")
+            .Produces<OrganizationUnitLeadershipChainResponse>(StatusCodes.Status200OK, "application/json")
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         group.MapPost("/", async (
-                [FromBody] CreateOrganizationUnitCommand command,
+                [FromBody] CreateOrganizationUnitRequest request,
                 ISender mediator,
                 CancellationToken cancellationToken) =>
             {
-                var refId = await mediator.Send(request: command, cancellationToken: cancellationToken).ConfigureAwait(false);
+                var refId = await mediator.Send(request: request.ToCommand(), cancellationToken: cancellationToken).ConfigureAwait(false);
                 return Results.CreatedAtRoute(
                     routeName: "GetOrganizationUnit",
                     routeValues: new { refId },
@@ -100,7 +97,7 @@ public static class OrganizationUnitEndpoints
             .WithName("CreateOrganizationUnit")
             .WithSummary("Create an organization unit")
             .WithDescription("Creates a new organization unit (root or under an existing parent unit) and optionally assigns a manager position.")
-            .Accepts<CreateOrganizationUnitCommand>("application/json")
+            .Accepts<CreateOrganizationUnitRequest>("application/json")
             .Produces<string>(StatusCodes.Status201Created, "application/json")
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound);
@@ -135,7 +132,7 @@ public static class OrganizationUnitEndpoints
             })
             .WithName("AssignOrganizationUnitManagerPosition")
             .WithSummary("Assign or clear manager position of an organization unit")
-            .WithDescription("Designates an active position as manager of the organization unit (or clears it when managerPositionRefId is null).")
+            .WithDescription("Designates an active position as manager of the organization unit (or clears it when managerRefId is null).")
             .Accepts<AssignManagerPositionRequest>("application/json")
             .Produces<string>(StatusCodes.Status200OK, "application/json")
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
@@ -153,7 +150,7 @@ public static class OrganizationUnitEndpoints
             })
             .WithName("MoveOrganizationUnit")
             .WithSummary("Move an organization unit")
-            .WithDescription("Reparents an organization unit to a new parent (or promotes to root when newParentRefId is null) and recalculates descendant hierarchy paths.")
+            .WithDescription("Reparents an organization unit to a new parent (or promotes to root when parentRefId is null) and recalculates descendant hierarchy paths.")
             .Accepts<MoveOrganizationUnitRequest>("application/json")
             .Produces<string>(StatusCodes.Status200OK, "application/json")
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)

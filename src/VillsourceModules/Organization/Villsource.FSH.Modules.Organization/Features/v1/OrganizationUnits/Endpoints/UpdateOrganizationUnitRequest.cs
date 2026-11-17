@@ -1,9 +1,9 @@
-﻿namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
+﻿namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits.Endpoints;
 
 internal sealed record UpdateOrganizationUnitRequest(
     string Code,
     string Name,
-    string InternationalName,
-    string Type,
+    string IntlName,
+    string TypeRefId,
     string? Description = null,
-    string? DefaultCostCenterRefId = null);
+    string? CostCenterRefId = null);

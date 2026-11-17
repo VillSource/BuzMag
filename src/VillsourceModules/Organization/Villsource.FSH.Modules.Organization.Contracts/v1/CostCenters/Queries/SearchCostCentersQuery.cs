@@ -12,8 +12,8 @@ public sealed record SearchCostCentersQuery : IPagedQuery, IRequest<PagedRespons
     public string? LegalEntityRefId { get; set; }
     public string? ParentCostCenterRefId { get; set; }
     public string? FunctionType { get; set; }
-    public Guid? ResponsibleUserId { get; set; }
-    public Guid? OrgUnitId { get; set; }
+    public string? ResponsiblePositionRefId { get; set; }
+    public string? OrgUnitRefId { get; set; }
     public bool? IsActive { get; set; }
     public bool? IsPostingBlocked { get; set; }
     public DateTimeOffset? EffectiveAtUtc { get; set; }

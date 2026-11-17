@@ -13,7 +13,7 @@ public sealed record SearchOrganizationUnitsQuery : IPagedQuery, IRequest<PagedR
     public string? LegalEntityRefId { get; set; }
     public string? ParentRefId { get; set; }
     public string? ManagerPositionRefId { get; set; }
-    public string? Type { get; set; }
+    public string? OrganizationUnitTypeRefId { get; set; }
     public bool? IsActive { get; set; }
     public bool RootOnly { get; set; }
     public bool VacantManagerOnly { get; set; }

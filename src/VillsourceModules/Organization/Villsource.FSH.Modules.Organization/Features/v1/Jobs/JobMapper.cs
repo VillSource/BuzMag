@@ -1,5 +1,7 @@
 ﻿using Riok.Mapperly.Abstractions;
+using Villsource.FSH.Modules.Organization.Contracts.v1.JobFamilies.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.Jobs.Dtos;
+using Villsource.FSH.Modules.Organization.Domain.JobFamilies;
 using Villsource.FSH.Modules.Organization.Domain.JobGrades;
 using Villsource.FSH.Modules.Organization.Domain.Jobs;
 
@@ -15,6 +17,9 @@ public static partial class JobMapper
 
     [MapProperty(nameof(JobGrade.ReferenceId), nameof(JobGradeRefDto.RefId))]
     public static partial JobGradeRefDto ToRefDto(this JobGrade grade);
+
+    [MapProperty(nameof(JobFamily.ReferenceId), nameof(JobFamilyLookupDto.RefId))]
+    public static partial JobFamilyLookupDto ToFamilyLookupDto(this JobFamily family);
 
     private static DateTimeOffset GetCreatedOnUtc(Job entity) => entity.CreatedOnUtc;
     private static DateTimeOffset? GetLastModifiedOnUtc(Job entity) => entity.LastModifiedOnUtc;

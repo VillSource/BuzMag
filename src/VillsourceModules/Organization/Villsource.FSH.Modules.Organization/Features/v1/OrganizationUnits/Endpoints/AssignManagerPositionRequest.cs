@@ -1,5 +1,5 @@
-﻿namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
+﻿namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits.Endpoints;
 
 internal sealed record AssignManagerPositionRequest(
-    string? ManagerPositionRefId,
-    bool AllowExternalManagerPosition = false);
+    string? ManagerRefId,
+    bool AllowExternalManager = false);

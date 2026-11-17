@@ -6,7 +6,11 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.Positions.Queries;
 
 public sealed class GetPositionLookupsQueryValidator : AbstractValidator<GetPositionLookupsQuery>
 {
-    public GetPositionLookupsQueryValidator() =>
+    public GetPositionLookupsQueryValidator()
+    {
         RuleFor(x => x.LegalEntityRefId).MaximumLength(VillsourceId.KeySizes)
             .When(x => !string.IsNullOrWhiteSpace(x.LegalEntityRefId));
+        RuleFor(x => x.OrgUnitRefId).MaximumLength(VillsourceId.KeySizes)
+            .When(x => !string.IsNullOrWhiteSpace(x.OrgUnitRefId));
+    }
 }

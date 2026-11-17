@@ -7,6 +7,6 @@ public sealed record CreateJobCommand(
     string Name,
     string InternationalName,
     string DefaultJobGradeRefId,
-    string? JobFamily = null,
+    string? JobFamilyRefId = null,
     string? Description = null,
     bool IsActive = true) : IRequest<string>;

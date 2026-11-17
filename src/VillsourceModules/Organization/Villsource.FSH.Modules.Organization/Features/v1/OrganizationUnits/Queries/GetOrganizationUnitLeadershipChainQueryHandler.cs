@@ -19,7 +19,7 @@ public sealed class GetOrganizationUnitLeadershipChainQueryHandler(OrganizationD
         var target = await dbContext.OrganizationUnits
                          .AsNoTracking()
                          .Where(e => e.ReferenceId == request.RefId)
-                         .Select(e => new { e.ReferenceId, e.Code, e.Name, e.Level, e.HierarchyPath })
+                         .Select(e => new { e.ReferenceId, e.Code, e.Name, e.Depth, e.HierarchyPath })
                          .FirstOrDefaultAsync(cancellationToken)
                          .ConfigureAwait(false)
                      ?? throw new NotFoundException($"OrganizationUnit '{request.RefId}' was not found.");
@@ -30,10 +30,10 @@ public sealed class GetOrganizationUnitLeadershipChainQueryHandler(OrganizationD
         var nodes = await dbContext.OrganizationUnits
             .AsNoTracking()
             .Where(e => ancestorRefIds.Contains(e.ReferenceId))
-            .OrderByDescending(e => e.Level)
+            .OrderByDescending(e => e.Depth)
             .Select(e => new OrganizationUnitLeadershipNodeDto(
-                target.Level - e.Level,
-                e.Level,
+                target.Depth - e.Depth,
+                e.Depth,
                 e.ReferenceId,
                 e.Code,
                 e.Name,

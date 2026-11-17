@@ -40,17 +40,36 @@ public sealed class CreateJobCommandHandler(OrganizationDbContext dbContext)
             throw new ConflictException($"Job code '{normalizedCode}' already exists.");
         }
 
+        Guid? jobFamilyId = null;
+        if (!string.IsNullOrWhiteSpace(request.JobFamilyRefId))
+        {
+            var jobFamily = await dbContext.JobFamilies
+                .AsNoTracking()
+                .Where(f => f.ReferenceId == request.JobFamilyRefId)
+                .Select(f => new { f.Id, f.IsActive })
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false)
+                ?? throw new NotFoundException($"Job family '{request.JobFamilyRefId}' was not found.");
+
+            if (!jobFamily.IsActive)
+            {
+                throw new InvalidOperationException($"Job family '{request.JobFamilyRefId}' is inactive.");
+            }
+
+            jobFamilyId = jobFamily.Id;
+        }
+
         var entity = Job.Create(
             code: normalizedCode,
             name: request.Name,
             internationalName: request.InternationalName,
             defaultJobGradeId: lookup.Id,
-            jobFamily: request.JobFamily,
+            jobFamilyId: jobFamilyId,
             description: request.Description,
             isActive: request.IsActive);
 
-        await dbContext.Jobs.AddAsync(entity, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.Jobs.AddAsync(entity, cancellationToken).ConfigureAwait(false);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return entity.ReferenceId;
     }

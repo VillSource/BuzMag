@@ -57,11 +57,24 @@ public sealed class UpdateOrganizationUnitCommandHandler(OrganizationDbContext d
             defaultCostCenterId = costCenter.Id;
         }
 
+        var unitType = await dbContext.OrganizationUnitTypes
+            .AsNoTracking()
+            .Where(t => t.ReferenceId == request.OrganizationUnitTypeRefId)
+            .Select(t => new { t.Id, t.IsActive })
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false)
+            ?? throw new NotFoundException($"Organization unit type '{request.OrganizationUnitTypeRefId}' was not found.");
+
+        if (!unitType.IsActive)
+        {
+            throw new InvalidOperationException($"Organization unit type '{request.OrganizationUnitTypeRefId}' is inactive.");
+        }
+
         entity.Update(
             code: normalizedCode,
             name: request.Name,
             internationalName: request.InternationalName,
-            type: request.Type,
+            organizationUnitTypeId: unitType.Id,
             description: request.Description,
             defaultCostCenterId: defaultCostCenterId);
 

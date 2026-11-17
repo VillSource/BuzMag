@@ -20,11 +20,9 @@ public sealed class UpdateOrganizationUnitCommandValidator : AbstractValidator<U
         RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
         RuleFor(x => x.InternationalName).NotEmpty().MaximumLength(250);
 
-        RuleFor(x => x.Type)
+        RuleFor(x => x.OrganizationUnitTypeRefId)
             .NotEmpty()
-            .MaximumLength(30)
-            .Must(type => OrganizationUnitRules.TypeRegex().IsMatch(type.Trim().ToUpperInvariant()))
-            .WithMessage("Type must be 2-30 uppercase alphanumeric characters or underscores.");
+            .MaximumLength(VillsourceId.KeySizes);
 
         RuleFor(x => x.Description).MaximumLength(1000);
         RuleFor(x => x.DefaultCostCenterRefId).MaximumLength(VillsourceId.KeySizes).When(x => !string.IsNullOrWhiteSpace(x.DefaultCostCenterRefId));

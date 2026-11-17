@@ -1,11 +1,11 @@
-﻿namespace Villsource.FSH.Modules.Organization.Features.v1.LegalEntities;
+﻿namespace Villsource.FSH.Modules.Organization.Features.v1.LegalEntities.Endpoints;
 
 internal sealed record UpdateLegalEntityRequest(
     string Code,
     string LegalName,
-    string InternationalName,
+    string IntlName,
     string TaxId,
     string BaseCurrency,
-    string? RegistrationNumber = null,
+    string? RegNumber = null,
     int? FiscalYearStartMonth = null,
     string? TimeZoneId = null);

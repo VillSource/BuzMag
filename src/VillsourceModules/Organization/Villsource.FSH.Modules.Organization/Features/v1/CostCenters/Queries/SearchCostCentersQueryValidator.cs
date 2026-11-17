@@ -33,6 +33,10 @@ public sealed class SearchCostCentersQueryValidator : AbstractValidator<SearchCo
             .MaximumLength(VillsourceId.KeySizes)
             .When(x => !string.IsNullOrWhiteSpace(x.ParentCostCenterRefId));
 
+        RuleFor(x => x.OrgUnitRefId)
+            .MaximumLength(VillsourceId.KeySizes)
+            .When(x => !string.IsNullOrWhiteSpace(x.OrgUnitRefId));
+
         RuleFor(x => x.FunctionType)
             .Must(CostCenterFunctionType.IsValidKey)
             .WithMessage($"FunctionType must be one of: {CostCenterFunctionType.AllowedKeysDescription}.")

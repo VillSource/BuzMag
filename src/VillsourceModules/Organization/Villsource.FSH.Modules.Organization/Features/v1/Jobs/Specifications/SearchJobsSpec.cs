@@ -15,7 +15,7 @@ public sealed class SearchJobsSpec : Specification<Job, JobSummaryDto>
             ["code"] = j => j.Code,
             ["name"] = j => j.Name,
             ["internationalName"] = j => j.InternationalName,
-            ["jobFamily"] = j => j.JobFamily!,
+            ["jobFamily"] = j => j.JobFamily!.Name,
             ["rankOrder"] = j => j.DefaultJobGrade!.RankOrder,
             ["isActive"] = j => j.IsActive,
             ["createdOnUtc"] = j => j.CreatedOnUtc
@@ -25,10 +25,10 @@ public sealed class SearchJobsSpec : Specification<Job, JobSummaryDto>
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (!string.IsNullOrWhiteSpace(request.JobFamily))
+        if (!string.IsNullOrWhiteSpace(request.JobFamilyRefId))
         {
-            var family = request.JobFamily.Trim();
-            Where(j => j.JobFamily != null && EF.Functions.ILike(j.JobFamily, family));
+            var familyRefId = request.JobFamilyRefId.Trim();
+            Where(j => j.JobFamily != null && j.JobFamily.ReferenceId == familyRefId);
         }
 
         if (!string.IsNullOrWhiteSpace(request.DefaultJobGradeRefId))
@@ -49,7 +49,7 @@ public sealed class SearchJobsSpec : Specification<Job, JobSummaryDto>
                 EF.Functions.ILike(j.Code, $"%{keyword}%") ||
                 EF.Functions.ILike(j.Name, $"%{keyword}%") ||
                 EF.Functions.ILike(j.InternationalName, $"%{keyword}%") ||
-                (j.JobFamily != null && EF.Functions.ILike(j.JobFamily, $"%{keyword}%")));
+                (j.JobFamily != null && EF.Functions.ILike(j.JobFamily.Name, $"%{keyword}%")));
         }
 
         ApplySortingOverride(
@@ -62,7 +62,9 @@ public sealed class SearchJobsSpec : Specification<Job, JobSummaryDto>
             j.Code,
             j.Name,
             j.InternationalName,
-            j.JobFamily,
+            j.JobFamily != null ? j.JobFamily.ReferenceId : null,
+            j.JobFamily != null ? j.JobFamily.Code : null,
+            j.JobFamily != null ? j.JobFamily.Name : null,
             j.DefaultJobGrade!.ReferenceId,
             j.DefaultJobGrade!.Code,
             j.DefaultJobGrade!.RankOrder,

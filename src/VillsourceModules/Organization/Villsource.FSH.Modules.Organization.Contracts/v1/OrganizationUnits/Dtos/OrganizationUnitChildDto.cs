@@ -5,8 +5,9 @@ public sealed record OrganizationUnitChildDto(
     string Code,
     string Name,
     string InternationalName,
-    string Type,
-    int Level,
+    string OrganizationUnitTypeCode,
+    string OrganizationUnitTypeName,
+    int Depth,
     string? ManagerPositionRefId,
     string? ManagerPositionTitle,
     bool IsActive);

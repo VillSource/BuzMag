@@ -8,5 +8,5 @@ public sealed record UpdateJobCommand(
     string Name,
     string InternationalName,
     string DefaultJobGradeRefId,
-    string? JobFamily = null,
+    string? JobFamilyRefId = null,
     string? Description = null) : IRequest<string>;

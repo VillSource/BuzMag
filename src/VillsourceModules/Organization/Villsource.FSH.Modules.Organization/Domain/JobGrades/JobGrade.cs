@@ -1,4 +1,5 @@
 ﻿using FSH.Framework.Core.Domain;
+using Villsource.FSH.Modules.Organization.Contracts.Constants;
 using Villsource.FSH.Modules.Organization.Domain.JobGrades.Events;
 using Villsource.Tool.UniqueKey;
 
@@ -13,7 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Domain.JobGrades
         public string Name { get; private set; } = null!;
         public string InternationalName { get; private set; } = null!;
         public int RankOrder { get; private set; }
-        public string? JobLevelCategory { get; private set; }
+        public JobLevelCategory? JobLevelCategory { get; private set; }
         public string? Description { get; private set; }
         public bool IsActive { get; private set; } = true;
 
@@ -23,12 +24,11 @@ namespace Villsource.FSH.Modules.Organization.Domain.JobGrades
             string internationalName,
             int rankOrder,
             string? description = null,
-            string? jobLevelCategory = null,
+            JobLevelCategory? jobLevelCategory = null,
             bool isActive = true)
         {
             var (normalizedCode, normalizedName, normalizedIntlName, normalizedDesc) =
                 JobGradeRules.NormalizeAndValidate(code, name, internationalName, rankOrder, description);
-            var normalizedCategory = JobGradeRules.NormalizeAndValidateCategory(jobLevelCategory);
 
             var entity = new JobGrade
             {
@@ -37,7 +37,7 @@ namespace Villsource.FSH.Modules.Organization.Domain.JobGrades
                 Name = normalizedName,
                 InternationalName = normalizedIntlName,
                 RankOrder = rankOrder,
-                JobLevelCategory = normalizedCategory,
+                JobLevelCategory = jobLevelCategory,
                 Description = normalizedDesc,
                 IsActive = isActive
             };
@@ -64,19 +64,18 @@ namespace Villsource.FSH.Modules.Organization.Domain.JobGrades
             string internationalName,
             int rankOrder,
             string? description = null,
-            string? jobLevelCategory = null)
+            JobLevelCategory? jobLevelCategory = null)
         {
             EnsureNotDeleted();
 
             var (normalizedCode, normalizedName, normalizedIntlName, normalizedDesc) =
                 JobGradeRules.NormalizeAndValidate(code, name, internationalName, rankOrder, description);
-            var normalizedCategory = JobGradeRules.NormalizeAndValidateCategory(jobLevelCategory);
 
             if (string.Equals(Code, normalizedCode, StringComparison.Ordinal) &&
                 string.Equals(Name, normalizedName, StringComparison.Ordinal) &&
                 string.Equals(InternationalName, normalizedIntlName, StringComparison.Ordinal) &&
                 RankOrder == rankOrder &&
-                string.Equals(JobLevelCategory, normalizedCategory, StringComparison.Ordinal) &&
+                JobLevelCategory == jobLevelCategory &&
                 string.Equals(Description, normalizedDesc, StringComparison.Ordinal))
             {
                 return false;
@@ -86,7 +85,7 @@ namespace Villsource.FSH.Modules.Organization.Domain.JobGrades
             Name = normalizedName;
             InternationalName = normalizedIntlName;
             RankOrder = rankOrder;
-            JobLevelCategory = normalizedCategory;
+            JobLevelCategory = jobLevelCategory;
             Description = normalizedDesc;
 
             AddDomainEvent(DomainEvent.Create((id, ts) =>

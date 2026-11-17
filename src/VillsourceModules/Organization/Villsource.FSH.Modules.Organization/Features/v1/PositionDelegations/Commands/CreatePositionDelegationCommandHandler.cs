@@ -52,6 +52,10 @@ public sealed class CreatePositionDelegationCommandHandler(
         }
 
         var delegationType = DelegationType.FromKey(request.DelegationType);
+        await DocumentTypeScopeValidator
+            .EnsureRegisteredAsync(dbContext, delegationType, request.DocumentTypeScope, cancellationToken)
+            .ConfigureAwait(false);
+
         var utcFrom = request.ValidFrom.ToUniversalTime();
         var utcTo = request.ValidTo.ToUniversalTime();
 

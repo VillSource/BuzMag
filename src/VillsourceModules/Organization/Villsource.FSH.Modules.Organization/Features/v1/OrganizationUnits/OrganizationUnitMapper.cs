@@ -1,7 +1,9 @@
 ﻿using Riok.Mapperly.Abstractions;
 using System.Diagnostics.CodeAnalysis;
 using Villsource.FSH.Modules.Organization.Contracts.v1.OrganizationUnits.Dtos;
+using Villsource.FSH.Modules.Organization.Contracts.v1.OrganizationUnitTypes.Dtos;
 using Villsource.FSH.Modules.Organization.Domain.OrganizationUnits;
+using Villsource.FSH.Modules.Organization.Domain.OrganizationUnitTypes;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
 
@@ -22,10 +24,18 @@ public static partial class OrganizationUnitMapper
     [MapPropertyFromSource(nameof(OrganizationUnitDetailDto.LastModifiedOnUtc), Use = nameof(GetLastModifiedOnUtc))]
     public static partial OrganizationUnitDetailDto ToDetailDto(this OrganizationUnit entity);
 
+    [MapProperty(nameof(OrganizationUnitType.ReferenceId), nameof(OrganizationUnitTypeLookupDto.RefId))]
+    public static partial OrganizationUnitTypeLookupDto ToTypeLookupDto(this OrganizationUnitType type);
+
     [MapProperty(nameof(OrganizationUnit.ReferenceId), nameof(OrganizationUnitChildDto.RefId))]
+    [MapPropertyFromSource(nameof(OrganizationUnitChildDto.OrganizationUnitTypeCode), Use = nameof(GetUnitTypeCode))]
+    [MapPropertyFromSource(nameof(OrganizationUnitChildDto.OrganizationUnitTypeName), Use = nameof(GetUnitTypeName))]
     [MapPropertyFromSource(nameof(OrganizationUnitChildDto.ManagerPositionRefId), Use = nameof(GetManagerPositionRefId))]
     [MapPropertyFromSource(nameof(OrganizationUnitChildDto.ManagerPositionTitle), Use = nameof(GetManagerPositionTitle))]
     public static partial OrganizationUnitChildDto ToChildDto(this OrganizationUnit entity);
+
+    private static string GetUnitTypeCode(OrganizationUnit entity) => entity.OrganizationUnitType?.Code ?? string.Empty;
+    private static string GetUnitTypeName(OrganizationUnit entity) => entity.OrganizationUnitType?.Name ?? string.Empty;
 
     private static string? GetLegalEntityRefId(OrganizationUnit entity) => entity.LegalEntity?.ReferenceId;
     private static string? GetDefaultCostCenterRefId(OrganizationUnit entity) => entity.DefaultCostCenter?.ReferenceId;

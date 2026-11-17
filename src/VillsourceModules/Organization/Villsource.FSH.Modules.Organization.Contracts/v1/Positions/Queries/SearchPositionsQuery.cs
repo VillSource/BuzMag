@@ -11,7 +11,7 @@ public sealed record SearchPositionsQuery : IPagedQuery, IRequest<PagedResponse<
     public string? Sort { get; set; }
     public string? Keyword { get; set; }
     public string? LegalEntityRefId { get; set; }
-    public Guid? OrgUnitId { get; set; }
+    public string? OrgUnitRefId { get; set; }
     public string? JobRefId { get; set; }
     public string? JobGradeRefId { get; set; }
     public string? CostCenterRefId { get; set; }

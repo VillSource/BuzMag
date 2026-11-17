@@ -5,6 +5,6 @@ namespace Villsource.FSH.Modules.Organization.Contracts.v1.Positions.Queries;
 
 public sealed record GetPositionLookupsQuery(
     string? LegalEntityRefId = null,
-    Guid? OrgUnitId = null,
+    string? OrgUnitRefId = null,
     bool ActiveOnly = true,
     bool LeadershipOnly = false) : IRequest<IReadOnlyList<PositionLookupDto>>;

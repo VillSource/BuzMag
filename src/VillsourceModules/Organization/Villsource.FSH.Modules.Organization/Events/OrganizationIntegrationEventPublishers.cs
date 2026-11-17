@@ -81,7 +81,7 @@ public sealed class OrganizationIntegrationEventPublishers(
             OldParentId: notification.OldParentId,
             NewParentId: notification.NewParentId,
             NewHierarchyPath: notification.NewHierarchyPath,
-            NewLevel: notification.NewLevel);
+            NewDepth: notification.NewDepth);
 
         await eventBus.PublishAsync(integrationEvent, cancellationToken).ConfigureAwait(false);
     }

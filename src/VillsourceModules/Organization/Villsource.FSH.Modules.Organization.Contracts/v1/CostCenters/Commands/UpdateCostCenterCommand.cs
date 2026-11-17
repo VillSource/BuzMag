@@ -11,7 +11,7 @@ public sealed record UpdateCostCenterCommand(
     string? Description = null,
     string? ParentCostCenterRefId = null,
     string? DefaultTaxBranchRefId = null,
-    Guid? ResponsibleUserId = null,
-    Guid? OrgUnitId = null,
+    string? ResponsiblePositionRefId = null,
+    string? OrgUnitRefId = null,
     DateTimeOffset? ValidFrom = null,
     DateTimeOffset? ValidTo = null) : IRequest<string>;

@@ -52,12 +52,31 @@ public sealed class UpdateJobCommandHandler(OrganizationDbContext dbContext)
             throw new InvalidOperationException($"Job grade '{request.DefaultJobGradeRefId}' is inactive.");
         }
 
+        Guid? jobFamilyId = null;
+        if (!string.IsNullOrWhiteSpace(request.JobFamilyRefId))
+        {
+            var jobFamily = await dbContext.JobFamilies
+                .AsNoTracking()
+                .Where(f => f.ReferenceId == request.JobFamilyRefId)
+                .Select(f => new { f.Id, f.IsActive })
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false)
+                ?? throw new NotFoundException($"Job family '{request.JobFamilyRefId}' was not found.");
+
+            if (!jobFamily.IsActive)
+            {
+                throw new InvalidOperationException($"Job family '{request.JobFamilyRefId}' is inactive.");
+            }
+
+            jobFamilyId = jobFamily.Id;
+        }
+
         var changed = target.Entity.Update(
             code: normalizedCode,
             name: request.Name,
             internationalName: request.InternationalName,
             defaultJobGradeId: target.GradeId.Value,
-            jobFamily: request.JobFamily,
+            jobFamilyId: jobFamilyId,
             description: request.Description);
 
         if (changed)

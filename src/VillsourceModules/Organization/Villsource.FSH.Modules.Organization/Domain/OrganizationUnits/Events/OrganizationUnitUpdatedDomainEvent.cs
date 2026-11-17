@@ -7,6 +7,6 @@ public sealed record OrganizationUnitUpdatedDomainEvent(
     string Code,
     string Name,
     string InternationalName,
-    string Type,
+    Guid OrganizationUnitTypeId,
     Guid EventId,
     DateTimeOffset OccurredOnUtc) : DomainEvent(EventId, OccurredOnUtc);

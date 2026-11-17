@@ -72,6 +72,43 @@ internal static class CostCenterReferenceResolver
         return branch.Id;
     }
 
+    public static async Task<Guid?> ResolveOrgUnitIdAsync(
+        OrganizationDbContext dbContext,
+        Guid legalEntityId,
+        string? orgUnitRefId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(orgUnitRefId))
+        {
+            return null;
+        }
+
+        string trimmedRefId = orgUnitRefId.Trim();
+
+        var orgUnit = await dbContext.OrganizationUnits
+            .AsNoTracking()
+            .Where(ou => ou.ReferenceId == trimmedRefId)
+            .Select(ou => new { ou.Id, ou.LegalEntityId, ou.IsActive })
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false)
+            ?? throw new NotFoundException(
+                $"Organization unit '{trimmedRefId}' was not found.");
+
+        if (orgUnit.LegalEntityId.HasValue && orgUnit.LegalEntityId.Value != legalEntityId)
+        {
+            throw new InvalidOperationException(
+                $"Organization unit '{trimmedRefId}' does not belong to this legal entity.");
+        }
+
+        if (!orgUnit.IsActive)
+        {
+            throw new InvalidOperationException(
+                $"Organization unit '{trimmedRefId}' is inactive and cannot be assigned.");
+        }
+
+        return orgUnit.Id;
+    }
+
     public static async Task EnsureNoHierarchyCycleAsync(
         OrganizationDbContext dbContext,
         Guid legalEntityId,

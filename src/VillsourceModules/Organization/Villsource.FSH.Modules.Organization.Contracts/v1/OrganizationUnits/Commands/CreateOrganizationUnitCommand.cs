@@ -6,7 +6,7 @@ public sealed record CreateOrganizationUnitCommand(
     string Code,
     string Name,
     string InternationalName,
-    string Type,
+    string OrganizationUnitTypeRefId,
     string? Description = null,
     string? LegalEntityRefId = null,
     string? ParentRefId = null,

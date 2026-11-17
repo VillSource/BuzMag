@@ -12,14 +12,17 @@ using Microsoft.Extensions.Hosting;
 using Villsource.FSH.Modules.Organization.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.Authorization;
 using Villsource.FSH.Modules.Organization.Data;
-using Villsource.FSH.Modules.Organization.Features.v1.CostCenters;
-using Villsource.FSH.Modules.Organization.Features.v1.JobGrades;
-using Villsource.FSH.Modules.Organization.Features.v1.Jobs;
-using Villsource.FSH.Modules.Organization.Features.v1.LegalEntities;
-using Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
-using Villsource.FSH.Modules.Organization.Features.v1.PositionDelegations;
+using Villsource.FSH.Modules.Organization.Features.v1.CostCenters.Endpoints;
+using Villsource.FSH.Modules.Organization.Features.v1.DocumentTypes.Endpoints;
+using Villsource.FSH.Modules.Organization.Features.v1.JobFamilies.Endpoints;
+using Villsource.FSH.Modules.Organization.Features.v1.JobGrades.Endpoints;
+using Villsource.FSH.Modules.Organization.Features.v1.Jobs.Endpoints;
+using Villsource.FSH.Modules.Organization.Features.v1.LegalEntities.Endpoints;
+using Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits.Endpoints;
+using Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnitTypes.Endpoints;
 using Villsource.FSH.Modules.Organization.Features.v1.PositionDelegations.Endpoints;
-using Villsource.FSH.Modules.Organization.Features.v1.Positions.Endpoinsts;
+using Villsource.FSH.Modules.Organization.Features.v1.Positions.Endpoints;
+using Villsource.FSH.Modules.Organization.Services;
 
 namespace Villsource.FSH.Modules.Organization;
 
@@ -33,6 +36,7 @@ public sealed class OrganizationModule : IModule
 
         builder.Services.AddHeroDbContext<OrganizationDbContext>();
         builder.Services.AddScoped<IDbInitializer, OrganizationDbInitializer>();
+        builder.Services.AddHostedService<DocumentTypeSyncHostedService>();
         builder.Services.AddValidatorsFromAssembly(typeof(OrganizationModule).Assembly);
 
         builder.Services.AddHealthChecks().AddDbContextCheck<OrganizationDbContext>(
@@ -54,11 +58,14 @@ public sealed class OrganizationModule : IModule
             .WithApiVersionSet(versionSet);
 
         group.MapOrganizationUnitEndpoints();
+        group.MapOrganizationUnitTypeEndpoints();
         group.MapLegalEntityEndpoints();
         group.MapCostCenterEndpoints();
         group.MapJobGradeEndpoints();
+        group.MapJobFamilyEndpoints();
         group.MapJobEndpoints();
         group.MapPositionDelegationEndpoints();
+        group.MapDocumentTypeEndpoints();
         group.MapPositionEndpoints();
     }
 }

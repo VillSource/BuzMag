@@ -10,7 +10,7 @@ public sealed record SearchJobsQuery : IPagedQuery, IRequest<PagedResponse<JobSu
     public int? PageSize { get; set; }
     public string? Sort { get; set; }
     public string? Keyword { get; set; }
-    public string? JobFamily { get; set; }
+    public string? JobFamilyRefId { get; set; }
     public string? DefaultJobGradeRefId { get; set; }
     public bool? IsActive { get; set; }
 }

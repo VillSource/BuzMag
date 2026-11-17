@@ -11,7 +11,7 @@ public sealed class SearchJobsQueryValidator : AbstractValidator<SearchJobsQuery
     {
         RuleFor(x => x.PageNumber).GreaterThanOrEqualTo(1).When(x => x.PageNumber.HasValue);
         RuleFor(x => x.PageSize).InclusiveBetween(1, 100).When(x => x.PageSize.HasValue);
-        RuleFor(x => x.JobFamily).MaximumLength(JobRules.MaxJobFamilyLength);
+        RuleFor(x => x.JobFamilyRefId).MaximumLength(VillsourceId.KeySizes).When(x => !string.IsNullOrWhiteSpace(x.JobFamilyRefId));
         RuleFor(x => x.DefaultJobGradeRefId).MaximumLength(VillsourceId.KeySizes)
             .When(x => !string.IsNullOrWhiteSpace(x.DefaultJobGradeRefId));
     }

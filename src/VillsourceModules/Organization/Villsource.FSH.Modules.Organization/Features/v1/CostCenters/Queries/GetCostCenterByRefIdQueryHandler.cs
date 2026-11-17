@@ -27,6 +27,15 @@ public sealed class GetCostCenterByRefIdQueryHandler(
                          .FirstOrDefaultAsync(cancellationToken: cancellationToken)
                      ?? throw new NotFoundException($"Cost center '{request.RefId}' was not found.");
 
-        return entity.ToDetailDto();
+        string? orgUnitRefId = entity.OrgUnitId.HasValue
+            ? await dbContext.OrganizationUnits
+                .AsNoTracking()
+                .Where(ou => ou.Id == entity.OrgUnitId.Value)
+                .Select(ou => ou.ReferenceId)
+                .FirstOrDefaultAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false)
+            : null;
+
+        return entity.ToDetailDto() with { OrgUnitRefId = orgUnitRefId };
     }
 }

@@ -2,6 +2,7 @@
 using Villsource.FSH.Modules.Organization.Domain.CostCenters;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 using Villsource.FSH.Modules.Organization.Domain.OrganizationUnits.Events;
+using Villsource.FSH.Modules.Organization.Domain.OrganizationUnitTypes;
 using Villsource.FSH.Modules.Organization.Features.v1.Positions;
 using Villsource.Tool.UniqueKey;
 using Position = Villsource.FSH.Modules.Organization.Domain.Positions.Position;
@@ -18,7 +19,8 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string InternationalName { get; private set; } = null!;
-    public string Type { get; private set; } = null!;
+    public Guid OrganizationUnitTypeId { get; private set; }
+    public OrganizationUnitType? OrganizationUnitType { get; private set; } = null!;
     public string? Description { get; private set; }
 
     public Guid? LegalEntityId { get; private set; }
@@ -27,7 +29,7 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
     public Guid? ParentId { get; private set; }
     public OrganizationUnit? Parent { get; private set; } = null!;
 
-    public int Level { get; private set; }
+    public int Depth { get; private set; }
     public string HierarchyPath { get; private set; } = null!;
 
     public Guid? DefaultCostCenterId { get; private set; }
@@ -44,7 +46,7 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
         string code,
         string name,
         string internationalName,
-        string type,
+        Guid organizationUnitTypeId,
         string? description = null,
         Guid? legalEntityId = null,
         OrganizationUnit? parent = null,
@@ -55,7 +57,10 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(internationalName);
-        ArgumentException.ThrowIfNullOrWhiteSpace(type);
+        if (organizationUnitTypeId == Guid.Empty)
+        {
+            throw new ArgumentException("OrganizationUnitTypeId cannot be empty.", nameof(organizationUnitTypeId));
+        }
 
         if (parent is not null && parent.IsDeleted)
         {
@@ -68,11 +73,11 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
             Code = code.Trim().ToUpperInvariant(),
             Name = name.Trim(),
             InternationalName = internationalName.Trim(),
-            Type = type.Trim().ToUpperInvariant(),
+            OrganizationUnitTypeId = organizationUnitTypeId,
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim(),
             LegalEntityId = legalEntityId ?? parent?.LegalEntityId,
             ParentId = parent?.Id,
-            Level = parent is null ? 0 : parent.Level + 1,
+            Depth = parent is null ? 0 : parent.Depth + 1,
             DefaultCostCenterId = defaultCostCenterId ?? parent?.DefaultCostCenterId,
             IsActive = true
         };
@@ -99,7 +104,7 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
                 Code: entity.Code,
                 Name: entity.Name,
                 InternationalName: entity.InternationalName,
-                Type: entity.Type,
+                OrganizationUnitTypeId: entity.OrganizationUnitTypeId,
                 LegalEntityId: entity.LegalEntityId,
                 ParentId: entity.ParentId,
                 ManagerPositionId: entity.ManagerPositionId,
@@ -113,7 +118,7 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
         string code,
         string name,
         string internationalName,
-        string type,
+        Guid organizationUnitTypeId,
         string? description = null,
         Guid? defaultCostCenterId = null)
     {
@@ -121,12 +126,15 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(internationalName);
-        ArgumentException.ThrowIfNullOrWhiteSpace(type);
+        if (organizationUnitTypeId == Guid.Empty)
+        {
+            throw new ArgumentException("OrganizationUnitTypeId cannot be empty.", nameof(organizationUnitTypeId));
+        }
 
         Code = code.Trim().ToUpperInvariant();
         Name = name.Trim();
         InternationalName = internationalName.Trim();
-        Type = type.Trim().ToUpperInvariant();
+        OrganizationUnitTypeId = organizationUnitTypeId;
         Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
         DefaultCostCenterId = defaultCostCenterId;
 
@@ -136,7 +144,7 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
                 Code: Code,
                 Name: Name,
                 InternationalName: InternationalName,
-                Type: Type,
+                OrganizationUnitTypeId: OrganizationUnitTypeId,
                 EventId: id,
                 OccurredOnUtc: ts)));
     }
@@ -192,22 +200,22 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
 
         var oldParentId = ParentId;
         var oldPath = HierarchyPath;
-        var oldLevel = Level;
+        var oldDepth = Depth;
 
         ParentId = newParent?.Id;
-        Level = newParent is null ? 0 : newParent.Level + 1;
+        Depth = newParent is null ? 0 : newParent.Depth + 1;
         HierarchyPath = newParent is null
             ? $"/{ReferenceId}/"
             : $"{newParent.HierarchyPath}{ReferenceId}/";
 
-        var levelDelta = Level - oldLevel;
+        var depthDelta = Depth - oldDepth;
 
         foreach (var descendant in descendants.Where(d => !d.IsDeleted && d.Id != Id))
         {
             descendant.ApplyAncestorMove(
                 oldAncestorPath: oldPath,
                 newAncestorPath: HierarchyPath,
-                levelDelta: levelDelta);
+                depthDelta: depthDelta);
         }
 
         AddDomainEvent(DomainEvent.Create((id, ts) =>
@@ -216,15 +224,15 @@ public sealed partial class OrganizationUnit : BaseEntity<Guid>, IAuditableEntit
                 OldParentId: oldParentId,
                 NewParentId: ParentId,
                 NewHierarchyPath: HierarchyPath,
-                NewLevel: Level,
+                NewDepth: Depth,
                 EventId: id,
                 OccurredOnUtc: ts)));
     }
 
-    internal void ApplyAncestorMove(string oldAncestorPath, string newAncestorPath, int levelDelta)
+    internal void ApplyAncestorMove(string oldAncestorPath, string newAncestorPath, int depthDelta)
     {
         HierarchyPath = string.Concat(newAncestorPath, HierarchyPath.AsSpan(oldAncestorPath.Length));
-        Level += levelDelta;
+        Depth += depthDelta;
     }
 
     public void Activate()

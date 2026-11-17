@@ -4,7 +4,7 @@ public sealed record PositionSummaryDto(
     string RefId,
     string LegalEntityRefId,
     string LegalEntityName,
-    Guid OrgUnitId,
+    string? OrgUnitRefId,
     string JobCode,
     string JobGradeCode,
     int JobGradeRankOrder,

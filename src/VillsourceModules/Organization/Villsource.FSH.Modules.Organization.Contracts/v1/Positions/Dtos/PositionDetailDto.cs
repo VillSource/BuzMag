@@ -5,7 +5,6 @@ public sealed record PositionDetailDto(
     string LegalEntityRefId,
     string LegalEntityCode,
     string LegalEntityName,
-    Guid OrgUnitId,
     string? OrgUnitRefId,
     PositionJobDto Job,
     PositionJobGradeDto JobGrade,

@@ -1,8 +1,8 @@
 ﻿namespace Villsource.FSH.Modules.Organization.Features.v1.PositionDelegations.Endpoints;
 
 internal sealed record UpdatePositionDelegationRequest(
-    string DelegationType,
+    string Type,
     DateTimeOffset ValidFrom,
     DateTimeOffset ValidTo,
-    string? DocumentTypeScope = null,
+    string? DocScope = null,
     string? Reason = null);

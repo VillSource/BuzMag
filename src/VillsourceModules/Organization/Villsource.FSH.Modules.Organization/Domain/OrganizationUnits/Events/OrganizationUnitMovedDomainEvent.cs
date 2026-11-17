@@ -7,6 +7,6 @@ public sealed record OrganizationUnitMovedDomainEvent(
     Guid? OldParentId,
     Guid? NewParentId,
     string NewHierarchyPath,
-    int NewLevel,
+    int NewDepth,
     Guid EventId,
     DateTimeOffset OccurredOnUtc) : DomainEvent(EventId, OccurredOnUtc);

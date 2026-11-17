@@ -1,4 +1,5 @@
 ﻿using FSH.Framework.Core.Domain;
+using Villsource.FSH.Modules.Organization.Domain.JobFamilies;
 using Villsource.FSH.Modules.Organization.Domain.JobGrades;
 using Villsource.FSH.Modules.Organization.Domain.Jobs.Events;
 using Villsource.Tool.UniqueKey;
@@ -13,7 +14,8 @@ public sealed partial class Job : BaseEntity<Guid>, IAuditableEntity, ISoftDelet
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string InternationalName { get; private set; } = null!;
-    public string? JobFamily { get; private set; }
+    public Guid? JobFamilyId { get; private set; }
+    public JobFamily? JobFamily { get; } = null!;
     public string? Description { get; private set; }
 
     public Guid DefaultJobGradeId { get; private set; }
@@ -26,12 +28,12 @@ public sealed partial class Job : BaseEntity<Guid>, IAuditableEntity, ISoftDelet
         string name,
         string internationalName,
         Guid defaultJobGradeId,
-        string? jobFamily = null,
+        Guid? jobFamilyId = null,
         string? description = null,
         bool isActive = true)
     {
-        var (normalizedCode, normalizedName, normalizedIntlName, normalizedFamily, normalizedDesc) =
-            JobRules.NormalizeAndValidate(code, name, internationalName, defaultJobGradeId, jobFamily, description);
+        var (normalizedCode, normalizedName, normalizedIntlName, normalizedDesc) =
+            JobRules.NormalizeAndValidate(code, name, internationalName, defaultJobGradeId, description);
 
         var entity = new Job
         {
@@ -40,7 +42,7 @@ public sealed partial class Job : BaseEntity<Guid>, IAuditableEntity, ISoftDelet
             Name = normalizedName,
             InternationalName = normalizedIntlName,
             DefaultJobGradeId = defaultJobGradeId,
-            JobFamily = normalizedFamily,
+            JobFamilyId = jobFamilyId,
             Description = normalizedDesc,
             IsActive = isActive
         };
@@ -66,19 +68,19 @@ public sealed partial class Job : BaseEntity<Guid>, IAuditableEntity, ISoftDelet
         string name,
         string internationalName,
         Guid defaultJobGradeId,
-        string? jobFamily = null,
+        Guid? jobFamilyId = null,
         string? description = null)
     {
         EnsureNotDeleted();
 
-        var (normalizedCode, normalizedName, normalizedIntlName, normalizedFamily, normalizedDesc) =
-            JobRules.NormalizeAndValidate(code, name, internationalName, defaultJobGradeId, jobFamily, description);
+        var (normalizedCode, normalizedName, normalizedIntlName, normalizedDesc) =
+            JobRules.NormalizeAndValidate(code, name, internationalName, defaultJobGradeId, description);
 
         if (string.Equals(Code, normalizedCode, StringComparison.Ordinal) &&
             string.Equals(Name, normalizedName, StringComparison.Ordinal) &&
             string.Equals(InternationalName, normalizedIntlName, StringComparison.Ordinal) &&
             DefaultJobGradeId == defaultJobGradeId &&
-            string.Equals(JobFamily, normalizedFamily, StringComparison.Ordinal) &&
+            JobFamilyId == jobFamilyId &&
             string.Equals(Description, normalizedDesc, StringComparison.Ordinal))
         {
             return false;
@@ -88,7 +90,7 @@ public sealed partial class Job : BaseEntity<Guid>, IAuditableEntity, ISoftDelet
         Name = normalizedName;
         InternationalName = normalizedIntlName;
         DefaultJobGradeId = defaultJobGradeId;
-        JobFamily = normalizedFamily;
+        JobFamilyId = jobFamilyId;
         Description = normalizedDesc;
 
         AddDomainEvent(DomainEvent.Create((id, ts) =>

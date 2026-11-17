@@ -3,6 +3,7 @@ using Villsource.FSH.Modules.Organization.Contracts.Constants;
 using Villsource.FSH.Modules.Organization.Domain.CostCenters.Events;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 using Villsource.Tool.UniqueKey;
+using Position = Villsource.FSH.Modules.Organization.Domain.Positions.Position;
 
 namespace Villsource.FSH.Modules.Organization.Domain.CostCenters;
 
@@ -30,7 +31,8 @@ public sealed partial class CostCenter : BaseEntity<Guid>, IAuditableEntity, ISo
     public CostCenterFunctionType FunctionType { get; private set; } = null!;
 
     // 3. Accountability (HR / Org Link)
-    public Guid? ResponsibleUserId { get; private set; }
+    public Guid? ResponsiblePositionId { get; private set; }
+    public Position? ResponsiblePosition { get; } = null!;
     public Guid? OrgUnitId { get; private set; }
 
     // 4. Validity & Lifecycle
@@ -52,7 +54,7 @@ public sealed partial class CostCenter : BaseEntity<Guid>, IAuditableEntity, ISo
         string? description = null,
         Guid? parentCostCenterId = null,
         Guid? defaultTaxBranchId = null,
-        Guid? responsibleUserId = null,
+        Guid? responsiblePositionId = null,
         Guid? orgUnitId = null,
         DateTimeOffset? validFrom = null,
         DateTimeOffset? validTo = null,
@@ -88,7 +90,7 @@ public sealed partial class CostCenter : BaseEntity<Guid>, IAuditableEntity, ISo
             InternationalName = internationalName.Trim(),
             Description = NormalizeOptionalText(description),
             FunctionType = functionType,
-            ResponsibleUserId = responsibleUserId,
+            ResponsiblePositionId = responsiblePositionId,
             OrgUnitId = orgUnitId,
             ValidFrom = utcValidFrom,
             ValidTo = utcValidTo,
@@ -108,7 +110,7 @@ public sealed partial class CostCenter : BaseEntity<Guid>, IAuditableEntity, ISo
         string? description = null,
         Guid? parentCostCenterId = null,
         Guid? defaultTaxBranchId = null,
-        Guid? responsibleUserId = null,
+        Guid? responsiblePositionId = null,
         Guid? orgUnitId = null,
         DateTimeOffset? validFrom = null,
         DateTimeOffset? validTo = null)
@@ -133,7 +135,7 @@ public sealed partial class CostCenter : BaseEntity<Guid>, IAuditableEntity, ISo
         FunctionType = functionType;
         ParentCostCenterId = parentCostCenterId;
         DefaultTaxBranchId = defaultTaxBranchId;
-        ResponsibleUserId = responsibleUserId;
+        ResponsiblePositionId = responsiblePositionId;
         OrgUnitId = orgUnitId;
         ValidFrom = utcValidFrom;
         ValidTo = utcValidTo;

@@ -22,6 +22,7 @@ public sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<Org
 
         builder.HasIndex(e => e.ParentId);
         builder.HasIndex(e => e.LegalEntityId);
+        builder.HasIndex(e => e.OrganizationUnitTypeId);
         builder.HasIndex(e => e.DefaultCostCenterId);
         builder.HasIndex(e => e.ManagerPositionId);
         builder.HasIndex(e => e.HierarchyPath);
@@ -30,9 +31,13 @@ public sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<Org
         builder.Property(e => e.Code).HasMaxLength(50).IsRequired();
         builder.Property(e => e.Name).HasMaxLength(250).IsRequired();
         builder.Property(e => e.InternationalName).HasMaxLength(250).IsRequired();
-        builder.Property(e => e.Type).HasMaxLength(30).IsRequired();
         builder.Property(e => e.Description).HasMaxLength(1000);
         builder.Property(e => e.HierarchyPath).HasMaxLength(1000).IsRequired();
+
+        builder.HasOne(e => e.OrganizationUnitType)
+            .WithMany()
+            .HasForeignKey(e => e.OrganizationUnitTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(e => e.LegalEntity)
             .WithMany()

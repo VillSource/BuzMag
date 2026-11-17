@@ -15,6 +15,10 @@ public static partial class CostCenterMapper
     [MapProperty([nameof(CostCenter.LegalEntity), nameof(LegalEntity.ReferenceId)], nameof(CostCenterDetailDto.LegalEntityRefId))]
     [MapProperty([nameof(CostCenter.LegalEntity), nameof(LegalEntity.Code)], nameof(CostCenterDetailDto.LegalEntityCode))]
     [MapProperty([nameof(CostCenter.LegalEntity), nameof(LegalEntity.LegalName)], nameof(CostCenterDetailDto.LegalEntityName))]
+    [MapPropertyFromSource(nameof(CostCenterDetailDto.ResponsiblePositionRefId), Use = nameof(GetResponsiblePositionRefId))]
+    [MapPropertyFromSource(nameof(CostCenterDetailDto.ResponsiblePositionCode), Use = nameof(GetResponsiblePositionCode))]
+    [MapPropertyFromSource(nameof(CostCenterDetailDto.ResponsiblePositionTitle), Use = nameof(GetResponsiblePositionTitle))]
+    [MapValue(nameof(CostCenterDetailDto.OrgUnitRefId), null)]
     [MapPropertyFromSource(nameof(CostCenterDetailDto.ChildCostCenters), Use = nameof(MapChildCostCenters))]
     [MapPropertyFromSource(nameof(CostCenterDetailDto.CreatedOnUtc), Use = nameof(GetCreatedOnUtc))]
     [MapPropertyFromSource(nameof(CostCenterDetailDto.LastModifiedOnUtc), Use = nameof(GetLastModifiedOnUtc))]
@@ -28,6 +32,10 @@ public static partial class CostCenterMapper
     public static partial CostCenterTaxBranchDto ToBranchDto(this TaxBranch branch);
 
     public static partial CostCenterFunctionTypeDto ToDto(this CostCenterFunctionType functionType);
+
+    private static string? GetResponsiblePositionRefId(CostCenter entity) => entity.ResponsiblePosition is { IsDeleted: false } p ? p.ReferenceId : null;
+    private static string? GetResponsiblePositionCode(CostCenter entity) => entity.ResponsiblePosition is { IsDeleted: false } p ? p.Code : null;
+    private static string? GetResponsiblePositionTitle(CostCenter entity) => entity.ResponsiblePosition is { IsDeleted: false } p ? p.Title : null;
 
     private static string MapFunctionTypeKey(CostCenterFunctionType functionType) => functionType.Key;
 

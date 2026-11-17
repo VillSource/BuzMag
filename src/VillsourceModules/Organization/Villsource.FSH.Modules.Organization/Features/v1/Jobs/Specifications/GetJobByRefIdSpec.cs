@@ -9,5 +9,6 @@ public sealed class GetJobByRefIdSpec : Specification<Job>
     {
         Where(j => j.ReferenceId == refId);
         Include(j => j.DefaultJobGrade!);
+        Include(j => j.JobFamily!);
     }
 }

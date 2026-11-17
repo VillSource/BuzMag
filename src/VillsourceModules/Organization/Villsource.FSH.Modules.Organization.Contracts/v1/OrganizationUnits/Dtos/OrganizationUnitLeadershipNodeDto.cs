@@ -2,7 +2,7 @@
 
 public sealed record OrganizationUnitLeadershipNodeDto(
     int DepthFromTarget,
-    int OuLevel,
+    int OuDepth,
     string OuRefId,
     string OuCode,
     string OuName,

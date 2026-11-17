@@ -12,6 +12,7 @@ public sealed class GetCostCenterByRefIdSpec : Specification<CostCenter>
         Include(c => c.LegalEntity!);
         Include(c => c.ParentCostCenter!);
         Include(c => c.DefaultTaxBranch!);
+        Include(c => c.ResponsiblePosition!);
         Include(c => c.Children.Where(child => !child.IsDeleted));
     }
 }

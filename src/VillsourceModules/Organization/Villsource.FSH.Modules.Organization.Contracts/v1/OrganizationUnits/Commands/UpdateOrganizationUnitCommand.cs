@@ -7,6 +7,6 @@ public sealed record UpdateOrganizationUnitCommand(
     string Code,
     string Name,
     string InternationalName,
-    string Type,
+    string OrganizationUnitTypeRefId,
     string? Description = null,
     string? DefaultCostCenterRefId = null) : IRequest<string>;

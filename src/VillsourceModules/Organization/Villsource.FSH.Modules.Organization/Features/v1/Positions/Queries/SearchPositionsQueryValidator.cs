@@ -12,6 +12,8 @@ public sealed class SearchPositionsQueryValidator : AbstractValidator<SearchPosi
         RuleFor(x => x.PageSize).InclusiveBetween(1, 100).When(x => x.PageSize.HasValue);
         RuleFor(x => x.LegalEntityRefId).MaximumLength(VillsourceId.KeySizes)
             .When(x => !string.IsNullOrWhiteSpace(x.LegalEntityRefId));
+        RuleFor(x => x.OrgUnitRefId).MaximumLength(VillsourceId.KeySizes)
+            .When(x => !string.IsNullOrWhiteSpace(x.OrgUnitRefId));
         RuleFor(x => x.JobRefId).MaximumLength(VillsourceId.KeySizes)
             .When(x => !string.IsNullOrWhiteSpace(x.JobRefId));
         RuleFor(x => x.JobGradeRefId).MaximumLength(VillsourceId.KeySizes)

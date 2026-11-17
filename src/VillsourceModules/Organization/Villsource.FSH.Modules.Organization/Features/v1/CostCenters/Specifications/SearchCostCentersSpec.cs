@@ -8,7 +8,9 @@ using Villsource.FSH.Modules.Organization.Domain.CostCenters;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.CostCenters.Specifications;
 
-public sealed class SearchCostCentersSpec : Specification<CostCenter, CostCenterSummaryDto>
+internal sealed record CostCenterSearchRow(Guid? OrgUnitId, CostCenterSummaryDto Dto);
+
+internal sealed class SearchCostCentersSpec : Specification<CostCenter, CostCenterSearchRow>
 {
     private static readonly IReadOnlyDictionary<string, Expression<Func<CostCenter, object>>> SortMappings =
         new Dictionary<string, Expression<Func<CostCenter, object>>>(StringComparer.OrdinalIgnoreCase)
@@ -25,7 +27,7 @@ public sealed class SearchCostCentersSpec : Specification<CostCenter, CostCenter
             ["createdOnUtc"] = c => c.CreatedOnUtc
         };
 
-    public SearchCostCentersSpec(SearchCostCentersQuery request)
+    public SearchCostCentersSpec(SearchCostCentersQuery request, Guid? orgUnitId = null)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -47,14 +49,15 @@ public sealed class SearchCostCentersSpec : Specification<CostCenter, CostCenter
             Where(c => c.FunctionType == functionType);
         }
 
-        if (request.ResponsibleUserId.HasValue)
+        if (!string.IsNullOrWhiteSpace(request.ResponsiblePositionRefId))
         {
-            Where(c => c.ResponsibleUserId == request.ResponsibleUserId.Value);
+            var posRefId = request.ResponsiblePositionRefId.Trim();
+            Where(c => c.ResponsiblePosition != null && !c.ResponsiblePosition.IsDeleted && c.ResponsiblePosition.ReferenceId == posRefId);
         }
 
-        if (request.OrgUnitId.HasValue)
+        if (orgUnitId.HasValue)
         {
-            Where(c => c.OrgUnitId == request.OrgUnitId.Value);
+            Where(c => c.OrgUnitId == orgUnitId.Value);
         }
 
         if (request.IsActive.HasValue)
@@ -90,24 +93,28 @@ public sealed class SearchCostCentersSpec : Specification<CostCenter, CostCenter
             applyDefaultOrdering: () => OrderBy(c => c.Code),
             sortMappings: SortMappings);
 
-        Select(c => new CostCenterSummaryDto(
-            c.ReferenceId,
-            c.LegalEntity!.ReferenceId,
-            c.LegalEntity!.LegalName,
-            c.ParentCostCenter != null ? c.ParentCostCenter.ReferenceId : null,
-            c.ParentCostCenter != null ? c.ParentCostCenter.Code : null,
-            c.Code,
-            c.Name,
-            c.InternationalName,
-            (string)c.FunctionType,
-            c.DefaultTaxBranch != null ? c.DefaultTaxBranch.BranchCode : null,
-            c.ResponsibleUserId,
+        Select(c => new CostCenterSearchRow(
             c.OrgUnitId,
-            c.ValidFrom,
-            c.ValidTo,
-            c.IsActive,
-            c.IsPostingBlocked,
-            c.Children.Count(child => !child.IsDeleted && child.IsActive)));
+            new CostCenterSummaryDto(
+                c.ReferenceId,
+                c.LegalEntity!.ReferenceId,
+                c.LegalEntity!.LegalName,
+                c.ParentCostCenter != null ? c.ParentCostCenter.ReferenceId : null,
+                c.ParentCostCenter != null ? c.ParentCostCenter.Code : null,
+                c.Code,
+                c.Name,
+                c.InternationalName,
+                (string)c.FunctionType,
+                c.DefaultTaxBranch != null ? c.DefaultTaxBranch.BranchCode : null,
+                c.ResponsiblePosition != null && !c.ResponsiblePosition.IsDeleted ? c.ResponsiblePosition.ReferenceId : null,
+                c.ResponsiblePosition != null && !c.ResponsiblePosition.IsDeleted ? c.ResponsiblePosition.Code : null,
+                c.ResponsiblePosition != null && !c.ResponsiblePosition.IsDeleted ? c.ResponsiblePosition.Title : null,
+                null,
+                c.ValidFrom,
+                c.ValidTo,
+                c.IsActive,
+                c.IsPostingBlocked,
+                c.Children.Count(child => !child.IsDeleted && child.IsActive))));
     }
 }
 

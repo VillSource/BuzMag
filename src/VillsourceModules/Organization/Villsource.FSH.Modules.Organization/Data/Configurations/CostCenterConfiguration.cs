@@ -24,6 +24,7 @@ public sealed class CostCenterConfiguration : IEntityTypeConfiguration<CostCente
         builder.HasIndex(c => new { c.LegalEntityId, c.IsActive, c.IsPostingBlocked });
         builder.HasIndex(c => c.ParentCostCenterId);
         builder.HasIndex(c => c.FunctionType);
+        builder.HasIndex(c => c.ResponsiblePositionId);
 
         // Properties
         builder.Property(c => c.ReferenceId).HasMaxLength(VillsourceId.KeySizes).IsRequired();
@@ -57,6 +58,11 @@ public sealed class CostCenterConfiguration : IEntityTypeConfiguration<CostCente
         builder.HasOne(c => c.DefaultTaxBranch)
             .WithMany()
             .HasForeignKey(c => c.DefaultTaxBranchId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne(c => c.ResponsiblePosition)
+            .WithMany()
+            .HasForeignKey(c => c.ResponsiblePositionId)
             .OnDelete(DeleteBehavior.NoAction);
     }
 }

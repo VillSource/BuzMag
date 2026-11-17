@@ -22,10 +22,10 @@ public sealed class GetJobLookupsQueryHandler(OrganizationDbContext dbContext)
             query = query.Where(j => j.IsActive);
         }
 
-        if (!string.IsNullOrWhiteSpace(request.JobFamily))
+        if (!string.IsNullOrWhiteSpace(request.JobFamilyRefId))
         {
-            var family = request.JobFamily.Trim();
-            query = query.Where(j => j.JobFamily != null && EF.Functions.ILike(j.JobFamily, family));
+            var familyRefId = request.JobFamilyRefId.Trim();
+            query = query.Where(j => j.JobFamily != null && j.JobFamily.ReferenceId == familyRefId);
         }
 
         return await query
@@ -35,7 +35,7 @@ public sealed class GetJobLookupsQueryHandler(OrganizationDbContext dbContext)
                 j.Code,
                 j.Name,
                 j.InternationalName,
-                j.JobFamily,
+                j.JobFamily != null ? j.JobFamily.Name : null,
                 j.DefaultJobGrade!.ReferenceId,
                 j.DefaultJobGrade!.Code,
                 j.DefaultJobGrade!.RankOrder))

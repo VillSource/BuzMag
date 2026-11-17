@@ -23,6 +23,10 @@ public sealed class CreateCostCenterCommandValidator : AbstractValidator<CreateC
             .MaximumLength(VillsourceId.KeySizes)
             .When(x => !string.IsNullOrWhiteSpace(x.DefaultTaxBranchRefId));
 
+        RuleFor(x => x.OrgUnitRefId)
+            .MaximumLength(VillsourceId.KeySizes)
+            .When(x => !string.IsNullOrWhiteSpace(x.OrgUnitRefId));
+
         RuleFor(x => x.ValidTo)
             .GreaterThanOrEqualTo(x => x.ValidFrom!.Value)
             .When(x => x.ValidFrom.HasValue && x.ValidTo.HasValue)

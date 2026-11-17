@@ -1,15 +1,14 @@
-﻿using FSH.Framework.Shared.Persistence;
+﻿using System.ComponentModel;
+using FSH.Framework.Shared.Persistence;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.ComponentModel;
 using Villsource.FSH.Modules.Organization.Contracts.v1.LegalEntities.Commands;
-using Villsource.FSH.Modules.Organization.Contracts.v1.LegalEntities.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.LegalEntities.Queries;
 
-namespace Villsource.FSH.Modules.Organization.Features.v1.LegalEntities;
+namespace Villsource.FSH.Modules.Organization.Features.v1.LegalEntities.Endpoints;
 
 public static class LegalEntityEndpoints
 {
@@ -23,18 +22,18 @@ public static class LegalEntityEndpoints
 
         // Queries
         group.MapGet("/", async (
-                [AsParameters] SearchLegalEntitiesQuery query,
+                [AsParameters] SearchLegalEntitiesRequest request,
                 ISender mediator,
                 CancellationToken cancellationToken) =>
             {
-                var result = await mediator.Send(request: query, cancellationToken: cancellationToken);
-                return Results.Ok(result);
+                var result = await mediator.Send(request: request.ToQuery(), cancellationToken: cancellationToken);
+                return Results.Ok(result.ToResponse());
             })
             .WithName("SearchLegalEntities")
             .WithSummary("Search legal entities")
             .WithDescription(
                 "Searches and paginates legal entities with optional keyword, country code filter, and sorting.")
-            .Produces<PagedResponse<LegalEntitySummaryDto>>(StatusCodes.Status200OK, "application/json")
+            .Produces<PagedResponse<LegalEntitySummaryResponse>>(StatusCodes.Status200OK, "application/json")
             .ProducesValidationProblem(StatusCodes.Status400BadRequest);
 
         group.MapGet("/{refId}", async (
@@ -46,22 +45,22 @@ public static class LegalEntityEndpoints
                 var result = await mediator.Send(
                     request: new GetLegalEntityByRefIdQuery(RefId: refId),
                     cancellationToken: cancellationToken);
-                return Results.Ok(result);
+                return Results.Ok(result.ToResponse());
             })
             .WithName("GetLegalEntity")
             .WithSummary("Get legal entity by reference ID")
             .WithDescription(
                 "Retrieves detailed legal entity information, company profile, and associated tax branches.")
-            .Produces<LegalEntityDetailDto>(StatusCodes.Status200OK, "application/json")
+            .Produces<LegalEntityDetailResponse>(StatusCodes.Status200OK, "application/json")
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         // LegalEntity Commands
         group.MapPost("/", async (
-                [FromBody] CreateLegalEntityCommand command,
+                [FromBody] CreateLegalEntityRequest request,
                 ISender mediator,
                 CancellationToken cancellationToken) =>
             {
-                var refId = await mediator.Send(request: command, cancellationToken: cancellationToken);
+                var refId = await mediator.Send(request: request.ToCommand(), cancellationToken: cancellationToken);
                 return Results.CreatedAtRoute(
                     routeName: "GetLegalEntity",
                     routeValues: new { refId },
@@ -71,7 +70,7 @@ public static class LegalEntityEndpoints
             .WithSummary("Create a legal entity")
             .WithDescription(
                 "Creates a new legal entity with optional company profile and head office tax branch, returning its reference ID.")
-            .Accepts<CreateLegalEntityCommand>("application/json")
+            .Accepts<CreateLegalEntityRequest>("application/json")
             .Produces<string>(StatusCodes.Status201Created, "application/json")
             .ProducesValidationProblem(StatusCodes.Status400BadRequest);
 

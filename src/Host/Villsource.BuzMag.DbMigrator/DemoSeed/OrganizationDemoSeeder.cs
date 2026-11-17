@@ -3,606 +3,616 @@ using Microsoft.Extensions.Logging;
 using Villsource.FSH.Modules.Organization.Contracts.Constants;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain.CostCenters;
+using Villsource.FSH.Modules.Organization.Domain.JobFamilies;
 using Villsource.FSH.Modules.Organization.Domain.JobGrades;
 using Villsource.FSH.Modules.Organization.Domain.Jobs;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 using Villsource.FSH.Modules.Organization.Domain.OrganizationUnits;
+using Villsource.FSH.Modules.Organization.Domain.OrganizationUnitTypes;
 using Villsource.FSH.Modules.Organization.Domain.PositionDelegations;
 using Villsource.ObjectValue;
 using Position = Villsource.FSH.Modules.Organization.Domain.Positions.Position;
 
 namespace Villsource.BuzMag.DbMigrator.DemoSeed;
 
+/// <summary>
+/// Seeds a realistic global big-tech corporate group ("NexaTech Group") into the Organization module
+/// for demo and development environments. Idempotent: skips if legal entities already exist.
+/// </summary>
 internal sealed class OrganizationDemoSeeder(
     OrganizationDbContext dbContext,
     ILogger<OrganizationDemoSeeder> logger)
 {
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
-        const string rootLegalEntityCode = "VS-TH-HQ";
-        if (await dbContext.LegalEntities
-                .AnyAsync(x => x.Code == rootLegalEntityCode, cancellationToken)
-                .ConfigureAwait(false))
+        if (await dbContext.LegalEntities.AnyAsync(cancellationToken).ConfigureAwait(false))
         {
-            logger.LogInformation("Organization enterprise demo data already exists. Skipping demo seeding.");
             return;
         }
 
-        logger.LogInformation("Seeding Organization module enterprise demo data...");
-
-        // =========================================================================
-        // STEP 1: LegalEntity & TaxBranches (นิติบุคคลและสาขาทางภาษี 3 ภูมิภาค)
-        // =========================================================================
-        var hqAddress = new Address(
-            houseNo: "99/9",
-            subDistrict: "ห้วยขวาง",
-            district: "ห้วยขวาง",
-            province: "กรุงเทพมหานคร",
-            postalCode: "10310",
-            country: "Thailand",
-            building: "อาคารวิลซอร์ส ทาวเวอร์ ชั้น 18-22",
-            road: "พระราม 9");
-
-        var cnxAddress = new Address(
-            houseNo: "123/4",
-            subDistrict: "สุเทพ",
-            district: "เมืองเชียงใหม่",
-            province: "เชียงใหม่",
-            postalCode: "50200",
-            country: "Thailand",
-            building: "โครงการวัน นิมมาน อาคาร B ชั้น 4",
-            road: "นิมมานเหมินท์");
-
-        var rayongAddress = new Address(
-            houseNo: "88/1",
-            subDistrict: "มาบตาพุด",
-            district: "เมืองระยอง",
-            province: "ระยอง",
-            postalCode: "21150",
-            country: "Thailand",
-            moo: "4",
-            building: "นิคมอุตสาหกรรมอีสเทิร์นซีบอร์ด",
-            road: "สุขุมวิท");
-
-        var legalEntity = LegalEntity.Create(
-            code: rootLegalEntityCode,
-            countryCode: "TH",
-            legalName: "บริษัท วิลซอร์ส คอร์ปอเรชั่น จำกัด (มหาชน)",
-            internationalName: "Villsource Corporation Public Company Limited",
-            taxId: "0107567000123",
-            baseCurrency: "THB",
-            registrationNumber: "0107567000123",
-            profile: new CompanyProfile
-            {
-                TradeName = "Villsource Enterprise",
-                Website = "https://www.villsource.co.th",
-                ContactEmail = "corporate@villsource.co.th",
-                ContactPhone = "+66-2-000-9999"
-            },
-            headOfficeAddress: hqAddress,
-            headOfficeBranchCode: "00000",
-            headOfficeName: "สำนักงานใหญ่ (พระราม 9)",
-            headOfficeInternationalName: "Head Office (Rama IX)",
-            headOfficeRegisteredDate: new DateTimeOffset(2018, 1, 15, 0, 0, 0, TimeSpan.Zero));
-
-        var branchCnx = legalEntity.AddBranch(
-            branchCode: "00001",
-            name: "สาขาเชียงใหม่ (ศูนย์วิจัยและพัฒนาซอฟต์แวร์)",
-            internationalName: "Chiang Mai Branch (Software R&D Hub)",
-            registeredAddress: cnxAddress,
-            isHeadOffice: false,
-            registeredDate: new DateTimeOffset(2021, 6, 1, 0, 0, 0, TimeSpan.Zero));
-
-        var branchRayong = legalEntity.AddBranch(
-            branchCode: "00002",
-            name: "สาขาระยอง (ศูนย์ปฏิบัติการและคลังสินค้าภาคตะวันออก)",
-            internationalName: "Rayong Branch (Eastern Operations & Fulfillment Center)",
-            registeredAddress: rayongAddress,
-            isHeadOffice: false,
-            registeredDate: new DateTimeOffset(2022, 9, 15, 0, 0, 0, TimeSpan.Zero));
-
-        var branchHq = legalEntity.Branches.First(b => b.IsHeadOffice);
-
-        await dbContext.LegalEntities.AddAsync(legalEntity, cancellationToken).ConfigureAwait(false);
-
-        // =========================================================================
-        // STEP 2: JobGrades (ระดับชั้นตำแหน่งงาน 8 ระดับ ตามโครงสร้างองค์กรใหญ่)
-        // =========================================================================
-        var jgCeo = JobGrade.Create("JG-10", "ประธานเจ้าหน้าที่บริหาร", "Chief Executive Officer (CEO)", 100, "Top Executive");
-        var jgCLevel = JobGrade.Create("JG-09", "ผู้บริหารระดับสูง (C-Suite)", "C-Level Executive", 90, "Chief Officers (CTO, CFO, COO, CHRO, CCO)");
-        var jgVp = JobGrade.Create("JG-08", "รองกรรมการผู้จัดการ / ผู้อำนวยการฝ่ายอาวุโส", "Vice President / Senior Director", 80, "Division Heads");
-        var jgDir = JobGrade.Create("JG-07", "ผู้อำนวยการฝ่าย", "Director", 70, "Department Directors");
-        var jgMgr = JobGrade.Create("JG-06", "ผู้จัดการแผนก", "Manager", 60, "Department / Section Managers");
-        var jgLead = JobGrade.Create("JG-05", "หัวหน้าทีม / ผู้เชี่ยวชาญหลัก", "Team Lead / Principal Specialist", 50, "Team Leads & Principal Individual Contributors");
-        var jgSenior = JobGrade.Create("JG-04", "เจ้าหน้าที่อาวุโส / วิศวกรอาวุโส", "Senior Specialist / Senior Engineer", 40, "Senior Level");
-        var jgStaff = JobGrade.Create("JG-03", "เจ้าหน้าที่ปฏิบัติการ / วิศวกร", "Specialist / Engineer / Officer", 30, "Operational & Engineering Staff");
-
-        await dbContext.JobGrades.AddRangeAsync(
-            [jgCeo, jgCLevel, jgVp, jgDir, jgMgr, jgLead, jgSenior, jgStaff],
-            cancellationToken).ConfigureAwait(false);
-
-        // =========================================================================
-        // STEP 3: Jobs (มาตรฐานตำแหน่งงานครอบคลุมทุกสายอาชีพ)
-        // =========================================================================
-        // Executive
-        var jobCeo = Job.Create("JOB-CEO", "ประธานเจ้าหน้าที่บริหาร", "Chief Executive Officer", jgCeo.Id, "Executive Management");
-        var jobCto = Job.Create("JOB-CTO", "ประธานเจ้าหน้าที่ฝ่ายเทคโนโลยี", "Chief Technology Officer", jgCLevel.Id, "Technology");
-        var jobCfo = Job.Create("JOB-CFO", "ประธานเจ้าหน้าที่ฝ่ายการเงิน", "Chief Financial Officer", jgCLevel.Id, "Finance");
-        var jobCoo = Job.Create("JOB-COO", "ประธานเจ้าหน้าที่ฝ่ายปฏิบัติการ", "Chief Operating Officer", jgCLevel.Id, "Operations");
-        var jobChro = Job.Create("JOB-CHRO", "ประธานเจ้าหน้าที่ฝ่ายทรัพยากรบุคคล", "Chief Human Resources Officer", jgCLevel.Id, "Human Resources");
-
-        // Technology & Product
-        var jobVpEng = Job.Create("JOB-VP-ENG", "รองกรรมการผู้จัดการฝ่ายวิศวกรรมซอฟต์แวร์", "VP of Engineering", jgVp.Id, "Engineering");
-        var jobDirProd = Job.Create("JOB-DIR-PROD", "ผู้อำนวยการฝ่ายบริหารผลิตภัณฑ์", "Director of Product Management", jgDir.Id, "Product");
-        var jobEngMgr = Job.Create("JOB-ENG-MGR", "ผู้จัดการฝ่ายวิศวกรรมซอฟต์แวร์", "Engineering Manager", jgMgr.Id, "Engineering");
-        var jobSecMgr = Job.Create("JOB-SEC-MGR", "ผู้จัดการฝ่ายความมั่นคงปลอดภัยไซเบอร์", "Information Security Manager", jgMgr.Id, "Security & Infrastructure");
-        var jobPrincipalArch = Job.Create("JOB-PRN-ARCH", "สถาปนิกระบบซอฟต์แวร์หลัก", "Principal Software Architect", jgLead.Id, "Engineering");
-        var jobTechLead = Job.Create("JOB-TECH-LEAD", "หัวหน้าทีมพัฒนาซอฟต์แวร์", "Software Engineering Tech Lead", jgLead.Id, "Engineering");
-        var jobSrSwe = Job.Create("JOB-SR-SWE", "วิศวกรซอฟต์แวร์อาวุโส", "Senior Software Engineer", jgSenior.Id, "Engineering");
-        var jobSwe = Job.Create("JOB-SWE", "วิศวกรซอฟต์แวร์", "Software Engineer", jgStaff.Id, "Engineering");
-        var jobPm = Job.Create("JOB-PM", "ผู้จัดการผลิตภัณฑ์", "Product Manager", jgMgr.Id, "Product");
-
-        // Finance, Accounting & Procurement
-        var jobFinDir = Job.Create("JOB-DIR-FIN", "ผู้อำนวยการฝ่ายบัญชีและการเงิน", "Director of Finance & Accounting", jgDir.Id, "Finance");
-        var jobAcctMgr = Job.Create("JOB-ACCT-MGR", "ผู้จัดการฝ่ายบัญชีและการรายงานทางการเงิน", "Accounting & Reporting Manager", jgMgr.Id, "Accounting");
-        var jobProcMgr = Job.Create("JOB-PROC-MGR", "ผู้จัดการฝ่ายจัดซื้อจัดจ้างกลาง", "Procurement Manager", jgMgr.Id, "Procurement");
-        var jobSrAcct = Job.Create("JOB-SR-ACCT", "นักบัญชีอาวุโส", "Senior Accountant", jgSenior.Id, "Accounting");
-
-        // Commercial & Operations
-        var jobVpSales = Job.Create("JOB-VP-SALES", "รองกรรมการผู้จัดการฝ่ายขายและการตลาด", "VP of Sales & Marketing", jgVp.Id, "Commercial");
-        var jobSalesMgr = Job.Create("JOB-SALES-MGR", "ผู้จัดการฝ่ายขายองค์กร", "Enterprise Sales Manager", jgMgr.Id, "Sales");
-        var jobOpsDir = Job.Create("JOB-DIR-OPS", "ผู้อำนวยการฝ่ายปฏิบัติการและโลจิสติกส์", "Director of Operations & Logistics", jgDir.Id, "Operations");
-        var jobPlantMgr = Job.Create("JOB-PLANT-MGR", "ผู้จัดการศูนย์ปฏิบัติการระยอง", "Rayong Operations Center Manager", jgMgr.Id, "Operations");
-        var jobOpsSpec = Job.Create("JOB-OPS-SPEC", "เจ้าหน้าที่ปฏิบัติการและคลังสินค้า", "Operations & Warehouse Specialist", jgStaff.Id, "Operations");
-
-        // HR & Legal
-        var jobHrMgr = Job.Create("JOB-HR-MGR", "ผู้จัดการฝ่ายทรัพยากรบุคคลและพัฒนาองค์กร", "HR & People Operations Manager", jgMgr.Id, "Human Resources");
-        var jobLegalMgr = Job.Create("JOB-LEG-MGR", "ผู้จัดการฝ่ายกฎหมายและกำกับดูแลกิจการ", "Legal & Compliance Manager", jgMgr.Id, "Legal & Compliance");
-
-        await dbContext.Jobs.AddRangeAsync(
-            [
-                jobCeo, jobCto, jobCfo, jobCoo, jobChro,
-                jobVpEng, jobDirProd, jobEngMgr, jobSecMgr, jobPrincipalArch, jobTechLead, jobSrSwe, jobSwe, jobPm,
-                jobFinDir, jobAcctMgr, jobProcMgr, jobSrAcct,
-                jobVpSales, jobSalesMgr, jobOpsDir, jobPlantMgr, jobOpsSpec,
-                jobHrMgr, jobLegalMgr
-            ],
-            cancellationToken).ConfigureAwait(false);
-
-        // =========================================================================
-        // STEP 4: OrganizationUnits (โครงสร้างองค์กร 4 ระดับ: Company -> Division -> Department -> Team)
-        // =========================================================================
-        // Level 0: Company Root
-        var ouCorp = OrganizationUnit.Create(
-            code: "OU-CORP",
-            name: "บริษัท วิลซอร์ส คอร์ปอเรชั่น จำกัด (มหาชน)",
-            internationalName: "Villsource Corporation HQ",
-            type: "COMPANY",
-            description: "สำนักงานใหญ่และศูนย์บริหารงานกลาง",
-            legalEntityId: legalEntity.Id );
-
-        // Level 1: Divisions (5 สายงานหลัก)
-        var ouDivTech = OrganizationUnit.Create(
-            code: "DIV-TECH",
-            name: "สายงานเทคโนโลยีและนวัตกรรมดิจิทัล",
-            internationalName: "Technology & Digital Innovation Division",
-            type: "DIVISION",
-            legalEntityId: legalEntity.Id,
-            parent: ouCorp);
-
-        var ouDivComm = OrganizationUnit.Create(
-            code: "DIV-COMM",
-            name: "สายงานการพาณิชย์และการเติบโตธุรกิจ",
-            internationalName: "Commercial & Business Growth Division",
-            type: "DIVISION",
-            legalEntityId: legalEntity.Id,
-            parent: ouCorp);
-
-        var ouDivOps = OrganizationUnit.Create(
-            code: "DIV-OPS",
-            name: "สายงานปฏิบัติการและซัพพลายเชน",
-            internationalName: "Operations & Supply Chain Division",
-            type: "DIVISION",
-            legalEntityId: legalEntity.Id,
-            parent: ouCorp);
-
-        var ouDivFin = OrganizationUnit.Create(
-            code: "DIV-FIN",
-            name: "สายงานบัญชี การเงิน และจัดซื้อกลาง",
-            internationalName: "Finance, Accounting & Procurement Division",
-            type: "DIVISION",
-            legalEntityId: legalEntity.Id,
-            parent: ouCorp);
-
-        var ouDivPeople = OrganizationUnit.Create(
-            code: "DIV-PPL",
-            name: "สายงานทรัพยากรบุคคลและกฎหมายองค์กร",
-            internationalName: "People, Culture & Corporate Legal Division",
-            type: "DIVISION",
-            legalEntityId: legalEntity.Id,
-            parent: ouCorp);
-
-        // Level 2: Departments (ฝ่ายงานภายใต้แต่ละ Division)
-        var ouDeptEng = OrganizationUnit.Create(
-            code: "DEPT-ENG",
-            name: "ฝ่ายวิศวกรรมซอฟต์แวร์และแพลตฟอร์ม",
-            internationalName: "Software & Platform Engineering Department",
-            type: "DEPARTMENT",
-            legalEntityId: legalEntity.Id,
-            parent: ouDivTech );
-
-        var ouDeptProd = OrganizationUnit.Create(
-            code: "DEPT-PROD",
-            name: "ฝ่ายบริหารผลิตภัณฑ์และประสบการณ์ผู้ใช้",
-            internationalName: "Product Management & UX Department",
-            type: "DEPARTMENT",
-            legalEntityId: legalEntity.Id,
-            parent: ouDivTech );
-
-        var ouDeptSec = OrganizationUnit.Create(
-            code: "DEPT-SEC",
-            name: "ฝ่ายโครงสร้างพื้นฐานและความปลอดภัยไซเบอร์",
-            internationalName: "Infrastructure & Cyber Security Department",
-            type: "DEPARTMENT",
-            legalEntityId: legalEntity.Id,
-            parent: ouDivTech
-            );
-
-        var ouDeptSales = OrganizationUnit.Create(
-            code: "DEPT-SALES",
-            name: "ฝ่ายขายลูกค้าองค์กร",
-            internationalName: "Enterprise Sales Department",
-            type: "DEPARTMENT",
-            legalEntityId: legalEntity.Id,
-            parent: ouDivComm);
-
-        var ouDeptRayongOps = OrganizationUnit.Create(
-            code: "DEPT-RYG-OPS",
-            name: "ฝ่ายปฏิบัติการและคลังสินค้าภาคตะวันออก (ระยอง)",
-            internationalName: "Eastern Operations & Fulfillment Department (Rayong)",
-            type: "DEPARTMENT",
-            legalEntityId: legalEntity.Id,
-            parent: ouDivOps);
-
-        var ouDeptAcct = OrganizationUnit.Create(
-            code: "DEPT-ACCT",
-            name: "ฝ่ายบัญชีและภาษีอากร",
-            internationalName: "Accounting & Taxation Department",
-            type: "DEPARTMENT",
-            legalEntityId: legalEntity.Id,
-            parent: ouDivFin);
-
-        var ouDeptProc = OrganizationUnit.Create(
-            code: "DEPT-PROC",
-            name: "ฝ่ายจัดซื้อจัดจ้างกลาง",
-            internationalName: "Central Procurement Department",
-            type: "DEPARTMENT",
-            legalEntityId: legalEntity.Id,
-            parent: ouDivFin);
-
-        var ouDeptHr = OrganizationUnit.Create(
-            code: "DEPT-HR",
-            name: "ฝ่ายบริหารทรัพยากรบุคคลและเงินเดือน",
-            internationalName: "Human Resources & Payroll Department",
-            type: "DEPARTMENT",
-            legalEntityId: legalEntity.Id,
-            parent: ouDivPeople);
-
-        var ouDeptLegal = OrganizationUnit.Create(
-            code: "DEPT-LEGAL",
-            name: "ฝ่ายกฎหมายสัญญาและกำกับดูแลกิจการ",
-            internationalName: "Legal & Corporate Compliance Department",
-            type: "DEPARTMENT",
-            legalEntityId: legalEntity.Id,
-            parent: ouDivPeople);
-
-        // Level 3: Teams (ทีมปฏิบัติการเฉพาะทาง)
-        var ouTeamCoreErp = OrganizationUnit.Create(
-            code: "TEAM-ERP",
-            name: "ทีมพัฒนา Core ERP & Finance Engine",
-            internationalName: "Core ERP & Finance Engine Team",
-            type: "TEAM",
-            legalEntityId: legalEntity.Id,
-            parent: ouDeptEng);
-
-        var ouTeamCnxRnd = OrganizationUnit.Create(
-            code: "TEAM-CNX-RND",
-            name: "ทีมวิจัยและพัฒนา AI / Data (สาขาเชียงใหม่)",
-            internationalName: "AI & Data R&D Team (Chiang Mai Hub)",
-            type: "TEAM",
-            legalEntityId: legalEntity.Id,
-            parent: ouDeptEng);
-
-        // Edge Case: ทีมที่ยังไม่มี ManagerPosition (Vacant Manager) เพื่อทดสอบ Skip-Level Approval Escalation
-        var ouTeamDevOps = OrganizationUnit.Create(
-            code: "TEAM-DEVOPS",
-            name: "ทีม Cloud Platform & SRE (Vacant Manager Test)",
-            internationalName: "Cloud Platform & SRE Team",
-            type: "TEAM",
-            legalEntityId: legalEntity.Id,
-            parent: ouDeptSec );
-
-        await dbContext.OrganizationUnits.AddRangeAsync(
-            [
-                ouCorp,
-                ouDivTech, ouDivComm, ouDivOps, ouDivFin, ouDivPeople,
-                ouDeptEng, ouDeptProd, ouDeptSec, ouDeptSales, ouDeptRayongOps, ouDeptAcct, ouDeptProc, ouDeptHr, ouDeptLegal,
-                ouTeamCoreErp, ouTeamCnxRnd, ouTeamDevOps
-            ],
-            cancellationToken).ConfigureAwait(false);
-
-        // =========================================================================
-        // STEP 5: CostCenters (ศูนย์ต้นทุนครบทุกหมวด IAS 1 / TFRS 1)
-        // =========================================================================
-        var ccCorp = CostCenter.Create(
-            legalEntityId: legalEntity.Id,
-            code: "CC-1000",
-            name: "ศูนย์ต้นทุนบริหารส่วนกลาง",
-            internationalName: "Corporate Executive Cost Center",
-            functionType: CostCenterFunctionType.Administrative,
-            defaultTaxBranchId: branchHq.Id,
-            orgUnitId: ouCorp.Id);
-
-        var ccTech = CostCenter.Create(
-            legalEntityId: legalEntity.Id,
-            code: "CC-2000",
-            name: "ศูนย์ต้นทุนสายงานเทคโนโลยี",
-            internationalName: "Technology Division Cost Center",
-            functionType: CostCenterFunctionType.ResearchAndDevelopment,
-            parentCostCenterId: ccCorp.Id,
-            defaultTaxBranchId: branchHq.Id,
-            orgUnitId: ouDivTech.Id);
-
-        var ccCoreErp = CostCenter.Create(
-            legalEntityId: legalEntity.Id,
-            code: "CC-2110",
-            name: "ศูนย์ต้นทุนวิจัยพัฒนา Core ERP (กรุงเทพฯ)",
-            internationalName: "Core ERP R&D Cost Center (BKK)",
-            functionType: CostCenterFunctionType.ResearchAndDevelopment,
-            parentCostCenterId: ccTech.Id,
-            defaultTaxBranchId: branchHq.Id,
-            orgUnitId: ouTeamCoreErp.Id);
-
-        var ccCnxRnd = CostCenter.Create(
-            legalEntityId: legalEntity.Id,
-            code: "CC-2120",
-            name: "ศูนย์ต้นทุนวิจัยพัฒนา AI & Data (เชียงใหม่)",
-            internationalName: "AI & Data R&D Cost Center (CNX)",
-            functionType: CostCenterFunctionType.ResearchAndDevelopment,
-            parentCostCenterId: ccTech.Id,
-            defaultTaxBranchId: branchCnx.Id,
-            orgUnitId: ouTeamCnxRnd.Id);
-
-        var ccComm = CostCenter.Create(
-            legalEntityId: legalEntity.Id,
-            code: "CC-3000",
-            name: "ศูนย์ต้นทุนการขายและการตลาด",
-            internationalName: "Sales & Marketing Cost Center",
-            functionType: CostCenterFunctionType.SellingAndDistribution,
-            parentCostCenterId: ccCorp.Id,
-            defaultTaxBranchId: branchHq.Id,
-            orgUnitId: ouDivComm.Id);
-
-        var ccRayongOps = CostCenter.Create(
-            legalEntityId: legalEntity.Id,
-            code: "CC-4100",
-            name: "ศูนย์ต้นทุนปฏิบัติการและคลังสินค้า (ระยอง)",
-            internationalName: "Eastern Operations & Fulfillment Cost Center (Rayong)",
-            functionType: CostCenterFunctionType.CostOfSales,
-            parentCostCenterId: ccCorp.Id,
-            defaultTaxBranchId: branchRayong.Id,
-            orgUnitId: ouDeptRayongOps.Id);
-
-        var ccSharedServices = CostCenter.Create(
-            legalEntityId: legalEntity.Id,
-            code: "CC-6000",
-            name: "ศูนย์ต้นทุนบริการส่วนกลางและ IT/HR Pool",
-            internationalName: "Shared Services Allocation Pool",
-            functionType: CostCenterFunctionType.SharedServices,
-            parentCostCenterId: ccCorp.Id,
-            defaultTaxBranchId: branchHq.Id,
-            orgUnitId: ouDivPeople.Id);
-
-        await dbContext.CostCenters.AddRangeAsync(
-            [ccCorp, ccTech, ccCoreErp, ccCnxRnd, ccComm, ccRayongOps, ccSharedServices],
-            cancellationToken).ConfigureAwait(false);
-
-        // =========================================================================
-        // STEP 6: Positions (ตำแหน่งงานทุกสายงาน + Reporting Lines + Headcount Capacity)
-        // =========================================================================
-        // C-Suite
-        var posCeo = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouCorp.Id, jobId: jobCeo.Id, jobGradeId: jgCeo.Id,
-            code: "POS-CEO-001", title: "ประธานเจ้าหน้าที่บริหาร", internationalTitle: "Chief Executive Officer",
-            costCenterId: ccCorp.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posCto = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDivTech.Id, jobId: jobCto.Id, jobGradeId: jgCLevel.Id,
-            code: "POS-CTO-001", title: "ประธานเจ้าหน้าที่ฝ่ายเทคโนโลยี", internationalTitle: "Chief Technology Officer",
-            costCenterId: ccTech.Id, reportsToPositionId: posCeo.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posCfo = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDivFin.Id, jobId: jobCfo.Id, jobGradeId: jgCLevel.Id,
-            code: "POS-CFO-001", title: "ประธานเจ้าหน้าที่ฝ่ายการเงิน", internationalTitle: "Chief Financial Officer",
-            costCenterId: ccCorp.Id, reportsToPositionId: posCeo.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posCoo = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDivOps.Id, jobId: jobCoo.Id, jobGradeId: jgCLevel.Id,
-            code: "POS-COO-001", title: "ประธานเจ้าหน้าที่ฝ่ายปฏิบัติการ", internationalTitle: "Chief Operating Officer",
-            costCenterId: ccRayongOps.Id, reportsToPositionId: posCeo.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posChro = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDivPeople.Id, jobId: jobChro.Id, jobGradeId: jgCLevel.Id,
-            code: "POS-CHRO-001", title: "ประธานเจ้าหน้าที่ฝ่ายทรัพยากรบุคคล", internationalTitle: "Chief Human Resources Officer",
-            costCenterId: ccSharedServices.Id, reportsToPositionId: posCeo.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        // Technology & Product Leadership + Staff
-        var posVpEng = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptEng.Id, jobId: jobVpEng.Id, jobGradeId: jgVp.Id,
-            code: "POS-VP-ENG-001", title: "รองกรรมการผู้จัดการฝ่ายวิศวกรรมซอฟต์แวร์", internationalTitle: "VP of Engineering",
-            costCenterId: ccTech.Id, reportsToPositionId: posCto.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posDirProd = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptProd.Id, jobId: jobDirProd.Id, jobGradeId: jgDir.Id,
-            code: "POS-DIR-PROD-001", title: "ผู้อำนวยการฝ่ายบริหารผลิตภัณฑ์", internationalTitle: "Director of Product Management",
-            costCenterId: ccTech.Id, reportsToPositionId: posCto.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posSecMgr = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptSec.Id, jobId: jobSecMgr.Id, jobGradeId: jgMgr.Id,
-            code: "POS-SEC-MGR-001", title: "ผู้จัดการฝ่ายความมั่นคงปลอดภัยไซเบอร์", internationalTitle: "Information Security Manager",
-            costCenterId: ccTech.Id, reportsToPositionId: posCto.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posPrincipalArch = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptEng.Id, jobId: jobPrincipalArch.Id, jobGradeId: jgLead.Id,
-            code: "POS-PRN-ARCH-001", title: "สถาปนิกระบบซอฟต์แวร์หลัก", internationalTitle: "Principal Software Architect",
-            costCenterId: ccTech.Id, reportsToPositionId: posVpEng.Id, dottedLinePositionId: posCto.Id,
-            headcountCapacity: 2, isPrimaryLeadership: false);
-
-        var posErpLead = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouTeamCoreErp.Id, jobId: jobTechLead.Id, jobGradeId: jgLead.Id,
-            code: "POS-ERP-LEAD-001", title: "หัวหน้าทีมพัฒนา Core ERP", internationalTitle: "Core ERP Tech Lead",
-            costCenterId: ccCoreErp.Id, reportsToPositionId: posVpEng.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posErpSwePool = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouTeamCoreErp.Id, jobId: jobSwe.Id, jobGradeId: jgStaff.Id,
-            code: "POS-ERP-SWE-001", title: "วิศวกรซอฟต์แวร์ (Core ERP)", internationalTitle: "Software Engineer (Core ERP)",
-            costCenterId: ccCoreErp.Id, reportsToPositionId: posErpLead.Id, headcountCapacity: 8, isPrimaryLeadership: false);
-
-        var posCnxMgr = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouTeamCnxRnd.Id, jobId: jobEngMgr.Id, jobGradeId: jgMgr.Id,
-            code: "POS-CNX-MGR-001", title: "ผู้จัดการศูนย์วิจัยและพัฒนา เชียงใหม่", internationalTitle: "Chiang Mai R&D Center Manager",
-            costCenterId: ccCnxRnd.Id, reportsToPositionId: posVpEng.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posCnxSrSwe = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouTeamCnxRnd.Id, jobId: jobSrSwe.Id, jobGradeId: jgSenior.Id,
-            code: "POS-CNX-SR-001", title: "วิศวกรซอฟต์แวร์อาวุโส AI/Data (เชียงใหม่)", internationalTitle: "Senior AI/Data Engineer (CNX)",
-            costCenterId: ccCnxRnd.Id, reportsToPositionId: posCnxMgr.Id, headcountCapacity: 4, isPrimaryLeadership: false);
-
-        // Commercial & Operations
-        var posVpSales = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDivComm.Id, jobId: jobVpSales.Id, jobGradeId: jgVp.Id,
-            code: "POS-VP-SALES-001", title: "รองกรรมการผู้จัดการฝ่ายขายและการตลาด", internationalTitle: "VP of Sales & Marketing",
-            costCenterId: ccComm.Id, reportsToPositionId: posCeo.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posSalesMgr = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptSales.Id, jobId: jobSalesMgr.Id, jobGradeId: jgMgr.Id,
-            code: "POS-SALES-MGR-001", title: "ผู้จัดการฝ่ายขายลูกค้าองค์กร", internationalTitle: "Enterprise Sales Manager",
-            costCenterId: ccComm.Id, reportsToPositionId: posVpSales.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posPlantMgr = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptRayongOps.Id, jobId: jobPlantMgr.Id, jobGradeId: jgMgr.Id,
-            code: "POS-RYG-MGR-001", title: "ผู้จัดการศูนย์ปฏิบัติการและคลังสินค้าระยอง", internationalTitle: "Rayong Operations Manager",
-            costCenterId: ccRayongOps.Id, reportsToPositionId: posCoo.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posRayongOpsPool = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptRayongOps.Id, jobId: jobOpsSpec.Id, jobGradeId: jgStaff.Id,
-            code: "POS-RYG-OPS-001", title: "เจ้าหน้าที่ปฏิบัติการและคลังสินค้า (ระยอง)", internationalTitle: "Operations & Warehouse Specialist (Rayong)",
-            costCenterId: ccRayongOps.Id, reportsToPositionId: posPlantMgr.Id, headcountCapacity: 15, isPrimaryLeadership: false);
-
-        // Finance, Accounting & Procurement
-        var posAcctMgr = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptAcct.Id, jobId: jobAcctMgr.Id, jobGradeId: jgMgr.Id,
-            code: "POS-ACCT-MGR-001", title: "ผู้จัดการฝ่ายบัญชีและภาษีอากร", internationalTitle: "Accounting & Tax Manager",
-            costCenterId: ccCorp.Id, reportsToPositionId: posCfo.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posSrAcct = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptAcct.Id, jobId: jobSrAcct.Id, jobGradeId: jgSenior.Id,
-            code: "POS-SR-ACCT-001", title: "นักบัญชีอาวุโส", internationalTitle: "Senior Accountant",
-            costCenterId: ccCorp.Id, reportsToPositionId: posAcctMgr.Id, headcountCapacity: 3, isPrimaryLeadership: false);
-
-        var posProcMgr = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptProc.Id, jobId: jobProcMgr.Id, jobGradeId: jgMgr.Id,
-            code: "POS-PROC-MGR-001", title: "ผู้จัดการฝ่ายจัดซื้อจัดจ้างกลาง", internationalTitle: "Central Procurement Manager",
-            costCenterId: ccCorp.Id, reportsToPositionId: posCfo.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        // People & Legal
-        var posHrMgr = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptHr.Id, jobId: jobHrMgr.Id, jobGradeId: jgMgr.Id,
-            code: "POS-HR-MGR-001", title: "ผู้จัดการฝ่ายบริหารทรัพยากรบุคคล", internationalTitle: "HR & People Operations Manager",
-            costCenterId: ccSharedServices.Id, reportsToPositionId: posChro.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        var posLegalMgr = Position.Create(
-            legalEntityId: legalEntity.Id, orgUnitId: ouDeptLegal.Id, jobId: jobLegalMgr.Id, jobGradeId: jgMgr.Id,
-            code: "POS-LEG-MGR-001", title: "ผู้จัดการฝ่ายกฎหมายและกำกับดูแลกิจการ", internationalTitle: "Legal & Compliance Manager",
-            costCenterId: ccSharedServices.Id, reportsToPositionId: posChro.Id, headcountCapacity: 1, isPrimaryLeadership: true);
-
-        await dbContext.Positions.AddRangeAsync(
-            [
-                posCeo, posCto, posCfo, posCoo, posChro,
-                posVpEng, posDirProd, posSecMgr, posPrincipalArch, posErpLead, posErpSwePool, posCnxMgr, posCnxSrSwe,
-                posVpSales, posSalesMgr, posPlantMgr, posRayongOpsPool,
-                posAcctMgr, posSrAcct, posProcMgr,
-                posHrMgr, posLegalMgr
-            ],
-            cancellationToken).ConfigureAwait(false);
-
-        // =========================================================================
-        // STEP 7: Assign ManagerPosition กลับเข้าทุก OrganizationUnit
-        // =========================================================================
-        ouCorp.AssignManagerPosition(posCeo);
-        ouDivTech.AssignManagerPosition(posCto);
-        ouDivComm.AssignManagerPosition(posVpSales);
-        ouDivOps.AssignManagerPosition(posCoo);
-        ouDivFin.AssignManagerPosition(posCfo);
-        ouDivPeople.AssignManagerPosition(posChro);
-
-        ouDeptEng.AssignManagerPosition(posVpEng);
-        ouDeptProd.AssignManagerPosition(posDirProd);
-        ouDeptSec.AssignManagerPosition(posSecMgr);
-        ouDeptSales.AssignManagerPosition(posSalesMgr);
-        ouDeptRayongOps.AssignManagerPosition(posPlantMgr);
-        ouDeptAcct.AssignManagerPosition(posAcctMgr);
-        ouDeptProc.AssignManagerPosition(posProcMgr);
-        ouDeptHr.AssignManagerPosition(posHrMgr);
-        ouDeptLegal.AssignManagerPosition(posLegalMgr);
-
-        ouTeamCoreErp.AssignManagerPosition(posErpLead);
-        ouTeamCnxRnd.AssignManagerPosition(posCnxMgr);
-        // หมายเหตุ: ouTeamDevOps จงใจเว้น ManagerPositionId = null เพื่อทดสอบ Skip-Level Escalation ขึ้นไปหา posSecMgr (DEPT-SEC)
-
-        // =========================================================================
-        // STEP 8: PositionDelegations (จำลองสถานการณ์รักษาการและมอบอำนาจครบ 3 รูปแบบ)
-        // =========================================================================
         var now = DateTimeOffset.UtcNow;
 
-        // 1. ACTING_FULL: CTO มอบอำนาจเต็มรูปแบบให้ VP of Engineering รักษาการแทนช่วงเดินทางต่างประเทศ
-        var delCtoActing = PositionDelegation.Create(
-            legalEntityId: legalEntity.Id,
-            delegatorPositionId: posCto.Id,
-            delegatePositionId: posVpEng.Id,
-            delegationType: DelegationType.ActingFull,
-            validFrom: now.AddDays(-1),
-            validTo: now.AddDays(7),
-            reason: "CTO attending Global Cloud & AI Summit");
+        // 1. Legal Entities & Tax Branches
+        var (usHq, usSeattleBranch, sgApac, thEng, thChiangMaiBranch, jpAi) = CreateLegalEntities(now);
+        dbContext.LegalEntities.AddRange(usHq, sgApac, thEng, jpAi);
 
-        // 2. APPROVAL_ONLY: COO มอบอำนาจอนุมัติเอกสารทั้งหมดให้ Rayong Operations Manager
-        var delCooApproval = PositionDelegation.Create(
-            legalEntityId: legalEntity.Id,
-            delegatorPositionId: posCoo.Id,
-            delegatePositionId: posPlantMgr.Id,
-            delegationType: DelegationType.ApprovalOnly,
-            validFrom: now,
-            validTo: now.AddDays(5),
-            reason: "COO on annual leave");
+        // 2. Organization Unit Types
+        var unitTypes = CreateOrganizationUnitTypes();
+        dbContext.OrganizationUnitTypes.AddRange(unitTypes.Values);
 
-        // 3. SPECIFIC_DOCUMENTS: CFO มอบอำนาจอนุมัติเฉพาะ PR, PO, EXP ให้ Procurement Manager
-        var delCfoSpecific = PositionDelegation.Create(
-            legalEntityId: legalEntity.Id,
-            delegatorPositionId: posCfo.Id,
-            delegatePositionId: posProcMgr.Id,
-            delegationType: DelegationType.SpecificDocuments,
-            validFrom: now.AddDays(-2),
-            validTo: now.AddDays(14),
-            documentTypeScope: "PR, PO, EXP",
-            reason: "Delegate routine procurement approvals during Q4 budget closing");
+        // 3. Job Grades & Job Families
+        var jobGrades = CreateJobGrades();
+        var jobFamilies = CreateJobFamilies();
+        dbContext.JobGrades.AddRange(jobGrades.Values);
+        dbContext.JobFamilies.AddRange(jobFamilies.Values);
 
-        await dbContext.PositionDelegations.AddRangeAsync(
-            [delCtoActing, delCooApproval, delCfoSpecific],
-            cancellationToken).ConfigureAwait(false);
+        // 4. Jobs
+        var jobs = CreateJobs(jobGrades, jobFamilies);
+        dbContext.Jobs.AddRange(jobs.Values);
 
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        logger.LogInformation(
-            "Completed seeding Organization enterprise demo data: 1 LegalEntity, 3 TaxBranches, 8 JobGrades, 25 Jobs, 18 OUs, 7 CostCenters, 22 Positions, 3 Delegations.");
+        // 5. Cost Centers (parent + child hierarchy)
+        var costCenters = CreateCostCenters(usHq, sgApac, thEng, jpAi, now);
+        dbContext.CostCenters.AddRange(costCenters.Values);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        // 6. Organization Units (multi-level corporate hierarchy)
+        var orgUnits = CreateOrganizationUnits(usHq, sgApac, thEng, jpAi, unitTypes, costCenters);
+        dbContext.OrganizationUnits.AddRange(orgUnits.Values);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        // 7. Positions (layered by reporting hierarchy so ReportsToPositionId / DottedLinePositionId resolve cleanly)
+        var positions = CreatePositions(
+            usHq, usSeattleBranch, sgApac, thEng, thChiangMaiBranch, jpAi,
+            orgUnits, jobs, jobGrades, costCenters, now);
+        dbContext.Positions.AddRange(positions.Values);
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        // 8. Assign primary leadership positions onto their Organization Units
+        AssignOrganizationUnitManagers(orgUnits, positions);
+
+        // 9. Position Delegations
+        var delegations = CreatePositionDelegations(usHq, thEng, positions, now);
+        dbContext.PositionDelegations.AddRange(delegations);
+
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "[demo-seed] seeded Organization big-tech group: {LegalEntities} legal entities, {OrgUnits} org units, {CostCenters} cost centers, {Jobs} jobs, {Positions} positions, {Delegations} delegations",
+                4, orgUnits.Count, costCenters.Count, jobs.Count, positions.Count, delegations.Count);
+        }
     }
+
+    private static (
+        LegalEntity UsHq,
+        TaxBranch UsSeattleBranch,
+        LegalEntity SgApac,
+        LegalEntity ThEng,
+        TaxBranch ThChiangMaiBranch,
+        LegalEntity JpAi) CreateLegalEntities(DateTimeOffset now)
+    {
+        var usHq = LegalEntity.Create(
+            code: "NXH-US",
+            countryCode: "US",
+            legalName: "NexaTech Holdings Inc.",
+            internationalName: "NexaTech Holdings Inc.",
+            taxId: "94-3829104",
+            baseCurrency: "USD",
+            registrationNumber: "DE-20160419-001",
+            profile: new CompanyProfile
+            {
+                TradeName = "NexaTech Group",
+                Website = "https://nexatech.example.com",
+                ContactEmail = "corporate@nexatech.example.com",
+                ContactPhone = "+1-415-555-0100"
+            },
+            headOfficeAddress: new Address(
+                houseNo: "550",
+                subDistrict: "SoMa",
+                district: "San Francisco",
+                province: "CA",
+                postalCode: "94107",
+                country: "United States",
+                building: "NexaTech Tower",
+                road: "Howard Street"),
+            headOfficeBranchCode: "HQ",
+            headOfficeName: "San Francisco Global HQ",
+            headOfficeInternationalName: "San Francisco Global HQ",
+            headOfficeRegisteredDate: now.AddYears(-8),
+            fiscalYearStartMonth: 1,
+            timeZoneId: "America/Los_Angeles");
+
+        var usSeattleBranch = usHq.AddBranch(
+            branchCode: "SEA-01",
+            name: "Seattle Cloud Campus",
+            internationalName: "Seattle Cloud Campus",
+            registeredAddress: new Address(
+                houseNo: "400",
+                subDistrict: "South Lake Union",
+                district: "Seattle",
+                province: "WA",
+                postalCode: "98109",
+                country: "United States",
+                building: "Cascade Cloud Center",
+                road: "Westlake Ave N"),
+            isHeadOffice: false,
+            registeredDate: now.AddYears(-5));
+
+        var sgApac = LegalEntity.Create(
+            code: "NXC-SG",
+            countryCode: "SG",
+            legalName: "NexaTech Cloud APAC Pte. Ltd.",
+            internationalName: "NexaTech Cloud APAC Pte. Ltd.",
+            taxId: "201904821K",
+            baseCurrency: "SGD",
+            registrationNumber: "201904821K",
+            profile: new CompanyProfile
+            {
+                TradeName = "NexaTech APAC",
+                Website = "https://apac.nexatech.example.com",
+                ContactEmail = "apac-ops@nexatech.example.com",
+                ContactPhone = "+65-6555-0188"
+            },
+            headOfficeAddress: new Address(
+                houseNo: "10",
+                subDistrict: "Marina Bay",
+                district: "Downtown Core",
+                province: "Singapore",
+                postalCode: "018956",
+                country: "Singapore",
+                building: "Marina Bay Financial Centre Tower 2",
+                road: "Marina Boulevard"),
+            headOfficeBranchCode: "HQ",
+            headOfficeName: "Singapore APAC Hub",
+            headOfficeInternationalName: "Singapore APAC Hub",
+            headOfficeRegisteredDate: now.AddYears(-6),
+            fiscalYearStartMonth: 1,
+            timeZoneId: "Asia/Singapore");
+
+        var thEng = LegalEntity.Create(
+            code: "NXT-TH",
+            countryCode: "TH",
+            legalName: "บริษัท เน็กซ่าเทค (ประเทศไทย) จำกัด",
+            internationalName: "NexaTech (Thailand) Co., Ltd.",
+            taxId: "0105564098211",
+            baseCurrency: "THB",
+            registrationNumber: "0105564098211",
+            profile: new CompanyProfile
+            {
+                TradeName = "NexaTech Thailand",
+                Website = "https://th.nexatech.example.com",
+                ContactEmail = "bkk-hub@nexatech.example.com",
+                ContactPhone = "+66-2-555-0199"
+            },
+            headOfficeAddress: new Address(
+                houseNo: "1",
+                subDistrict: "สีลม",
+                district: "บางรัก",
+                province: "กรุงเทพมหานคร",
+                postalCode: "10500",
+                country: "Thailand",
+                building: "อาคารปาร์ค สีลม ชั้น 24",
+                road: "ถนนคอนแวนต์"),
+            headOfficeBranchCode: "00000",
+            headOfficeName: "สำนักงานใหญ่ (กรุงเทพมหานคร)",
+            headOfficeInternationalName: "Bangkok Head Office",
+            headOfficeRegisteredDate: now.AddYears(-4),
+            fiscalYearStartMonth: 1,
+            timeZoneId: "Asia/Bangkok");
+
+        var thChiangMaiBranch = thEng.AddBranch(
+            branchCode: "00001",
+            name: "สาขาเชียงใหม่ (ศูนย์วิศวกรรมซอฟต์แวร์)",
+            internationalName: "Chiang Mai Engineering Hub",
+            registeredAddress: new Address(
+                houseNo: "88",
+                subDistrict: "สุเทพ",
+                district: "เมืองเชียงใหม่",
+                province: "เชียงใหม่",
+                postalCode: "50200",
+                country: "Thailand",
+                building: "One Nimman Tech Wing",
+                road: "ถนนนิมมานเหมินท์"),
+            isHeadOffice: false,
+            taxSubId: "00001",
+            registeredDate: now.AddYears(-2));
+
+        var jpAi = LegalEntity.Create(
+            code: "NXA-JP",
+            countryCode: "JP",
+            legalName: "ネクサテックAIラボ株式会社",
+            internationalName: "NexaTech AI Labs K.K.",
+            taxId: "1010401123456",
+            baseCurrency: "JPY",
+            registrationNumber: "0104-01-123456",
+            profile: new CompanyProfile
+            {
+                TradeName = "NexaTech AI Labs",
+                Website = "https://ai.nexatech.example.com",
+                ContactEmail = "tokyo-ai@nexatech.example.com",
+                ContactPhone = "+81-3-5555-0140"
+            },
+            headOfficeAddress: new Address(
+                houseNo: "3-21-3",
+                subDistrict: "Shibuya",
+                district: "Shibuya-ku",
+                province: "Tokyo",
+                postalCode: "150-0002",
+                country: "Japan",
+                building: "Shibuya Stream 28F",
+                road: "Shibuya"),
+            headOfficeBranchCode: "HQ",
+            headOfficeName: "Tokyo AI Research Center",
+            headOfficeInternationalName: "Tokyo AI Research Center",
+            headOfficeRegisteredDate: now.AddYears(-3),
+            fiscalYearStartMonth: 4,
+            timeZoneId: "Asia/Tokyo");
+
+        return (usHq, usSeattleBranch, sgApac, thEng, thChiangMaiBranch, jpAi);
+    }
+
+    private static Dictionary<string, OrganizationUnitType> CreateOrganizationUnitTypes() => new(StringComparer.Ordinal)
+    {
+        ["GROUP"] = OrganizationUnitType.Create("GROUP", "Corporate Group", "Corporate Group", 0, "Top-level holding group."),
+        ["SUBSIDIARY"] = OrganizationUnitType.Create("SUBSIDIARY", "Operating Subsidiary", "Operating Subsidiary", 1, "Regional or legal operating subsidiary."),
+        ["DIVISION"] = OrganizationUnitType.Create("DIVISION", "Business Division", "Business Division", 2, "Core technology or corporate business pillar."),
+        ["DEPARTMENT"] = OrganizationUnitType.Create("DEPARTMENT", "Department", "Department", 3, "Functional engineering, product, or corporate department."),
+        ["TEAM"] = OrganizationUnitType.Create("TEAM", "Team", "Team", 4, "Specialized functional or platform team."),
+        ["SQUAD"] = OrganizationUnitType.Create("SQUAD", "Delivery Squad", "Delivery Squad", 5, "Cross-functional agile delivery squad.")
+    };
+
+    private static Dictionary<string, JobGrade> CreateJobGrades() => new(StringComparer.Ordinal)
+    {
+        ["L3"] = JobGrade.Create("L3", "Associate", "Associate", 1, "Entry-level individual contributor.", JobLevelCategory.Operational),
+        ["L4"] = JobGrade.Create("L4", "Intermediate", "Intermediate", 2, "Mid-level individual contributor.", JobLevelCategory.Operational),
+        ["L5"] = JobGrade.Create("L5", "Senior", "Senior", 3, "Senior individual contributor.", JobLevelCategory.Operational),
+        ["L6"] = JobGrade.Create("L6", "Staff", "Staff", 4, "Staff-level technical or domain lead.", JobLevelCategory.Supervisory),
+        ["L7"] = JobGrade.Create("L7", "Principal", "Principal", 5, "Principal architect or researcher.", JobLevelCategory.Supervisory),
+        ["M1"] = JobGrade.Create("M1", "Manager", "Manager", 6, "First-line people manager.", JobLevelCategory.Supervisory),
+        ["M2"] = JobGrade.Create("M2", "Senior Manager", "Senior Manager", 7, "Multi-team manager or controller.", JobLevelCategory.Management),
+        ["D1"] = JobGrade.Create("D1", "Director", "Director", 8, "Department director.", JobLevelCategory.Management),
+        ["VP"] = JobGrade.Create("VP", "Vice President", "Vice President", 9, "Division or regional executive.", JobLevelCategory.Executive),
+        ["C-SUITE"] = JobGrade.Create("C-SUITE", "C-Level Executive", "C-Level Executive", 10, "Group executive officer.", JobLevelCategory.Executive)
+    };
+
+    private static Dictionary<string, JobFamily> CreateJobFamilies() => new(StringComparer.Ordinal)
+    {
+        ["ENG"] = JobFamily.Create("ENG", "Software & Platform Engineering", "Software & Platform Engineering", "Backend, cloud infrastructure, SRE, and core platform systems."),
+        ["AI"] = JobFamily.Create("AI", "Artificial Intelligence & Data", "Artificial Intelligence & Data", "Foundation models, applied ML, and data engineering."),
+        ["PROD"] = JobFamily.Create("PROD", "Product Management", "Product Management", "Product strategy, roadmaps, and platform capabilities."),
+        ["DES"] = JobFamily.Create("DES", "Product Design & UX", "Product Design & UX", "Design systems, user research, and product UX."),
+        ["SEC"] = JobFamily.Create("SEC", "Cybersecurity & Trust", "Cybersecurity & Trust", "Application security, cloud security, and compliance."),
+        ["GTM"] = JobFamily.Create("GTM", "Go-To-Market & Enterprise Sales", "Go-To-Market & Enterprise Sales", "Enterprise sales, solutions architecture, and customer success."),
+        ["CORP"] = JobFamily.Create("CORP", "Corporate & Finance", "Corporate & Finance", "Executive leadership, finance, legal, and people operations.")
+    };
+
+    private static Dictionary<string, Job> CreateJobs(
+        Dictionary<string, JobGrade> grades,
+        Dictionary<string, JobFamily> families) => new(StringComparer.Ordinal)
+    {
+        ["CEO"] = Job.Create("CEO", "Chief Executive Officer", "Chief Executive Officer", grades["C-SUITE"].Id, families["CORP"].Id, "Group chief executive."),
+        ["CFO"] = Job.Create("CFO", "Chief Financial Officer", "Chief Financial Officer", grades["C-SUITE"].Id, families["CORP"].Id, "Group financial strategy and governance."),
+        ["CTO"] = Job.Create("CTO", "Chief Technology Officer", "Chief Technology Officer", grades["C-SUITE"].Id, families["ENG"].Id, "Group technology architecture and R&D."),
+        ["VP-ENG"] = Job.Create("VP-ENG", "Vice President of Engineering", "Vice President of Engineering", grades["VP"].Id, families["ENG"].Id),
+        ["VP-AI"] = Job.Create("VP-AI", "Vice President of AI Research", "Vice President of AI Research", grades["VP"].Id, families["AI"].Id),
+        ["DIR-ENG"] = Job.Create("DIR-ENG", "Director of Engineering", "Director of Engineering", grades["D1"].Id, families["ENG"].Id),
+        ["FIN-CTRL"] = Job.Create("FIN-CTRL", "Finance Controller", "Finance Controller", grades["M2"].Id, families["CORP"].Id),
+        ["ENG-MGR"] = Job.Create("ENG-MGR", "Engineering Manager", "Engineering Manager", grades["M1"].Id, families["ENG"].Id),
+        ["PRIN-AI"] = Job.Create("PRIN-AI", "Principal AI Researcher", "Principal AI Researcher", grades["L7"].Id, families["AI"].Id),
+        ["SEC-ARCH"] = Job.Create("SEC-ARCH", "Principal Security Architect", "Principal Security Architect", grades["L7"].Id, families["SEC"].Id),
+        ["PM-LEAD"] = Job.Create("PM-LEAD", "Principal Product Manager", "Principal Product Manager", grades["L7"].Id, families["PROD"].Id),
+        ["STAFF-SWE"] = Job.Create("STAFF-SWE", "Staff Software Engineer", "Staff Software Engineer", grades["L6"].Id, families["ENG"].Id),
+        ["SR-SWE"] = Job.Create("SR-SWE", "Senior Software Engineer", "Senior Software Engineer", grades["L5"].Id, families["ENG"].Id),
+        ["SR-ML"] = Job.Create("SR-ML", "Senior ML Engineer", "Senior ML Engineer", grades["L5"].Id, families["AI"].Id),
+        ["SR-PD"] = Job.Create("SR-PD", "Senior Product Designer", "Senior Product Designer", grades["L5"].Id, families["DES"].Id),
+        ["ENT-AE"] = Job.Create("ENT-AE", "Enterprise Account Executive", "Enterprise Account Executive", grades["L5"].Id, families["GTM"].Id),
+        ["SWE"] = Job.Create("SWE", "Software Engineer", "Software Engineer", grades["L4"].Id, families["ENG"].Id)
+    };
+
+    private static Dictionary<string, CostCenter> CreateCostCenters(
+        LegalEntity usHq,
+        LegalEntity sgApac,
+        LegalEntity thEng,
+        LegalEntity jpAi,
+        DateTimeOffset now)
+    {
+        var validFrom = new DateTimeOffset(now.Year, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        var usHoBranchId = usHq.Branches.First(b => b.IsHeadOffice).Id;
+        var sgHoBranchId = sgApac.Branches.First(b => b.IsHeadOffice).Id;
+        var thHoBranchId = thEng.Branches.First(b => b.IsHeadOffice).Id;
+        var jpHoBranchId = jpAi.Branches.First(b => b.IsHeadOffice).Id;
+
+        var usExec = CostCenter.Create(usHq.Id, "CC-US-EXEC", "Corporate HQ & Executive", "Corporate HQ & Executive", CostCenterFunctionType.Administrative, "Group executive & corporate governance.", defaultTaxBranchId: usHoBranchId, validFrom: validFrom);
+        var usRnd = CostCenter.Create(usHq.Id, "CC-US-RND", "Core Platform R&D", "Core Platform R&D", CostCenterFunctionType.ResearchAndDevelopment, "US engineering & product R&D pool.", defaultTaxBranchId: usHoBranchId, validFrom: validFrom);
+        var usCloud = CostCenter.Create(usHq.Id, "CC-US-CLOUD", "Cloud Infrastructure R&D", "Cloud Infrastructure R&D", CostCenterFunctionType.ResearchAndDevelopment, "Kubernetes, compute, and storage R&D.", parentCostCenterId: usRnd.Id, defaultTaxBranchId: usHoBranchId, validFrom: validFrom);
+        var usSec = CostCenter.Create(usHq.Id, "CC-US-SEC", "Security & Trust Engineering", "Security & Trust Engineering", CostCenterFunctionType.ResearchAndDevelopment, "Platform security and compliance engineering.", parentCostCenterId: usRnd.Id, defaultTaxBranchId: usHoBranchId, validFrom: validFrom);
+
+        var sgOps = CostCenter.Create(sgApac.Id, "CC-SG-OPS", "APAC Cloud Operations", "APAC Cloud Operations", CostCenterFunctionType.CostOfSales, "Production cloud hosting & SRE operations.", defaultTaxBranchId: sgHoBranchId, validFrom: validFrom);
+        var sgGtm = CostCenter.Create(sgApac.Id, "CC-SG-GTM", "APAC Enterprise Sales", "APAC Enterprise Sales", CostCenterFunctionType.SellingAndDistribution, "Regional enterprise sales & customer success.", defaultTaxBranchId: sgHoBranchId, validFrom: validFrom);
+
+        var thRnd = CostCenter.Create(thEng.Id, "CC-TH-RND", "Bangkok Engineering Center", "Bangkok Engineering Center", CostCenterFunctionType.ResearchAndDevelopment, "Core API, payments, and data platform development.", defaultTaxBranchId: thHoBranchId, validFrom: validFrom);
+        var thShared = CostCenter.Create(thEng.Id, "CC-TH-SHARED", "APAC Shared Services", "APAC Shared Services", CostCenterFunctionType.SharedServices, "Cross-entity shared engineering & operations pool.", defaultTaxBranchId: thHoBranchId, validFrom: validFrom);
+
+        var jpAiCc = CostCenter.Create(jpAi.Id, "CC-JP-AI", "Tokyo Foundation Model Lab", "Tokyo Foundation Model Lab", CostCenterFunctionType.ResearchAndDevelopment, "Foundation model training and inference research.", defaultTaxBranchId: jpHoBranchId, validFrom: validFrom);
+
+        return new Dictionary<string, CostCenter>(StringComparer.Ordinal)
+        {
+            ["CC-US-EXEC"] = usExec,
+            ["CC-US-RND"] = usRnd,
+            ["CC-US-CLOUD"] = usCloud,
+            ["CC-US-SEC"] = usSec,
+            ["CC-SG-OPS"] = sgOps,
+            ["CC-SG-GTM"] = sgGtm,
+            ["CC-TH-RND"] = thRnd,
+            ["CC-TH-SHARED"] = thShared,
+            ["CC-JP-AI"] = jpAiCc
+        };
+    }
+
+    private static Dictionary<string, OrganizationUnit> CreateOrganizationUnits(
+        LegalEntity usHq,
+        LegalEntity sgApac,
+        LegalEntity thEng,
+        LegalEntity jpAi,
+        Dictionary<string, OrganizationUnitType> types,
+        Dictionary<string, CostCenter> costCenters)
+    {
+        var grpNexa = OrganizationUnit.Create("GRP-NEXA", "NexaTech Group", "NexaTech Group", types["GROUP"].Id, "Global technology holding group.", usHq.Id, defaultCostCenterId: costCenters["CC-US-EXEC"].Id);
+
+        var divCorp = OrganizationUnit.Create("DIV-CORP", "Corporate & Finance", "Corporate & Finance", types["DIVISION"].Id, "Global finance, legal, and corporate strategy.", usHq.Id, grpNexa, costCenters["CC-US-EXEC"].Id);
+        var deptFin = OrganizationUnit.Create("DEPT-FIN", "Global Finance & Treasury", "Global Finance & Treasury", types["DEPARTMENT"].Id, "Consolidation, tax, and treasury.", usHq.Id, divCorp, costCenters["CC-US-EXEC"].Id);
+
+        var divPlatform = OrganizationUnit.Create("DIV-PLATFORM", "Cloud & Core Platform", "Cloud & Core Platform", types["DIVISION"].Id, "Global cloud platform, infrastructure, and product.", usHq.Id, grpNexa, costCenters["CC-US-RND"].Id);
+        var deptInfra = OrganizationUnit.Create("DEPT-INFRA", "Cloud Infrastructure", "Cloud Infrastructure", types["DEPARTMENT"].Id, "Compute, networking, and platform security.", usHq.Id, divPlatform, costCenters["CC-US-CLOUD"].Id);
+        var teamK8s = OrganizationUnit.Create("TEAM-K8S", "Compute & Kubernetes", "Compute & Kubernetes", types["TEAM"].Id, "Managed container orchestration & runtime.", usHq.Id, deptInfra, costCenters["CC-US-CLOUD"].Id);
+        var teamSec = OrganizationUnit.Create("TEAM-SEC", "Platform Security", "Platform Security", types["TEAM"].Id, "Zero-trust identity & cloud security.", usHq.Id, deptInfra, costCenters["CC-US-SEC"].Id);
+        var deptProd = OrganizationUnit.Create("DEPT-PROD", "Product & Design", "Product & Design", types["DEPARTMENT"].Id, "Core platform product management & UX.", usHq.Id, divPlatform, costCenters["CC-US-RND"].Id);
+
+        var subApac = OrganizationUnit.Create("SUB-APAC", "NexaTech APAC", "NexaTech APAC", types["SUBSIDIARY"].Id, "APAC commercial & engineering operations.", sgApac.Id, grpNexa, costCenters["CC-SG-OPS"].Id);
+        var deptApacGtm = OrganizationUnit.Create("DEPT-APAC-GTM", "APAC Enterprise Sales", "APAC Enterprise Sales", types["DEPARTMENT"].Id, "Enterprise GTM across ASEAN and ANZ.", sgApac.Id, subApac, costCenters["CC-SG-GTM"].Id);
+
+        var deptThEng = OrganizationUnit.Create("DEPT-TH-ENG", "Bangkok Engineering Center", "ศูนย์วิศวกรรมซอฟต์แวร์ กรุงเทพฯ", types["DEPARTMENT"].Id, "Regional product & platform engineering hub.", thEng.Id, subApac, costCenters["CC-TH-RND"].Id);
+        var teamThCore = OrganizationUnit.Create("TEAM-TH-CORE", "Core API & Commerce", "Core API & Commerce", types["TEAM"].Id, "High-throughput commerce and billing APIs.", thEng.Id, deptThEng, costCenters["CC-TH-RND"].Id);
+        var squadPay = OrganizationUnit.Create("SQUAD-PAY", "Payments & Billing Squad", "Payments & Billing Squad", types["SQUAD"].Id, "Multi-currency payments & settlement.", thEng.Id, teamThCore, costCenters["CC-TH-RND"].Id);
+        var teamThData = OrganizationUnit.Create("TEAM-TH-DATA", "Data & Analytics Platform", "Data & Analytics Platform", types["TEAM"].Id, "Real-time telemetry and lakehouse pipelines.", thEng.Id, deptThEng, costCenters["CC-TH-SHARED"].Id);
+
+        var subJpAi = OrganizationUnit.Create("SUB-JP-AI", "NexaTech AI Labs Japan", "NexaTech AI Labs Japan", types["SUBSIDIARY"].Id, "Applied AI & foundation model research.", jpAi.Id, grpNexa, costCenters["CC-JP-AI"].Id);
+        var teamLlm = OrganizationUnit.Create("TEAM-LLM", "Foundation Models & Inference", "Foundation Models & Inference", types["TEAM"].Id, "Large-scale training & low-latency serving.", jpAi.Id, subJpAi, costCenters["CC-JP-AI"].Id);
+
+        return new Dictionary<string, OrganizationUnit>(StringComparer.Ordinal)
+        {
+            ["GRP-NEXA"] = grpNexa,
+            ["DIV-CORP"] = divCorp,
+            ["DEPT-FIN"] = deptFin,
+            ["DIV-PLATFORM"] = divPlatform,
+            ["DEPT-INFRA"] = deptInfra,
+            ["TEAM-K8S"] = teamK8s,
+            ["TEAM-SEC"] = teamSec,
+            ["DEPT-PROD"] = deptProd,
+            ["SUB-APAC"] = subApac,
+            ["DEPT-APAC-GTM"] = deptApacGtm,
+            ["DEPT-TH-ENG"] = deptThEng,
+            ["TEAM-TH-CORE"] = teamThCore,
+            ["SQUAD-PAY"] = squadPay,
+            ["TEAM-TH-DATA"] = teamThData,
+            ["SUB-JP-AI"] = subJpAi,
+            ["TEAM-LLM"] = teamLlm
+        };
+    }
+
+    private static Dictionary<string, Position> CreatePositions(
+        LegalEntity usHq,
+        TaxBranch usSeattleBranch,
+        LegalEntity sgApac,
+        LegalEntity thEng,
+        TaxBranch thChiangMaiBranch,
+        LegalEntity jpAi,
+        Dictionary<string, OrganizationUnit> ous,
+        Dictionary<string, Job> jobs,
+        Dictionary<string, JobGrade> grades,
+        Dictionary<string, CostCenter> ccs,
+        DateTimeOffset now)
+    {
+        var usHoBranchId = usHq.Branches.First(b => b.IsHeadOffice).Id;
+        var sgHoBranchId = sgApac.Branches.First(b => b.IsHeadOffice).Id;
+        var thHoBranchId = thEng.Branches.First(b => b.IsHeadOffice).Id;
+        var jpHoBranchId = jpAi.Branches.First(b => b.IsHeadOffice).Id;
+        var validFrom = new DateTimeOffset(now.Year, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+        var ceo = Position.Create(
+            usHq.Id, ous["GRP-NEXA"].Id, jobs["CEO"].Id, grades["C-SUITE"].Id,
+            "POS-CEO", "Chief Executive Officer", "Chief Executive Officer",
+            "Group Chief Executive Officer.", ccs["CC-US-EXEC"].Id, usHoBranchId,
+            10_000_000m, "USD", headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var cfo = Position.Create(
+            usHq.Id, ous["DIV-CORP"].Id, jobs["CFO"].Id, grades["C-SUITE"].Id,
+            "POS-CFO", "Chief Financial Officer", "Chief Financial Officer",
+            "Group Chief Financial Officer.", ccs["CC-US-EXEC"].Id, usHoBranchId,
+            5_000_000m, "USD", reportsToPositionId: ceo.Id, headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var cto = Position.Create(
+            usHq.Id, ous["DIV-PLATFORM"].Id, jobs["CTO"].Id, grades["C-SUITE"].Id,
+            "POS-CTO", "Chief Technology Officer", "Chief Technology Officer",
+            "Group Chief Technology Officer.", ccs["CC-US-RND"].Id, usHoBranchId,
+            5_000_000m, "USD", reportsToPositionId: ceo.Id, headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var finCtrl = Position.Create(
+            usHq.Id, ous["DEPT-FIN"].Id, jobs["FIN-CTRL"].Id, grades["M2"].Id,
+            "POS-FIN-CTRL", "Global Finance Controller", "Global Finance Controller",
+            "Oversees group consolidation and statutory reporting.", ccs["CC-US-EXEC"].Id, usHoBranchId,
+            250_000m, "USD", reportsToPositionId: cfo.Id, headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var vpInfra = Position.Create(
+            usHq.Id, ous["DEPT-INFRA"].Id, jobs["VP-ENG"].Id, grades["VP"].Id,
+            "POS-VP-INFRA", "VP of Cloud Infrastructure", "VP of Cloud Infrastructure",
+            "Leads global cloud compute, storage, and security.", ccs["CC-US-CLOUD"].Id, usSeattleBranch.Id,
+            1_000_000m, "USD", reportsToPositionId: cto.Id, headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var emK8s = Position.Create(
+            usHq.Id, ous["TEAM-K8S"].Id, jobs["ENG-MGR"].Id, grades["M1"].Id,
+            "POS-EM-K8S", "Engineering Manager, Compute & K8s", "Engineering Manager, Compute & K8s",
+            "Manages Kubernetes control plane and node autoscaling.", ccs["CC-US-CLOUD"].Id, usSeattleBranch.Id,
+            100_000m, "USD", reportsToPositionId: vpInfra.Id, headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var staffK8s = Position.Create(
+            usHq.Id, ous["TEAM-K8S"].Id, jobs["STAFF-SWE"].Id, grades["L6"].Id,
+            "POS-STAFF-K8S", "Staff Cloud Infrastructure Engineer", "Staff Cloud Infrastructure Engineer",
+            "Technical lead for multi-region Kubernetes clusters.", ccs["CC-US-CLOUD"].Id, usSeattleBranch.Id,
+            reportsToPositionId: emK8s.Id, headcountCapacity: 3, isPrimaryLeadership: false, validFrom: validFrom);
+
+        var secArch = Position.Create(
+            usHq.Id, ous["TEAM-SEC"].Id, jobs["SEC-ARCH"].Id, grades["L7"].Id,
+            "POS-SEC-ARCH", "Principal Security Architect", "Principal Security Architect",
+            "Leads zero-trust architecture and security posture.", ccs["CC-US-SEC"].Id, usHoBranchId,
+            150_000m, "USD", reportsToPositionId: vpInfra.Id, dottedLinePositionId: cto.Id,
+            headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var pmLead = Position.Create(
+            usHq.Id, ous["DEPT-PROD"].Id, jobs["PM-LEAD"].Id, grades["L7"].Id,
+            "POS-PM-LEAD", "Principal Product Manager", "Principal Product Manager",
+            "Owns core platform product roadmap.", ccs["CC-US-RND"].Id, usHoBranchId,
+            100_000m, "USD", reportsToPositionId: cto.Id, headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var srPd = Position.Create(
+            usHq.Id, ous["DEPT-PROD"].Id, jobs["SR-PD"].Id, grades["L5"].Id,
+            "POS-SR-PD", "Senior Product Designer", "Senior Product Designer",
+            "Design systems and developer console UX.", ccs["CC-US-RND"].Id, usHoBranchId,
+            reportsToPositionId: pmLead.Id, headcountCapacity: 4, isPrimaryLeadership: false, validFrom: validFrom);
+
+        var vpApac = Position.Create(
+            sgApac.Id, ous["SUB-APAC"].Id, jobs["VP-ENG"].Id, grades["VP"].Id,
+            "POS-VP-APAC", "VP & Managing Director, APAC", "VP & Managing Director, APAC",
+            "Leads APAC commercial and regional engineering.", ccs["CC-SG-OPS"].Id, sgHoBranchId,
+            2_000_000m, "SGD", reportsToPositionId: ceo.Id, headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var apacAe = Position.Create(
+            sgApac.Id, ous["DEPT-APAC-GTM"].Id, jobs["ENT-AE"].Id, grades["L5"].Id,
+            "POS-APAC-AE", "Enterprise Account Executive, APAC", "Enterprise Account Executive, APAC",
+            "Enterprise cloud sales across ASEAN and ANZ.", ccs["CC-SG-GTM"].Id, sgHoBranchId,
+            reportsToPositionId: vpApac.Id, headcountCapacity: 6, isPrimaryLeadership: false, validFrom: validFrom);
+
+        var dirTh = Position.Create(
+            thEng.Id, ous["DEPT-TH-ENG"].Id, jobs["DIR-ENG"].Id, grades["D1"].Id,
+            "POS-DIR-TH", "Engineering Director, Thailand", "Engineering Director, Thailand",
+            "Leads Bangkok and Chiang Mai engineering hubs.", ccs["CC-TH-RND"].Id, thHoBranchId,
+            3_000_000m, "THB", reportsToPositionId: vpApac.Id, dottedLinePositionId: cto.Id,
+            headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var emThCore = Position.Create(
+            thEng.Id, ous["TEAM-TH-CORE"].Id, jobs["ENG-MGR"].Id, grades["M1"].Id,
+            "POS-EM-TH-CORE", "Engineering Manager, Core API", "Engineering Manager, Core API",
+            "Manages commerce, billing, and payments squads.", ccs["CC-TH-RND"].Id, thHoBranchId,
+            500_000m, "THB", reportsToPositionId: dirTh.Id, headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var srSwePay = Position.Create(
+            thEng.Id, ous["SQUAD-PAY"].Id, jobs["SR-SWE"].Id, grades["L5"].Id,
+            "POS-SR-SWE-PAY", "Senior Software Engineer, Payments", "Senior Software Engineer, Payments",
+            "Builds multi-currency payment & ledger services.", ccs["CC-TH-RND"].Id, thHoBranchId,
+            reportsToPositionId: emThCore.Id, headcountCapacity: 5, isPrimaryLeadership: false, validFrom: validFrom);
+
+        var sweData = Position.Create(
+            thEng.Id, ous["TEAM-TH-DATA"].Id, jobs["SWE"].Id, grades["L4"].Id,
+            "POS-SWE-DATA", "Software Engineer, Data Platform", "Software Engineer, Data Platform",
+            "Builds streaming telemetry and analytics pipelines in Chiang Mai.", ccs["CC-TH-SHARED"].Id, thChiangMaiBranch.Id,
+            reportsToPositionId: dirTh.Id, headcountCapacity: 6, isPrimaryLeadership: false, validFrom: validFrom);
+
+        var vpAi = Position.Create(
+            jpAi.Id, ous["SUB-JP-AI"].Id, jobs["VP-AI"].Id, grades["VP"].Id,
+            "POS-VP-AI", "VP of AI Research, Tokyo", "VP of AI Research, Tokyo",
+            "Leads foundation model research and inference optimization.", ccs["CC-JP-AI"].Id, jpHoBranchId,
+            150_000_000m, "JPY", reportsToPositionId: cto.Id, headcountCapacity: 1, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var prinAi = Position.Create(
+            jpAi.Id, ous["TEAM-LLM"].Id, jobs["PRIN-AI"].Id, grades["L7"].Id,
+            "POS-PRIN-AI", "Principal AI Researcher", "Principal AI Researcher",
+            "Leads foundation model architecture and alignment.", ccs["CC-JP-AI"].Id, jpHoBranchId,
+            15_000_000m, "JPY", reportsToPositionId: vpAi.Id, headcountCapacity: 2, isPrimaryLeadership: true, validFrom: validFrom);
+
+        var srMl = Position.Create(
+            jpAi.Id, ous["TEAM-LLM"].Id, jobs["SR-ML"].Id, grades["L5"].Id,
+            "POS-SR-ML", "Senior ML Engineer", "Senior ML Engineer",
+            "Distributed training and GPU inference kernels.", ccs["CC-JP-AI"].Id, jpHoBranchId,
+            reportsToPositionId: prinAi.Id, headcountCapacity: 8, isPrimaryLeadership: false, validFrom: validFrom);
+
+        return new Dictionary<string, Position>(StringComparer.Ordinal)
+        {
+            ["POS-CEO"] = ceo,
+            ["POS-CFO"] = cfo,
+            ["POS-CTO"] = cto,
+            ["POS-FIN-CTRL"] = finCtrl,
+            ["POS-VP-INFRA"] = vpInfra,
+            ["POS-EM-K8S"] = emK8s,
+            ["POS-STAFF-K8S"] = staffK8s,
+            ["POS-SEC-ARCH"] = secArch,
+            ["POS-PM-LEAD"] = pmLead,
+            ["POS-SR-PD"] = srPd,
+            ["POS-VP-APAC"] = vpApac,
+            ["POS-APAC-AE"] = apacAe,
+            ["POS-DIR-TH"] = dirTh,
+            ["POS-EM-TH-CORE"] = emThCore,
+            ["POS-SR-SWE-PAY"] = srSwePay,
+            ["POS-SWE-DATA"] = sweData,
+            ["POS-VP-AI"] = vpAi,
+            ["POS-PRIN-AI"] = prinAi,
+            ["POS-SR-ML"] = srMl
+        };
+    }
+
+    private static void AssignOrganizationUnitManagers(
+        Dictionary<string, OrganizationUnit> ous,
+        Dictionary<string, Position> positions)
+    {
+        ous["GRP-NEXA"].AssignManagerPosition(positions["POS-CEO"]);
+        ous["DIV-CORP"].AssignManagerPosition(positions["POS-CFO"]);
+        ous["DEPT-FIN"].AssignManagerPosition(positions["POS-FIN-CTRL"]);
+        ous["DIV-PLATFORM"].AssignManagerPosition(positions["POS-CTO"]);
+        ous["DEPT-INFRA"].AssignManagerPosition(positions["POS-VP-INFRA"]);
+        ous["TEAM-K8S"].AssignManagerPosition(positions["POS-EM-K8S"]);
+        ous["TEAM-SEC"].AssignManagerPosition(positions["POS-SEC-ARCH"]);
+        ous["DEPT-PROD"].AssignManagerPosition(positions["POS-PM-LEAD"]);
+        ous["SUB-APAC"].AssignManagerPosition(positions["POS-VP-APAC"]);
+        ous["DEPT-TH-ENG"].AssignManagerPosition(positions["POS-DIR-TH"]);
+        ous["TEAM-TH-CORE"].AssignManagerPosition(positions["POS-EM-TH-CORE"]);
+        ous["SUB-JP-AI"].AssignManagerPosition(positions["POS-VP-AI"]);
+        ous["TEAM-LLM"].AssignManagerPosition(positions["POS-PRIN-AI"]);
+    }
+
+    private static List<PositionDelegation> CreatePositionDelegations(
+        LegalEntity usHq,
+        LegalEntity thEng,
+        Dictionary<string, Position> positions,
+        DateTimeOffset now) =>
+    [
+        PositionDelegation.Create(
+            legalEntityId: usHq.Id,
+            delegatorPositionId: positions["POS-CTO"].Id,
+            delegatePositionId: positions["POS-VP-INFRA"].Id,
+            delegationType: DelegationType.ApprovalOnly,
+            validFrom: now.AddDays(-2),
+            validTo: now.AddDays(12),
+            reason: "Executive summit travel — cloud infrastructure approvals delegated."),
+
+        PositionDelegation.Create(
+            legalEntityId: usHq.Id,
+            delegatorPositionId: positions["POS-CFO"].Id,
+            delegatePositionId: positions["POS-FIN-CTRL"].Id,
+            delegationType: DelegationType.SpecificDocuments,
+            validFrom: now.AddDays(-5),
+            validTo: now.AddDays(25),
+            documentTypeScope: "PR,PO,INVOICE",
+            reason: "Standing quarterly procurement & invoice sign-off delegation."),
+
+        PositionDelegation.Create(
+            legalEntityId: thEng.Id,
+            delegatorPositionId: positions["POS-DIR-TH"].Id,
+            delegatePositionId: positions["POS-EM-TH-CORE"].Id,
+            delegationType: DelegationType.ActingFull,
+            validFrom: now.AddDays(-1),
+            validTo: now.AddDays(6),
+            reason: "Annual leave acting authority for Bangkok Engineering Center.")
+    ];
 }

@@ -6,7 +6,7 @@
 public sealed record PositionLookupDto(
     string RefId,
     string LegalEntityRefId,
-    Guid OrgUnitId,
+    string? OrgUnitRefId,
     string Code,
     string Title,
     string InternationalTitle,

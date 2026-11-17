@@ -20,7 +20,7 @@ public sealed class UpdateJobCommandValidator : AbstractValidator<UpdateJobComma
         RuleFor(x => x.Name).NotEmpty().MaximumLength(JobRules.MaxNameLength);
         RuleFor(x => x.InternationalName).NotEmpty().MaximumLength(JobRules.MaxNameLength);
         RuleFor(x => x.DefaultJobGradeRefId).NotEmpty().MaximumLength(VillsourceId.KeySizes);
-        RuleFor(x => x.JobFamily).MaximumLength(JobRules.MaxJobFamilyLength);
+        RuleFor(x => x.JobFamilyRefId).MaximumLength(VillsourceId.KeySizes).When(x => x.JobFamilyRefId is not null);
         RuleFor(x => x.Description).MaximumLength(JobRules.MaxDescriptionLength);
     }
 }

@@ -23,9 +23,10 @@ public sealed class GetPositionLookupsQueryHandler(OrganizationDbContext dbConte
             query = query.Where(p => p.LegalEntity!.ReferenceId == leRef);
         }
 
-        if (request.OrgUnitId.HasValue)
+        if (!string.IsNullOrWhiteSpace(request.OrgUnitRefId))
         {
-            query = query.Where(p => p.OrgUnitId == request.OrgUnitId.Value);
+            string ouRef = request.OrgUnitRefId.Trim();
+            query = query.Where(p => p.OrgUnit != null && p.OrgUnit.ReferenceId == ouRef);
         }
 
         if (request.ActiveOnly)
@@ -44,7 +45,7 @@ public sealed class GetPositionLookupsQueryHandler(OrganizationDbContext dbConte
             .Select(p => new PositionLookupDto(
                 p.ReferenceId,
                 p.LegalEntity!.ReferenceId,
-                p.OrgUnitId,
+                p.OrgUnit != null ? p.OrgUnit.ReferenceId : null,
                 p.Code,
                 p.Title,
                 p.InternationalTitle,

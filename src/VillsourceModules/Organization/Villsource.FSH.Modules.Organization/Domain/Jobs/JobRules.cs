@@ -6,7 +6,6 @@ internal static partial class JobRules
 {
     public const int MaxCodeLength = 50;
     public const int MaxNameLength = 200;
-    public const int MaxJobFamilyLength = 100;
     public const int MaxDescriptionLength = 1000;
 
     [GeneratedRegex(@"^[A-Z0-9\-_]{2,50}$", RegexOptions.CultureInvariant)]
@@ -30,13 +29,12 @@ internal static partial class JobRules
         return normalized;
     }
 
-    public static (string Code, string Name, string InternationalName, string? JobFamily, string? Description)
+    public static (string Code, string Name, string InternationalName, string? Description)
         NormalizeAndValidate(
             string code,
             string name,
             string internationalName,
             Guid defaultJobGradeId,
-            string? jobFamily,
             string? description)
     {
         if (defaultJobGradeId == Guid.Empty)
@@ -48,9 +46,8 @@ internal static partial class JobRules
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(internationalName);
 
-        var normalizedFamily = string.IsNullOrWhiteSpace(jobFamily) ? null : jobFamily.Trim();
         var normalizedDesc = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
 
-        return (normalizedCode, name.Trim(), internationalName.Trim(), normalizedFamily, normalizedDesc);
+        return (normalizedCode, name.Trim(), internationalName.Trim(), normalizedDesc);
     }
 }

@@ -12,4 +12,4 @@ public sealed record OrganizationUnitMovedIntegrationEvent(
     Guid? OldParentId,
     Guid? NewParentId,
     string NewHierarchyPath,
-    int NewLevel) : IIntegrationEvent;
+    int NewDepth) : IIntegrationEvent;

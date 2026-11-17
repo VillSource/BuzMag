@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Villsource.FSH.Modules.Organization.Contracts.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.v1.JobGrades.Commands;
 using Villsource.FSH.Modules.Organization.Domain.JobGrades;
 using Villsource.Tool.UniqueKey;
@@ -21,9 +22,9 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.JobGrades.Commands
             RuleFor(x => x.InternationalName).NotEmpty().MaximumLength(JobGradeRules.MaxNameLength);
             RuleFor(x => x.RankOrder).GreaterThanOrEqualTo(JobGradeRules.MinRankOrder);
             RuleFor(x => x.JobLevelCategory)
-                .Must(c => JobGradeRules.AllowedCategories.Contains(c!, StringComparer.OrdinalIgnoreCase))
+                .Must(JobLevelCategory.IsValidKey)
                 .When(x => !string.IsNullOrWhiteSpace(x.JobLevelCategory))
-                .WithMessage($"JobLevelCategory must be one of: {string.Join(", ", JobGradeRules.AllowedCategories)}.");
+                .WithMessage($"JobLevelCategory must be one of: {JobLevelCategory.AllowedKeysDescription}.");
             RuleFor(x => x.Description).MaximumLength(JobGradeRules.MaxDescriptionLength);
         }
     }

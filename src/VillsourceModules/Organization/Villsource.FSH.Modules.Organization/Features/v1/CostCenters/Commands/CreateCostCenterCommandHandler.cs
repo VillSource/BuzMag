@@ -53,6 +53,38 @@ public sealed class CreateCostCenterCommandHandler(
             defaultTaxBranchRefId: request.DefaultTaxBranchRefId,
             cancellationToken: cancellationToken);
 
+        Guid? responsiblePositionId = null;
+        if (!string.IsNullOrWhiteSpace(request.ResponsiblePositionRefId))
+        {
+            var position = await dbContext.Positions
+                .AsNoTracking()
+                .Where(p => p.ReferenceId == request.ResponsiblePositionRefId)
+                .Select(p => new { p.Id, p.LegalEntityId, p.IsActive })
+                .FirstOrDefaultAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false)
+                ?? throw new NotFoundException($"Position '{request.ResponsiblePositionRefId}' was not found.");
+
+            if (position.LegalEntityId != legalEntityId)
+            {
+                throw new InvalidOperationException("Responsible position must belong to the same legal entity as the cost center.");
+            }
+
+            if (!position.IsActive)
+            {
+                throw new InvalidOperationException($"Responsible position '{request.ResponsiblePositionRefId}' is inactive.");
+            }
+
+            responsiblePositionId = position.Id;
+        }
+
+        Guid? orgUnitId = await CostCenterReferenceResolver
+            .ResolveOrgUnitIdAsync(
+                dbContext: dbContext,
+                legalEntityId: legalEntityId,
+                orgUnitRefId: request.OrgUnitRefId,
+                cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
         var costCenter = CostCenter.Create(
             legalEntityId: legalEntityId,
             code: normalizedCode,
@@ -62,8 +94,8 @@ public sealed class CreateCostCenterCommandHandler(
             description: request.Description,
             parentCostCenterId: parentCostCenterId,
             defaultTaxBranchId: defaultTaxBranchId,
-            responsibleUserId: request.ResponsibleUserId,
-            orgUnitId: request.OrgUnitId,
+            responsiblePositionId: responsiblePositionId,
+            orgUnitId: orgUnitId,
             validFrom: request.ValidFrom,
             validTo: request.ValidTo,
             isActive: request.IsActive,

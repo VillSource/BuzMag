@@ -66,6 +66,38 @@ public sealed class UpdateCostCenterCommandHandler(
             defaultTaxBranchRefId: request.DefaultTaxBranchRefId,
             cancellationToken: cancellationToken);
 
+        Guid? responsiblePositionId = null;
+        if (!string.IsNullOrWhiteSpace(request.ResponsiblePositionRefId))
+        {
+            var position = await dbContext.Positions
+                .AsNoTracking()
+                .Where(p => p.ReferenceId == request.ResponsiblePositionRefId)
+                .Select(p => new { p.Id, p.LegalEntityId, p.IsActive })
+                .FirstOrDefaultAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false)
+                ?? throw new NotFoundException($"Position '{request.ResponsiblePositionRefId}' was not found.");
+
+            if (position.LegalEntityId != costCenter.LegalEntityId)
+            {
+                throw new InvalidOperationException("Responsible position must belong to the same legal entity as the cost center.");
+            }
+
+            if (!position.IsActive)
+            {
+                throw new InvalidOperationException($"Responsible position '{request.ResponsiblePositionRefId}' is inactive.");
+            }
+
+            responsiblePositionId = position.Id;
+        }
+
+        Guid? orgUnitId = await CostCenterReferenceResolver
+            .ResolveOrgUnitIdAsync(
+                dbContext: dbContext,
+                legalEntityId: costCenter.LegalEntityId,
+                orgUnitRefId: request.OrgUnitRefId,
+                cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
         costCenter.Update(
             code: normalizedCode,
             name: request.Name,
@@ -74,8 +106,8 @@ public sealed class UpdateCostCenterCommandHandler(
             description: request.Description,
             parentCostCenterId: parentCostCenterId,
             defaultTaxBranchId: defaultTaxBranchId,
-            responsibleUserId: request.ResponsibleUserId,
-            orgUnitId: request.OrgUnitId,
+            responsiblePositionId: responsiblePositionId,
+            orgUnitId: orgUnitId,
             validFrom: request.ValidFrom,
             validTo: request.ValidTo);
 

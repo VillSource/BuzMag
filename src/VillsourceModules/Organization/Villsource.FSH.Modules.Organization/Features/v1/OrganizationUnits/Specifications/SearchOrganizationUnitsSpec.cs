@@ -15,8 +15,8 @@ public sealed class SearchOrganizationUnitsSpec : Specification<OrganizationUnit
             ["code"] = e => e.Code,
             ["name"] = e => e.Name,
             ["internationalName"] = e => e.InternationalName,
-            ["type"] = e => e.Type,
-            ["level"] = e => e.Level,
+            ["type"] = e => e.OrganizationUnitType!.Code,
+            ["depth"] = e => e.Depth,
             ["createdOnUtc"] = e => e.CreatedOnUtc
         };
 
@@ -55,10 +55,10 @@ public sealed class SearchOrganizationUnitsSpec : Specification<OrganizationUnit
             Where(e => e.LegalEntity != null && e.LegalEntity.ReferenceId == legalEntityRefId);
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Type))
+        if (!string.IsNullOrWhiteSpace(request.OrganizationUnitTypeRefId))
         {
-            var type = request.Type.Trim().ToUpperInvariant();
-            Where(e => e.Type == type);
+            var typeRefId = request.OrganizationUnitTypeRefId.Trim();
+            Where(e => e.OrganizationUnitType != null && e.OrganizationUnitType.ReferenceId == typeRefId);
         }
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
@@ -75,7 +75,7 @@ public sealed class SearchOrganizationUnitsSpec : Specification<OrganizationUnit
             sortExpression: request.Sort,
             applyDefaultOrdering: () =>
             {
-                OrderBy(e => e.Level);
+                OrderBy(e => e.Depth);
                 ThenBy(e => e.Code);
             },
             sortMappings: SortMappings);
@@ -85,11 +85,14 @@ public sealed class SearchOrganizationUnitsSpec : Specification<OrganizationUnit
             e.Code,
             e.Name,
             e.InternationalName,
-            e.Type,
+            e.OrganizationUnitType!.ReferenceId,
+            e.OrganizationUnitType!.Code,
+            e.OrganizationUnitType!.Name,
+            e.OrganizationUnitType!.HierarchyLevel,
             e.LegalEntity != null ? e.LegalEntity.ReferenceId : null,
             e.Parent != null ? e.Parent.ReferenceId : null,
             e.Parent != null ? e.Parent.Name : null,
-            e.Level,
+            e.Depth,
             e.HierarchyPath,
             e.ManagerPosition != null && !e.ManagerPosition.IsDeleted ? e.ManagerPosition.ReferenceId : null,
             e.ManagerPosition != null && !e.ManagerPosition.IsDeleted ? e.ManagerPosition.Code : null,

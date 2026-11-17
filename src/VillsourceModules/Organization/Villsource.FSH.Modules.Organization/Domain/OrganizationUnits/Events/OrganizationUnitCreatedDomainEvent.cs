@@ -7,7 +7,7 @@ public sealed record OrganizationUnitCreatedDomainEvent(
     string Code,
     string Name,
     string InternationalName,
-    string Type,
+    Guid OrganizationUnitTypeId,
     Guid? LegalEntityId,
     Guid? ParentId,
     Guid? ManagerPositionId,

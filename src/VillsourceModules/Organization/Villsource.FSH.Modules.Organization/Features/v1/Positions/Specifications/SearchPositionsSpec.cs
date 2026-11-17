@@ -31,9 +31,10 @@ public sealed class SearchPositionsSpec : Specification<Position, PositionSummar
             Where(p => p.LegalEntity!.ReferenceId == leRef);
         }
 
-        if (request.OrgUnitId.HasValue)
+        if (!string.IsNullOrWhiteSpace(request.OrgUnitRefId))
         {
-            Where(p => p.OrgUnitId == request.OrgUnitId.Value);
+            string ouRef = request.OrgUnitRefId.Trim();
+            Where(p => p.OrgUnit != null && p.OrgUnit.ReferenceId == ouRef);
         }
 
         if (!string.IsNullOrWhiteSpace(request.JobRefId))
@@ -88,7 +89,7 @@ public sealed class SearchPositionsSpec : Specification<Position, PositionSummar
             p.ReferenceId,
             p.LegalEntity!.ReferenceId,
             p.LegalEntity!.LegalName,
-            p.OrgUnitId,
+            p.OrgUnit != null ? p.OrgUnit.ReferenceId : null,
             p.Job!.Code,
             p.JobGrade!.Code,
             p.JobGrade!.RankOrder,

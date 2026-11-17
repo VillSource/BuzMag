@@ -13,6 +13,6 @@ public sealed class SearchOrganizationUnitsQueryValidator : AbstractValidator<Se
         RuleFor(x => x.LegalEntityRefId).MaximumLength(VillsourceId.KeySizes).When(x => !string.IsNullOrWhiteSpace(x.LegalEntityRefId));
         RuleFor(x => x.ParentRefId).MaximumLength(VillsourceId.KeySizes).When(x => !string.IsNullOrWhiteSpace(x.ParentRefId));
         RuleFor(x => x.ManagerPositionRefId).MaximumLength(VillsourceId.KeySizes).When(x => !string.IsNullOrWhiteSpace(x.ManagerPositionRefId));
-        RuleFor(x => x.Type).MaximumLength(30).When(x => !string.IsNullOrWhiteSpace(x.Type));
+        RuleFor(x => x.OrganizationUnitTypeRefId).MaximumLength(VillsourceId.KeySizes).When(x => !string.IsNullOrWhiteSpace(x.OrganizationUnitTypeRefId));
     }
 }

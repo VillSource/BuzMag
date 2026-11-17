@@ -2,6 +2,7 @@
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Villsource.FSH.Exceptions;
+using Villsource.FSH.Modules.Organization.Contracts.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.v1.JobGrades.Commands;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain.JobGrades;
@@ -30,13 +31,17 @@ namespace Villsource.FSH.Modules.Organization.Features.v1.JobGrades.Commands
                 throw new ConflictException($"Job grade code '{normalizedCode}' already exists.");
             }
 
+            var category = string.IsNullOrWhiteSpace(request.JobLevelCategory)
+                ? null
+                : JobLevelCategory.FromKey(request.JobLevelCategory);
+
             var changed = entity.Update(
                 code: normalizedCode,
                 name: request.Name,
                 internationalName: request.InternationalName,
                 rankOrder: request.RankOrder,
                 description: request.Description,
-                jobLevelCategory: request.JobLevelCategory);
+                jobLevelCategory: category);
 
             if (changed)
             {
