@@ -27,6 +27,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Domain;
 using Villsource.FSH.Modules.Organization.Domain.CostCenters;
@@ -83,6 +84,7 @@ internal sealed class DemoSeeder
         _logger = logger;
     }
 
+    [SuppressMessage("Major Code Smell", "S125:Sections of code should not be commented out")]
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         // Sourced from configuration so the demo credential isn't hard-coded.
@@ -100,7 +102,7 @@ internal sealed class DemoSeeder
             await SeedTenantCatalogAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantTicketsAsync(demo, cancellationToken).ConfigureAwait(false);
             await SeedTenantChatAsync(demo, cancellationToken).ConfigureAwait(false);
-            await SeedTenantOrganizationAsync(demo, cancellationToken).ConfigureAwait(false);
+            // await SeedTenantOrganizationAsync(demo, cancellationToken).ConfigureAwait(false);
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -671,6 +673,8 @@ internal sealed class DemoSeeder
     
     // ─── ORG ───────────────────────────────────────────────────────────
 
+    // ReSharper disable once UnusedMember.Local
+    [SuppressMessage("Major Code Smell", "S1144:Unused private types or members should be removed")]
     private async Task SeedTenantOrganizationAsync(DemoTenant demo, CancellationToken cancellationToken)
     {
         using var scope = _services.CreateScope();
