@@ -20,8 +20,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Elsa\Villsource.Modules.Elsa.Core\Villsource.Modules.Elsa.Core.csproj" />
 		<ProjectReference Include="..\Villsource.FSH.Modules.Organization\Villsource.FSH.Modules.Organization.csproj" />
 		<ProjectReference Include="..\Villsource.FSH.Modules.Organization.Contracts\Villsource.FSH.Modules.Organization.Contracts.csproj" />
+		<ProjectReference Include="..\Villsource.FSH.Modules.Organization.Workflows\Villsource.FSH.Modules.Organization.Workflows.csproj" />
 	</ItemGroup>
 
 </Project>

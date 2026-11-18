@@ -1,22 +1,44 @@
 ﻿using Elsa.Extensions;
 using Elsa.Features.Services;
 using Elsa.Workflows;
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
+using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
+using Villsource.FSH.Modules.Organization.Workflows.Activities.OptionsProviders;
+using Villsource.FSH.Modules.Organization.Workflows.Constants;
 
 namespace Villsource.FSH.Modules.Organization.Workflows;
 
 public static class Extension
 {
-    [SuppressMessage("Major Code Smell", "S125:Sections of code should not be commented out")]
     public static IModule AddOrganizationWorkflowsModule(this IModule elsa)
     {
         ArgumentNullException.ThrowIfNull(elsa);
-        
-        // elsa.Services.AddScoped<IPropertyUIHandler, PositionTierOptionsProvider>();
-        //
-        // elsa.AddWorkflowsFrom<HumanResourceWorkflowMarker>();
-        // elsa.AddActivitiesFrom<HumanResourceWorkflowMarker>();
-        
+
+        elsa.Services.AddScoped<IPropertyUIHandler, JobLevelCategoryOptionsProvider>();
+        elsa.Services.AddScoped<IPropertyUIHandler, DelegationTypeOptionsProvider>();
+
+        elsa.AddVariableTypeAndAlias<ChainOfCommandPositionDto>(
+            nameof(ChainOfCommandPositionDto),
+            OrganizationActivityConstants.Category);
+        elsa.AddVariableTypeAndAlias<OuManagerResolutionDto>(
+            nameof(OuManagerResolutionDto),
+            OrganizationActivityConstants.Category);
+        elsa.AddVariableTypeAndAlias<EffectiveManagerResolutionDto>(
+            nameof(EffectiveManagerResolutionDto),
+            OrganizationActivityConstants.Category);
+        elsa.AddVariableTypeAndAlias<ResolvedDelegationDto>(
+            nameof(ResolvedDelegationDto),
+            OrganizationActivityConstants.Category);
+        elsa.AddVariableTypeAndAlias<OuLeadershipStepDto>(
+            nameof(OuLeadershipStepDto),
+            OrganizationActivityConstants.Category);
+        elsa.AddVariableTypeAndAlias<ManagerResolutionSource>(
+            nameof(ManagerResolutionSource),
+            OrganizationActivityConstants.Category);
+
+        elsa.AddWorkflowsFrom<OrganizationWorkflowMarker>();
+        elsa.AddActivitiesFrom<OrganizationWorkflowMarker>();
+
         return elsa;
     }
 }

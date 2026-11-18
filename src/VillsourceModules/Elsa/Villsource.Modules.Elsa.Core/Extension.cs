@@ -13,7 +13,8 @@ public static class Extension
         ArgumentNullException.ThrowIfNull(elsa);
         
         elsa.Services.AddScoped<IPropertyUIHandler, ComparisonOperatorOptionsProvider>();
-        
+        elsa.AddActivitiesFrom<ElsaCoreWorkflowMarker>();
+
         return elsa;
     }
 }
