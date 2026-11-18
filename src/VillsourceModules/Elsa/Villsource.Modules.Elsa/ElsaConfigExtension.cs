@@ -1,5 +1,4 @@
-﻿using Asp.Versioning;
-using Elsa.Extensions;
+﻿using Elsa.Extensions;
 using Elsa.Common.Features;
 using Elsa.Common.Multitenancy;
 using Elsa.Persistence.EFCore.Extensions;
@@ -7,18 +6,13 @@ using Elsa.Persistence.EFCore.Modules.Labels;
 using Elsa.Persistence.EFCore.Modules.Management;
 using Elsa.Persistence.EFCore.Modules.Runtime;
 using Elsa.Tenants.Extensions;
-using Elsa.Tenants.Features;
-using Elsa.Workflows.Api;
-using Elsa.Workflows.Management.Features;
 using Finbuckle.MultiTenant.Abstractions;
 using FSH.Framework.Shared.Multitenancy;
-using Hangfire.Storage.SQLite.Entities;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi;
+using Villsource.FSH.Modules.Organization.Workflows;
 using Villsource.Modules.Elsa.Core;
-using Villsource.Modules.HumanResource.Workflow;
 
 namespace Villsource.Modules.Elsa;
 
@@ -66,7 +60,7 @@ public static class ElsaConfigExtension
             });
             elsa.AddWorkflowsFrom<ElsaModule>();
             elsa.AddCoreWorkflowsModule();
-            elsa.AddHrWorkflowsModule();
+            elsa.AddOrganizationWorkflowsModule();
             elsa.UseLabels(labels => 
                 labels.UseEntityFrameworkCore(ef => 
                 {

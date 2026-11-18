@@ -116,6 +116,8 @@
     
   <Folder Name="/VillsourceModules/Organization/">
     <Project Path="VillsourceModules/Organization/Villsource.FSH.Modules.Organization.Contracts/Villsource.FSH.Modules.Organization.Contracts.csproj" />
+    <Project Path="VillsourceModules/Organization/Villsource.FSH.Modules.Organization.Tests/Villsource.FSH.Modules.Organization.Tests.csproj" />
+    <Project Path="VillsourceModules/Organization/Villsource.FSH.Modules.Organization.Workflows/Villsource.FSH.Modules.Organization.Workflows.csproj" />
     <Project Path="VillsourceModules/Organization/Villsource.FSH.Modules.Organization/Villsource.FSH.Modules.Organization.csproj" />
   </Folder>
   <Folder Name="/VillsourceModules/Templates/">

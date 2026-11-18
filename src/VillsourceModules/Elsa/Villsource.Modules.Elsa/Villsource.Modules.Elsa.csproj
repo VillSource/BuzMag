@@ -12,6 +12,7 @@
       <ProjectReference Include="..\..\..\BuildingBlocks\Web\Web.csproj" />
       <ProjectReference Include="..\..\Core\Villsource.Tool.UniqueKey\Villsource.Tool.UniqueKey.csproj" />
       <ProjectReference Include="..\..\HumanResource\Villsource.Modules.HumanResource.Workflow\Villsource.Modules.HumanResource.Workflow.csproj" />
+      <ProjectReference Include="..\..\Organization\Villsource.FSH.Modules.Organization.Workflows\Villsource.FSH.Modules.Organization.Workflows.csproj" />
       <ProjectReference Include="..\Villsource.Modules.Elsa.Contracts\Villsource.Modules.Elsa.Contracts.csproj" />
     </ItemGroup>
 

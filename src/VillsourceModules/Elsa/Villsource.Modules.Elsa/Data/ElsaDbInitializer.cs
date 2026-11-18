@@ -1,5 +1,3 @@
-
-using Elsa.Extensions;
 using Elsa.Common.Multitenancy;
 using Elsa.Persistence.EFCore.Modules.Labels;
 using Elsa.Persistence.EFCore.Modules.Management;
@@ -7,7 +5,6 @@ using Elsa.Persistence.EFCore.Modules.Runtime;
 using Elsa.Workflows;
 using Elsa.Workflows.Management;
 using Elsa.Workflows.Management.Entities;
-using Elsa.Workflows.Management.Filters;
 using Finbuckle.MultiTenant.Abstractions;
 using FSH.Framework.Persistence;
 using FSH.Framework.Shared.Multitenancy;
@@ -15,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Villsource.Modules.Elsa.Workflows;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Villsource.Modules.Elsa.Data;
 
@@ -65,11 +62,10 @@ public sealed class ElsaDbInitializer(
 
     }
 
+    [SuppressMessage("Major Code Smell", "S125:Sections of code should not be commented out")]
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
-#pragma warning disable S125
         // await using var tenantScope = CreateElsaTenantScope();
-#pragma warning restore S125
         // var services = tenantScope.ServiceProvider;
         // var dbContext = services.GetRequiredService<ElsaDbContext>();
         // var managementDbContext = services.GetRequiredService<ManagementElsaDbContext>();

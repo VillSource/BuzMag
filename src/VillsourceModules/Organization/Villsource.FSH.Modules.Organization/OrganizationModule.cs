@@ -11,6 +11,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Villsource.FSH.Modules.Organization.Constants;
 using Villsource.FSH.Modules.Organization.Contracts.Authorization;
+using Villsource.FSH.Modules.Organization.Contracts.Services;
 using Villsource.FSH.Modules.Organization.Data;
 using Villsource.FSH.Modules.Organization.Features.v1.CostCenters.Endpoints;
 using Villsource.FSH.Modules.Organization.Features.v1.DocumentTypes.Endpoints;
@@ -36,6 +37,7 @@ public sealed class OrganizationModule : IModule
 
         builder.Services.AddHeroDbContext<OrganizationDbContext>();
         builder.Services.AddScoped<IDbInitializer, OrganizationDbInitializer>();
+        builder.Services.AddScoped<IChainOfCommandService, ChainOfCommandService>();
         builder.Services.AddHostedService<DocumentTypeSyncHostedService>();
         builder.Services.AddValidatorsFromAssembly(typeof(OrganizationModule).Assembly);
 
