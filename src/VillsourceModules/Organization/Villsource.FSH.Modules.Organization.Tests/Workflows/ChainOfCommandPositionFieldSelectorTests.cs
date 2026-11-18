@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Memory;
 using Elsa.Workflows.Models;
@@ -132,13 +133,12 @@ public sealed class ChainOfCommandPositionFieldSelectorTests
             Position = new Input<object?>(position)
         };
 
-        var (runResult, resultDict) = await WorkflowTestHost.RunCodeActivityAsync(sp, selector);
-        resultDict.ShouldNotBeNull();
-        resultDict.Count.ShouldBe(expectedByField.Count);
+        var (runResult, resultJson) = await WorkflowTestHost.RunCodeActivityAsync(sp, selector);
+        resultJson.ShouldNotBeNull();
+        resultJson["refId"]?.GetValue<string>().ShouldBe(position.RefId);
 
         foreach (var (fieldName, expectedValue) in expectedByField)
         {
-            resultDict[fieldName].ShouldBe(expectedValue, $"Dictionary mismatch for field '{fieldName}'.");
             var outputValue = WorkflowTestHost.GetOutput<object?>(runResult, selector, fieldName);
             outputValue.ShouldBe(expectedValue, $"Output mismatch for field '{fieldName}'.");
         }
@@ -160,14 +160,11 @@ public sealed class ChainOfCommandPositionFieldSelectorTests
             .Select(p => p.Name)
             .ToArray();
 
-        var (nullRun, nullDict) = await WorkflowTestHost.RunCodeActivityAsync(sp, nullPosSelector);
-        nullDict.ShouldNotBeNull();
-        nullDict.Count.ShouldBe(expectedFieldNames.Length);
+        var (nullRun, nullJson) = await WorkflowTestHost.RunCodeActivityAsync(sp, nullPosSelector);
+        nullJson.ShouldBeNull();
 
         foreach (var fieldName in expectedFieldNames)
         {
-            nullDict.ContainsKey(fieldName).ShouldBeTrue();
-            nullDict[fieldName].ShouldBeNull();
             WorkflowTestHost.GetOutput<object?>(nullRun, nullPosSelector, fieldName).ShouldBeNull();
         }
     }

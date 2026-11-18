@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
@@ -5,22 +6,23 @@ using Elsa.Workflows.Models;
 using Elsa.Workflows.UIHints;
 using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
 using Villsource.FSH.Modules.Organization.Workflows.Constants;
+using Villsource.Modules.Elsa.Core.Helpers;
 
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand;
 
 /// <summary>
-/// Parses a position JSON string (or <see cref="ChainOfCommandPositionDto"/>) and exposes each field as an output.
+/// Parses a position <see cref="JsonObject"/>, JSON string, or <see cref="ChainOfCommandPositionDto"/> and exposes each field as an output.
 /// </summary>
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Chain Of Command Position Field Selector",
-    Description = "Parses a position JSON string or DTO and outputs each field to variables or expressions."
+    Description = "Parses a position JsonObject, JSON string, or DTO and outputs each field to variables or expressions."
 )]
-public class ChainOfCommandPositionFieldSelector : CodeActivity<IDictionary<string, object?>>
+public class ChainOfCommandPositionFieldSelector : CodeActivity<JsonObject?>
 {
     [Input(
         DisplayName = "Position",
-        Description = "Position JSON string (or ChainOfCommandPositionDto) output by a resolver activity.",
+        Description = "Position JsonObject, JSON string, or ChainOfCommandPositionDto output by a resolver activity.",
         UIHint = InputUIHints.SingleLine
     )]
     public Input<object?> Position { get; set; } = default!;
@@ -83,17 +85,15 @@ public class ChainOfCommandPositionFieldSelector : CodeActivity<IDictionary<stri
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        ChainOfCommandPositionDto? position = ChainOfCommandActivityHelper.ParsePosition(Position.GetOrDefault(context));
+        ChainOfCommandPositionDto? position = WorkflowJsonHelper.Parse<ChainOfCommandPositionDto>(Position.GetOrDefault(context));
         IReadOnlyList<PositionFieldDefinition> definitions = ChainOfCommandPositionFields.All;
-        Dictionary<string, object?> fieldValues = new(definitions.Count, StringComparer.Ordinal);
 
         foreach (PositionFieldDefinition definition in definitions)
         {
             object? value = position is null ? null : definition.Accessor(position);
-            fieldValues[definition.Name] = value;
             definition.OutputSetter(this, context, value, definition.Name);
         }
 
-        context.SetResult(fieldValues);
+        context.SetResult(WorkflowJsonHelper.ToJsonObject(position));
     }
 }

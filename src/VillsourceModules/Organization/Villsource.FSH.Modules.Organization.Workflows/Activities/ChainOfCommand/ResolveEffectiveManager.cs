@@ -7,6 +7,7 @@ using Villsource.FSH.Modules.Organization.Contracts.Services;
 using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
 using Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand.Base;
 using Villsource.FSH.Modules.Organization.Workflows.Constants;
+using Villsource.Modules.Elsa.Core.Helpers;
 
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand;
 
@@ -57,8 +58,8 @@ public class ResolveEffectiveManager : EffectiveManagerResolutionActivityBase
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string positionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
-        string? documentTypeCode = ChainOfCommandActivityHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
+        string positionRefId = WorkflowJsonHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
+        string? documentTypeCode = WorkflowJsonHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
         bool fallbackToOuManager = FallbackToOuManager.GetOrDefault(context, static () => true);
         bool climbToFirstActive = ClimbToFirstActive.GetOrDefault(context, static () => true);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);

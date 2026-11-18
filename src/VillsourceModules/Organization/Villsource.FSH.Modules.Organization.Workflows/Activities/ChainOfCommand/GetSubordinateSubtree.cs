@@ -7,6 +7,7 @@ using Villsource.FSH.Modules.Organization.Contracts.Services;
 using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
 using Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand.Base;
 using Villsource.FSH.Modules.Organization.Workflows.Constants;
+using Villsource.Modules.Elsa.Core.Helpers;
 
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand;
 
@@ -51,7 +52,7 @@ public class GetSubordinateSubtree : PositionListResolutionActivityBase
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string managerPositionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(ManagerPositionRefId.GetOrDefault(context), nameof(ManagerPositionRefId));
+        string managerPositionRefId = WorkflowJsonHelper.RequireNonEmpty(ManagerPositionRefId.GetOrDefault(context), nameof(ManagerPositionRefId));
         int maxDepth = MaxDepth.GetOrDefault(context, static () => 10);
         bool includeInactive = IncludeInactive.GetOrDefault(context);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);

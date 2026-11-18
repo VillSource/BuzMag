@@ -8,6 +8,7 @@ using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
 using Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand.Base;
 using Villsource.FSH.Modules.Organization.Workflows.Activities.OptionsProviders;
 using Villsource.FSH.Modules.Organization.Workflows.Constants;
+using Villsource.Modules.Elsa.Core.Helpers;
 
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand;
 
@@ -67,10 +68,10 @@ public class ResolveManagerByMinJobGrade : EffectiveManagerResolutionActivityBas
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string positionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
+        string positionRefId = WorkflowJsonHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
         int? minRankOrder = MinRankOrder.GetOrDefault(context);
-        string? minJobLevelCategory = ChainOfCommandActivityHelper.NormalizeOptional(MinJobLevelCategory.GetOrDefault(context));
-        string? documentTypeCode = ChainOfCommandActivityHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
+        string? minJobLevelCategory = WorkflowJsonHelper.NormalizeOptional(MinJobLevelCategory.GetOrDefault(context));
+        string? documentTypeCode = WorkflowJsonHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
         bool fallbackToOuManager = FallbackToOuManager.GetOrDefault(context, static () => true);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);
 

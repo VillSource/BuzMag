@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
@@ -6,6 +7,8 @@ using Elsa.Workflows.UIHints;
 using Villsource.FSH.Modules.Organization.Contracts.Services;
 using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
 using Villsource.FSH.Modules.Organization.Workflows.Constants;
+using Villsource.Modules.Elsa.Core.Activities.Base;
+using Villsource.Modules.Elsa.Core.Helpers;
 
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand;
 
@@ -14,7 +17,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
     DisplayName = "Resolve OU Leadership Chain",
     Description = "Resolves the upward Organization Unit leadership chain from a starting OU up to the root OU."
 )]
-public class ResolveOuLeadershipChain : CodeActivity<string>
+public class ResolveOuLeadershipChain : JsonListActivityBase
 {
     [Input(
         DisplayName = "Org Unit Ref ID",
@@ -44,21 +47,18 @@ public class ResolveOuLeadershipChain : CodeActivity<string>
     )]
     public Input<DateTimeOffset?> AsOfUtc { get; set; } = default!;
 
-    [Output(Description = "Number of OU leadership steps returned.")]
-    public Output<int> Count { get; set; } = default!;
+    [Output(Description = "First step in the OU leadership chain as a JsonObject, or null when empty.")]
+    public Output<JsonObject?> FirstStep { get; set; } = default!;
 
-    [Output(Description = "First step in the OU leadership chain as JSON, or null when empty.")]
-    public Output<string?> FirstStep { get; set; } = default!;
-
-    [Output(Description = "Manager position from the first step that has one assigned as JSON, or null if none.")]
-    public Output<string?> FirstManagerPosition { get; set; } = default!;
+    [Output(Description = "Manager position from the first step that has one assigned as a JsonObject, or null if none.")]
+    public Output<JsonObject?> FirstManagerPosition { get; set; } = default!;
 
     protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string orgUnitRefId = ChainOfCommandActivityHelper.RequireNonEmpty(OrgUnitRefId.GetOrDefault(context), nameof(OrgUnitRefId));
+        string orgUnitRefId = WorkflowJsonHelper.RequireNonEmpty(OrgUnitRefId.GetOrDefault(context), nameof(OrgUnitRefId));
         bool onlyUnitsWithManager = OnlyUnitsWithManager.GetOrDefault(context);
         bool includeInactiveOu = IncludeInactiveOu.GetOrDefault(context);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);
@@ -70,9 +70,8 @@ public class ResolveOuLeadershipChain : CodeActivity<string>
             asOfUtc,
             context.CancellationToken).ConfigureAwait(false);
 
-        context.SetResult(ChainOfCommandActivityHelper.SerializeJson(result));
-        Count.Set(context, result.Count);
-        FirstStep.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(result.Count > 0 ? result[0] : null));
-        FirstManagerPosition.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(result.Select(static s => s.ManagerPosition).FirstOrDefault(static m => m is not null)));
+        SetJsonListResult(context, result);
+        FirstStep.Set(context, WorkflowJsonHelper.ToJsonObject(result.Count > 0 ? result[0] : null));
+        FirstManagerPosition.Set(context, WorkflowJsonHelper.ToJsonObject(result.Select(static s => s.ManagerPosition).FirstOrDefault(static m => m is not null)));
     }
 }

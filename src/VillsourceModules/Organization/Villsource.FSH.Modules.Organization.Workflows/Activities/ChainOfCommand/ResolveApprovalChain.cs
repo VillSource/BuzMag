@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
@@ -6,6 +7,8 @@ using Elsa.Workflows.UIHints;
 using Villsource.FSH.Modules.Organization.Contracts.Services;
 using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
 using Villsource.FSH.Modules.Organization.Workflows.Constants;
+using Villsource.Modules.Elsa.Core.Activities.Base;
+using Villsource.Modules.Elsa.Core.Helpers;
 
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand;
 
@@ -14,7 +17,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
     DisplayName = "Resolve Approval Chain",
     Description = "Resolves the multi-step upward approval chain for a position with automatic delegation evaluation."
 )]
-public class ResolveApprovalChain : CodeActivity<string>
+public class ResolveApprovalChain : JsonListActivityBase
 {
     [Input(
         DisplayName = "Position Ref ID",
@@ -52,22 +55,19 @@ public class ResolveApprovalChain : CodeActivity<string>
     )]
     public Input<DateTimeOffset?> AsOfUtc { get; set; } = default!;
 
-    [Output(Description = "Number of approval steps returned.")]
-    public Output<int> Count { get; set; } = default!;
+    [Output(Description = "First step in the approval chain as a JsonObject, or null when empty.")]
+    public Output<JsonObject?> FirstStep { get; set; } = default!;
 
-    [Output(Description = "First step in the approval chain as JSON, or null when empty.")]
-    public Output<string?> FirstStep { get; set; } = default!;
-
-    [Output(Description = "Effective approver position for the first step as JSON, or null when empty.")]
-    public Output<string?> FirstApproverPosition { get; set; } = default!;
+    [Output(Description = "Effective approver position for the first step as a JsonObject, or null when empty.")]
+    public Output<JsonObject?> FirstApproverPosition { get; set; } = default!;
 
     protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string positionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
-        string? documentTypeCode = ChainOfCommandActivityHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
+        string positionRefId = WorkflowJsonHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
+        string? documentTypeCode = WorkflowJsonHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
         int maxDepth = MaxDepth.GetOrDefault(context, static () => 15);
         bool fallbackToOuManager = FallbackToOuManager.GetOrDefault(context, static () => true);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);
@@ -80,9 +80,8 @@ public class ResolveApprovalChain : CodeActivity<string>
             asOfUtc,
             context.CancellationToken).ConfigureAwait(false);
 
-        context.SetResult(ChainOfCommandActivityHelper.SerializeJson(result));
-        Count.Set(context, result.Count);
-        FirstStep.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(result.Count > 0 ? result[0] : null));
-        FirstApproverPosition.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(result.Count > 0 ? result[0].EffectiveApproverPosition : null));
+        SetJsonListResult(context, result);
+        FirstStep.Set(context, WorkflowJsonHelper.ToJsonObject(result.Count > 0 ? result[0] : null));
+        FirstApproverPosition.Set(context, WorkflowJsonHelper.ToJsonObject(result.Count > 0 ? result[0].EffectiveApproverPosition : null));
     }
 }

@@ -7,6 +7,7 @@ using Villsource.FSH.Modules.Organization.Contracts.Services;
 using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
 using Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand.Base;
 using Villsource.FSH.Modules.Organization.Workflows.Constants;
+using Villsource.Modules.Elsa.Core.Helpers;
 
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand;
 
@@ -50,7 +51,7 @@ public class ResolveOuManagerFromOrgUnit : OuManagerResolutionActivityBase
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string orgUnitRefId = ChainOfCommandActivityHelper.RequireNonEmpty(OrgUnitRefId.GetOrDefault(context), nameof(OrgUnitRefId));
+        string orgUnitRefId = WorkflowJsonHelper.RequireNonEmpty(OrgUnitRefId.GetOrDefault(context), nameof(OrgUnitRefId));
         bool startFromParent = StartFromParent.GetOrDefault(context);
         bool includeInactiveOu = IncludeInactiveOu.GetOrDefault(context);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);

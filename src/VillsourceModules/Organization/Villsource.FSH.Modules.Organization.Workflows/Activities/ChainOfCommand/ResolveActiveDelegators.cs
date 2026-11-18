@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
@@ -8,6 +9,7 @@ using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
 using Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand.Base;
 using Villsource.FSH.Modules.Organization.Workflows.Activities.OptionsProviders;
 using Villsource.FSH.Modules.Organization.Workflows.Constants;
+using Villsource.Modules.Elsa.Core.Helpers;
 
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand;
 
@@ -48,17 +50,17 @@ public class ResolveActiveDelegators : DelegationListResolutionActivityBase
     )]
     public Input<DateTimeOffset?> AsOfUtc { get; set; } = default!;
 
-    [Output(Description = "The highest-priority delegator position as JSON, or null when no active delegation exists.")]
-    public Output<string?> FirstDelegatorPosition { get; set; } = default!;
+    [Output(Description = "The highest-priority delegator position as a JsonObject, or null when no active delegation exists.")]
+    public Output<JsonObject?> FirstDelegatorPosition { get; set; } = default!;
 
     protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string delegatePositionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(DelegatePositionRefId.GetOrDefault(context), nameof(DelegatePositionRefId));
-        string? documentTypeCode = ChainOfCommandActivityHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
-        string? delegationTypeKey = ChainOfCommandActivityHelper.NormalizeOptional(DelegationTypeKey.GetOrDefault(context));
+        string delegatePositionRefId = WorkflowJsonHelper.RequireNonEmpty(DelegatePositionRefId.GetOrDefault(context), nameof(DelegatePositionRefId));
+        string? documentTypeCode = WorkflowJsonHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
+        string? delegationTypeKey = WorkflowJsonHelper.NormalizeOptional(DelegationTypeKey.GetOrDefault(context));
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);
 
         IReadOnlyList<ResolvedDelegationDto> result = await service.ResolveActiveDelegatorsAsync(
@@ -69,6 +71,6 @@ public class ResolveActiveDelegators : DelegationListResolutionActivityBase
             context.CancellationToken).ConfigureAwait(false);
 
         SetOutputs(context, result);
-        FirstDelegatorPosition.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(result.Count > 0 ? result[0].DelegatorPosition : null));
+        FirstDelegatorPosition.Set(context, WorkflowJsonHelper.ToJsonObject(result.Count > 0 ? result[0].DelegatorPosition : null));
     }
 }

@@ -5,6 +5,8 @@ using Elsa.Workflows.Models;
 using Elsa.Workflows.UIHints;
 using Villsource.FSH.Modules.Organization.Contracts.Services;
 using Villsource.FSH.Modules.Organization.Workflows.Constants;
+using Villsource.Modules.Elsa.Core.Activities.Base;
+using Villsource.Modules.Elsa.Core.Helpers;
 
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand;
 
@@ -13,7 +15,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
     DisplayName = "Is In Chain Of Command",
     Description = "Determines whether a candidate supervisor position holds supervisory authority over a subordinate position."
 )]
-public class IsInChainOfCommand : CodeActivity<bool>
+public class IsInChainOfCommand : ConditionActivityBase
 {
     [Input(
         DisplayName = "Supervisor Position Ref ID",
@@ -62,8 +64,8 @@ public class IsInChainOfCommand : CodeActivity<bool>
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string supervisorPositionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(SupervisorPositionRefId.GetOrDefault(context), nameof(SupervisorPositionRefId));
-        string subordinatePositionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(SubordinatePositionRefId.GetOrDefault(context), nameof(SubordinatePositionRefId));
+        string supervisorPositionRefId = WorkflowJsonHelper.RequireNonEmpty(SupervisorPositionRefId.GetOrDefault(context), nameof(SupervisorPositionRefId));
+        string subordinatePositionRefId = WorkflowJsonHelper.RequireNonEmpty(SubordinatePositionRefId.GetOrDefault(context), nameof(SubordinatePositionRefId));
         bool includeDottedLine = IncludeDottedLine.GetOrDefault(context);
         bool includeOuHierarchy = IncludeOuHierarchy.GetOrDefault(context, static () => true);
         bool includeActiveDelegations = IncludeActiveDelegations.GetOrDefault(context, static () => true);
@@ -78,6 +80,6 @@ public class IsInChainOfCommand : CodeActivity<bool>
             asOfUtc,
             context.CancellationToken).ConfigureAwait(false);
 
-        context.SetResult(result);
+        await CompleteConditionAsync(context, result).ConfigureAwait(false);
     }
 }

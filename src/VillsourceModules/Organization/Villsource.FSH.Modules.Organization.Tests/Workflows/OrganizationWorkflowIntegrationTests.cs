@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Activities.Flowchart.Activities;
 using Elsa.Workflows.Activities.Flowchart.Models;
@@ -39,7 +40,7 @@ public sealed class OrganizationWorkflowIntegrationTests
 
         await using var sp = WorkflowTestHost.BuildServiceProvider(realService);
 
-        var resolvedManager = new Variable<string?>("resolvedManager", null);
+        var resolvedManager = new Variable<JsonObject?>("resolvedManager", null);
         var approvalLimit = new Variable<decimal?>("approvalLimit", null);
         var rankOrder = new Variable<int?>("rankOrder", null);
         var meetsLimit = new Variable<bool>("meetsLimit", false);
@@ -50,7 +51,7 @@ public sealed class OrganizationWorkflowIntegrationTests
             Id = "resolve-direct-manager",
             PositionRefId = new Input<string>(staffRefId),
             ClimbToFirstActive = new Input<bool>(false),
-            Result = new Output<string?>(resolvedManager)
+            Result = new Output<JsonObject?>(resolvedManager)
         };
 
         var selectFieldActivity = new ChainOfCommandPositionFieldSelector
@@ -127,7 +128,7 @@ public sealed class OrganizationWorkflowIntegrationTests
 
         await using var sp = WorkflowTestHost.BuildServiceProvider(realService);
 
-        var chainJsonVar = new Variable<string>("chainJson", "[]");
+        var chainJsonVar = new Variable<JsonObject>("chainJson", new JsonObject());
         var currentPosVar = new Variable<ChainOfCommandPositionDto?>("currentPos", null);
         var currentCodeVar = new Variable<string?>("currentCode", null);
         var collectedCodes = new List<string>();
@@ -135,13 +136,13 @@ public sealed class OrganizationWorkflowIntegrationTests
         var resolveChain = new ResolveReportingChain
         {
             PositionRefId = new Input<string>(staffRefId),
-            Result = new Output<string>(chainJsonVar)
+            Result = new Output<JsonObject>(chainJsonVar)
         };
 
         var loop = new ForEach<ChainOfCommandPositionDto>
         {
             Items = new Input<ICollection<ChainOfCommandPositionDto>>(ctx =>
-                JsonSerializer.Deserialize<List<ChainOfCommandPositionDto>>(chainJsonVar.Get(ctx) ?? "[]", WebJsonOptions) ?? []),
+                chainJsonVar.Get(ctx)?["items"]?.Deserialize<List<ChainOfCommandPositionDto>>(WebJsonOptions) ?? []),
             CurrentValue = new Output<ChainOfCommandPositionDto>(currentPosVar),
             Body = new Sequence
             {
@@ -184,7 +185,7 @@ public sealed class OrganizationWorkflowIntegrationTests
 
         await using var sp = WorkflowTestHost.BuildServiceProvider(realService);
 
-        var chainJsonVar = new Variable<string>("chainJson", "[]");
+        var chainJsonVar = new Variable<JsonObject>("chainJson", new JsonObject());
         var currentItemVar = new Variable<object>("currentItem", new object());
         var selectedRankVar = new Variable<int?>("selectedRank", null);
         var collectedRanks = new List<int>();
@@ -192,13 +193,14 @@ public sealed class OrganizationWorkflowIntegrationTests
         var resolveChain = new ResolveReportingChain
         {
             PositionRefId = new Input<string>(staffRefId),
-            Result = new Output<string>(chainJsonVar)
+            Result = new Output<JsonObject>(chainJsonVar)
         };
 
         var loop = new ForEach
         {
             Items = new Input<ICollection<object>>(ctx =>
-                (JsonSerializer.Deserialize<List<JsonElement>>(chainJsonVar.Get(ctx) ?? "[]", WebJsonOptions) ?? [])
+                (chainJsonVar.Get(ctx)?["items"]?.AsArray() ?? [])
+                .OfType<JsonNode>()
                 .Cast<object>()
                 .ToList()),
             CurrentValue = new Output<object>(currentItemVar),

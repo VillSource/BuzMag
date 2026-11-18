@@ -1,29 +1,27 @@
+using System.Text.Json.Nodes;
 using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Models;
 using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
+using Villsource.Modules.Elsa.Core.Activities.Base;
+using Villsource.Modules.Elsa.Core.Helpers;
 
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand.Base;
 
 /// <summary>
-/// Base activity for delegation resolvers returning a list of <see cref="ResolvedDelegationDto"/> as JSON.
+/// Base activity for delegation resolvers returning a list of <see cref="ResolvedDelegationDto"/> as a <see cref="JsonObject"/> (<c>{ "items": [...], "count": N }</c>).
 /// </summary>
-public abstract class DelegationListResolutionActivityBase : CodeActivity<string>
+public abstract class DelegationListResolutionActivityBase : JsonListActivityBase
 {
-    [Output(Description = "Number of delegations returned.")]
-    public Output<int> Count { get; set; } = default!;
-
-    [Output(Description = "First (highest priority) delegation in the list as JSON, or null when empty.")]
-    public Output<string?> FirstDelegation { get; set; } = default!;
+    [Output(Description = "First (highest priority) delegation in the list as a JsonObject, or null when empty.")]
+    public Output<JsonObject?> FirstDelegation { get; set; } = default!;
 
     protected void SetOutputs(ActivityExecutionContext context, IReadOnlyList<ResolvedDelegationDto> delegations)
     {
-        ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(delegations);
 
-        context.SetResult(ChainOfCommandActivityHelper.SerializeJson(delegations));
-        Count.Set(context, delegations.Count);
-        FirstDelegation.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(delegations.Count > 0 ? delegations[0] : null));
+        SetJsonListResult(context, delegations);
+        FirstDelegation.Set(context, WorkflowJsonHelper.ToJsonObject(delegations.Count > 0 ? delegations[0] : null));
     }
 }
