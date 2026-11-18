@@ -76,23 +76,21 @@ public sealed partial class LegalEntity : BaseEntity<Guid>, IAuditableEntity, IS
         };
 
         entity.AddLegalEntityCreatedDomainEvent();
-        if (headOfficeAddress is not null)
-        {
-            var defaultHoName = string.IsNullOrWhiteSpace(headOfficeName) ? null : headOfficeName.Trim();
-            var defaultHoCode = headOfficeBranchCode ??
-                                JurisdictionRules.GetDefaultHeadOfficeBranchCode(countryCode: normalizedCountry);
-            var defaultHoIntlName = string.IsNullOrWhiteSpace(headOfficeInternationalName)
-                ? "Head Office"
-                : headOfficeInternationalName.Trim();
+        
+        var defaultHoName = string.IsNullOrWhiteSpace(headOfficeName) ? null : headOfficeName.Trim();
+        var defaultHoCode = headOfficeBranchCode ??
+                            JurisdictionRules.GetDefaultHeadOfficeBranchCode(countryCode: normalizedCountry);
+        var defaultHoIntlName = string.IsNullOrWhiteSpace(headOfficeInternationalName)
+            ? "Head Office"
+            : headOfficeInternationalName.Trim();
 
-            entity.AddBranch(
-                branchCode: defaultHoCode,
-                name: defaultHoName ?? (normalizedCountry == "TH" ? "สำนักงานใหญ่" : "Head Office"),
-                internationalName: defaultHoIntlName,
-                registeredAddress: headOfficeAddress,
-                isHeadOffice: true,
-                registeredDate: headOfficeRegisteredDate);
-        }
+        entity.AddBranch(
+            branchCode: defaultHoCode,
+            name: defaultHoName ?? (normalizedCountry == "TH" ? "สำนักงานใหญ่" : "Head Office"),
+            internationalName: defaultHoIntlName,
+            registeredAddress: headOfficeAddress ?? new(),
+            isHeadOffice: true,
+            registeredDate: headOfficeRegisteredDate);
 
         return entity;
     }
