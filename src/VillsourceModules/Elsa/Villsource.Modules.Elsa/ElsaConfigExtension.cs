@@ -71,6 +71,7 @@ public static class ElsaConfigExtension
                     ef.RunMigrations = false;
                 }));
             elsa.UseDashboardApi();
+            elsa.UseJavaScript();
             elsa.UseWorkflowRuntimeDashboard();
             elsa.UseScheduling(scheduling =>
             {
