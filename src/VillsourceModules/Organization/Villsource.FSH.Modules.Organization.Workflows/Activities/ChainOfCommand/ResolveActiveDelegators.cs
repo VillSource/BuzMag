@@ -48,15 +48,15 @@ public class ResolveActiveDelegators : DelegationListResolutionActivityBase
     )]
     public Input<DateTimeOffset?> AsOfUtc { get; set; } = default!;
 
-    [Output(Description = "The highest-priority delegator position, or null when no active delegation exists.")]
-    public Output<ChainOfCommandPositionDto?> FirstDelegatorPosition { get; set; } = default!;
+    [Output(Description = "The highest-priority delegator position as JSON, or null when no active delegation exists.")]
+    public Output<string?> FirstDelegatorPosition { get; set; } = default!;
 
     protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string delegatePositionRefId = DelegatePositionRefId.Get(context);
+        string delegatePositionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(DelegatePositionRefId.GetOrDefault(context), nameof(DelegatePositionRefId));
         string? documentTypeCode = ChainOfCommandActivityHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
         string? delegationTypeKey = ChainOfCommandActivityHelper.NormalizeOptional(DelegationTypeKey.GetOrDefault(context));
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);
@@ -69,6 +69,6 @@ public class ResolveActiveDelegators : DelegationListResolutionActivityBase
             context.CancellationToken).ConfigureAwait(false);
 
         SetOutputs(context, result);
-        FirstDelegatorPosition.Set(context, result.Count > 0 ? result[0].DelegatorPosition : null);
+        FirstDelegatorPosition.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(result.Count > 0 ? result[0].DelegatorPosition : null));
     }
 }

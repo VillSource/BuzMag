@@ -51,7 +51,7 @@ public class ResolveReportingChain : PositionListResolutionActivityBase
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string positionRefId = PositionRefId.Get(context);
+        string positionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
         int maxDepth = MaxDepth.GetOrDefault(context, static () => 15);
         bool includeInactive = IncludeInactive.GetOrDefault(context);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);

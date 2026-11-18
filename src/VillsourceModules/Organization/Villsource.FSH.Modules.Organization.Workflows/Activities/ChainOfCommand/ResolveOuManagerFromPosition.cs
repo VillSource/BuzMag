@@ -50,7 +50,7 @@ public class ResolveOuManagerFromPosition : OuManagerResolutionActivityBase
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string positionRefId = PositionRefId.Get(context);
+        string positionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
         bool excludeSelf = ExcludeSelf.GetOrDefault(context, static () => true);
         bool includeInactiveOu = IncludeInactiveOu.GetOrDefault(context);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);

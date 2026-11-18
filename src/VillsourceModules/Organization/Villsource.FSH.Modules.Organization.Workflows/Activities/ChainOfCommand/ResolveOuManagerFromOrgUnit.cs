@@ -50,7 +50,7 @@ public class ResolveOuManagerFromOrgUnit : OuManagerResolutionActivityBase
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string orgUnitRefId = OrgUnitRefId.Get(context);
+        string orgUnitRefId = ChainOfCommandActivityHelper.RequireNonEmpty(OrgUnitRefId.GetOrDefault(context), nameof(OrgUnitRefId));
         bool startFromParent = StartFromParent.GetOrDefault(context);
         bool includeInactiveOu = IncludeInactiveOu.GetOrDefault(context);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);

@@ -6,6 +6,7 @@ using Elsa.Persistence.EFCore.Modules.Labels;
 using Elsa.Persistence.EFCore.Modules.Management;
 using Elsa.Persistence.EFCore.Modules.Runtime;
 using Elsa.Tenants.Extensions;
+using Elsa.Workflows;
 using Finbuckle.MultiTenant.Abstractions;
 using FSH.Framework.Shared.Multitenancy;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi;
 using Villsource.FSH.Modules.Organization.Workflows;
 using Villsource.Modules.Elsa.Core;
+using Villsource.Modules.Elsa.Middleware;
 
 namespace Villsource.Modules.Elsa;
 
@@ -23,6 +25,7 @@ public static class ElsaConfigExtension
         ArgumentNullException.ThrowIfNull(builder);
         
         builder.Services.AddScoped<AppTenantResolver>();
+        builder.Services.AddSingleton<IActivityExecutionPipelineContributor, FinbuckleTenantActivityPipelineContributor>();
         builder.Services.AddElsa(elsa =>
         {
             elsa.Configure<MultitenancyFeature>(feature =>

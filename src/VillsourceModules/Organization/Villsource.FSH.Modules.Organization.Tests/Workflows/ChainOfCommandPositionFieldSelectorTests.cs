@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Memory;
 using Elsa.Workflows.Models;
@@ -24,8 +25,8 @@ public sealed class ChainOfCommandPositionFieldSelectorTests
         descriptor.Inputs.Count.ShouldBe(1);
         var positionInput = descriptor.Inputs.Single();
         positionInput.Name.ShouldBe(nameof(ChainOfCommandPositionFieldSelector.Position));
-        positionInput.Type.ShouldBe(typeof(ChainOfCommandPositionDto));
-        positionInput.UIHint.ShouldBe(InputUIHints.VariablePicker);
+        positionInput.Type.ShouldBe(typeof(object));
+        positionInput.UIHint.ShouldBe(InputUIHints.SingleLine);
 
         var dtoProperties = typeof(ChainOfCommandPositionDto)
             .GetProperties()
@@ -62,7 +63,7 @@ public sealed class ChainOfCommandPositionFieldSelectorTests
         var selector = new ChainOfCommandPositionFieldSelector
         {
             Id = "multi-selector",
-            Position = new Input<ChainOfCommandPositionDto?>(positionVar),
+            Position = new Input<object?>(positionVar),
             RefId = new Output<string?>(refIdVar),
             ApprovalLimitAmount = new Output<decimal?>(limitVar),
             JobGradeRankOrder = new Output<int?>(rankVar),
@@ -128,7 +129,7 @@ public sealed class ChainOfCommandPositionFieldSelectorTests
         var selector = new ChainOfCommandPositionFieldSelector
         {
             Id = "all-fields-selector",
-            Position = new Input<ChainOfCommandPositionDto?>(position)
+            Position = new Input<object?>(position)
         };
 
         var (runResult, resultDict) = await WorkflowTestHost.RunCodeActivityAsync(sp, selector);
@@ -151,7 +152,7 @@ public sealed class ChainOfCommandPositionFieldSelectorTests
         var nullPosSelector = new ChainOfCommandPositionFieldSelector
         {
             Id = "null-pos",
-            Position = new Input<ChainOfCommandPositionDto?>((ChainOfCommandPositionDto?)null)
+            Position = new Input<object?>((object?)null)
         };
 
         var expectedFieldNames = typeof(ChainOfCommandPositionDto)
@@ -184,7 +185,7 @@ public sealed class ChainOfCommandPositionFieldSelectorTests
 
         var selector = new ChainOfCommandPositionFieldSelector
         {
-            Position = new Input<ChainOfCommandPositionDto?>(position),
+            Position = new Input<object?>(position),
             JobGradeRankOrder = new Output<int?>(rankIntVar),
             IsActive = new Output<bool?>(activeBoolVar)
         };
@@ -208,5 +209,50 @@ public sealed class ChainOfCommandPositionFieldSelectorTests
         runResult.WorkflowState.Incidents.ShouldBeEmpty();
         capturedRank.ShouldBe(42);
         capturedActive.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Execute_Should_Parse_Json_String_Input_And_Bind_To_Outputs()
+    {
+        await using var sp = WorkflowTestHost.BuildServiceProvider();
+        var position = WorkflowTestHost.CreateSamplePosition(refId: "POS-JSON", code: "JSON-01", jobGradeRankOrder: 77);
+        var json = JsonSerializer.Serialize(position, JsonSerializerOptions.Web);
+
+        var jsonVar = new Variable<string?>("posJson", json);
+        var refIdVar = new Variable<string?>("refId", null);
+        var codeVar = new Variable<string?>("code", null);
+        var rankVar = new Variable<int?>("rank", null);
+
+        string? capturedRefId = null;
+        string? capturedCode = null;
+        int? capturedRank = null;
+
+        var sequence = new Sequence
+        {
+            Variables = { jsonVar, refIdVar, codeVar, rankVar },
+            Activities =
+            {
+                new ChainOfCommandPositionFieldSelector
+                {
+                    Position = new Input<object?>(jsonVar),
+                    RefId = new Output<string?>(refIdVar),
+                    Code = new Output<string?>(codeVar),
+                    JobGradeRankOrder = new Output<int?>(rankVar)
+                },
+                new Inline(ctx =>
+                {
+                    capturedRefId = refIdVar.Get(ctx);
+                    capturedCode = codeVar.Get(ctx);
+                    capturedRank = rankVar.Get(ctx);
+                    return ValueTask.CompletedTask;
+                })
+            }
+        };
+
+        var runResult = await WorkflowTestHost.RunActivityAsync(sp, sequence);
+        runResult.WorkflowState.Incidents.ShouldBeEmpty();
+        capturedRefId.ShouldBe("POS-JSON");
+        capturedCode.ShouldBe("JSON-01");
+        capturedRank.ShouldBe(77);
     }
 }

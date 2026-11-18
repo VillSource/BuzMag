@@ -14,7 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
     DisplayName = "Resolve Approval Chain",
     Description = "Resolves the multi-step upward approval chain for a position with automatic delegation evaluation."
 )]
-public class ResolveApprovalChain : CodeActivity<IReadOnlyList<EffectiveManagerResolutionDto>>
+public class ResolveApprovalChain : CodeActivity<string>
 {
     [Input(
         DisplayName = "Position Ref ID",
@@ -55,18 +55,18 @@ public class ResolveApprovalChain : CodeActivity<IReadOnlyList<EffectiveManagerR
     [Output(Description = "Number of approval steps returned.")]
     public Output<int> Count { get; set; } = default!;
 
-    [Output(Description = "First step in the approval chain, or null when empty.")]
-    public Output<EffectiveManagerResolutionDto?> FirstStep { get; set; } = default!;
+    [Output(Description = "First step in the approval chain as JSON, or null when empty.")]
+    public Output<string?> FirstStep { get; set; } = default!;
 
-    [Output(Description = "Effective approver position for the first step, or null when empty.")]
-    public Output<ChainOfCommandPositionDto?> FirstApproverPosition { get; set; } = default!;
+    [Output(Description = "Effective approver position for the first step as JSON, or null when empty.")]
+    public Output<string?> FirstApproverPosition { get; set; } = default!;
 
     protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string positionRefId = PositionRefId.Get(context);
+        string positionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
         string? documentTypeCode = ChainOfCommandActivityHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
         int maxDepth = MaxDepth.GetOrDefault(context, static () => 15);
         bool fallbackToOuManager = FallbackToOuManager.GetOrDefault(context, static () => true);
@@ -80,9 +80,9 @@ public class ResolveApprovalChain : CodeActivity<IReadOnlyList<EffectiveManagerR
             asOfUtc,
             context.CancellationToken).ConfigureAwait(false);
 
-        context.SetResult(result);
+        context.SetResult(ChainOfCommandActivityHelper.SerializeJson(result));
         Count.Set(context, result.Count);
-        FirstStep.Set(context, result.Count > 0 ? result[0] : null);
-        FirstApproverPosition.Set(context, result.Count > 0 ? result[0].EffectiveApproverPosition : null);
+        FirstStep.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(result.Count > 0 ? result[0] : null));
+        FirstApproverPosition.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(result.Count > 0 ? result[0].EffectiveApproverPosition : null));
     }
 }

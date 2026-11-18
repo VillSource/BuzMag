@@ -129,7 +129,14 @@ internal sealed class OrgUnitLeadershipResolver(ChainOfCommandReadStore store)
                 continue;
             }
 
-            if (positionsMap.TryGetValue(ou.ManagerPositionId.Value, out var managerPos) &&
+            if (!positionsMap.TryGetValue(ou.ManagerPositionId.Value, out var managerPos) &&
+                preloadedPositions is not null)
+            {
+                managerPos = await store.GetPositionByIdAsync(ou.ManagerPositionId.Value, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            if (managerPos is not null &&
                 ChainOfCommandPredicates.IsPositionEffective(managerPos.Dto, targetUtc))
             {
                 return new OuManagerResolutionDto(
@@ -180,7 +187,12 @@ internal sealed class OrgUnitLeadershipResolver(ChainOfCommandReadStore store)
                 continue;
             }
 
-            if (positions.TryGetValue(managerId, out var ouManager) &&
+            if (!positions.TryGetValue(managerId, out var ouManager))
+            {
+                ouManager = await store.GetPositionByIdAsync(managerId, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (ouManager is not null &&
                 ChainOfCommandPredicates.IsPositionEffective(ouManager.Dto, targetUtc))
             {
                 candidates.Add(new ManagerCandidate(

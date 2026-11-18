@@ -50,7 +50,7 @@ public class ResolveDirectManager : PositionResolutionActivityBase
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string positionRefId = PositionRefId.Get(context);
+        string positionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
         bool climbToFirstActive = ClimbToFirstActive.GetOrDefault(context);
         bool includeInactive = IncludeInactive.GetOrDefault(context);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);

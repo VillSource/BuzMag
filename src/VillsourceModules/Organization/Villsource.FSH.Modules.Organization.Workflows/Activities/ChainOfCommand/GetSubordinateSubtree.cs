@@ -51,7 +51,7 @@ public class GetSubordinateSubtree : PositionListResolutionActivityBase
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string managerPositionRefId = ManagerPositionRefId.Get(context);
+        string managerPositionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(ManagerPositionRefId.GetOrDefault(context), nameof(ManagerPositionRefId));
         int maxDepth = MaxDepth.GetOrDefault(context, static () => 10);
         bool includeInactive = IncludeInactive.GetOrDefault(context);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);

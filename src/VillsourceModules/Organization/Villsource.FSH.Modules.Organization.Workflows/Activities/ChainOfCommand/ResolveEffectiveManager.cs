@@ -57,7 +57,7 @@ public class ResolveEffectiveManager : EffectiveManagerResolutionActivityBase
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string positionRefId = PositionRefId.Get(context);
+        string positionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
         string? documentTypeCode = ChainOfCommandActivityHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
         bool fallbackToOuManager = FallbackToOuManager.GetOrDefault(context, static () => true);
         bool climbToFirstActive = ClimbToFirstActive.GetOrDefault(context, static () => true);

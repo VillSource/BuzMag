@@ -7,13 +7,13 @@ using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand.Base;
 
 /// <summary>
-/// Base activity for Organization Unit manager resolvers returning <see cref="OuManagerResolutionDto"/>
-/// and exposing its <see cref="ManagerPosition"/> directly for downstream activities.
+/// Base activity for Organization Unit manager resolvers returning <see cref="OuManagerResolutionDto"/> as JSON
+/// and exposing its <see cref="ManagerPosition"/> as JSON for downstream activities.
 /// </summary>
-public abstract class OuManagerResolutionActivityBase : CodeActivity<OuManagerResolutionDto?>
+public abstract class OuManagerResolutionActivityBase : CodeActivity<string?>
 {
-    [Output(Description = "The resolved manager position (null if no manager was found).")]
-    public Output<ChainOfCommandPositionDto?> ManagerPosition { get; set; } = default!;
+    [Output(Description = "The resolved manager position as JSON (null if no manager was found).")]
+    public Output<string?> ManagerPosition { get; set; } = default!;
 
     [Output(Description = "Reference ID of the Organization Unit where the manager was found.")]
     public Output<string?> ResolvedOrgUnitRefId { get; set; } = default!;
@@ -37,8 +37,8 @@ public abstract class OuManagerResolutionActivityBase : CodeActivity<OuManagerRe
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        context.SetResult(resolution);
-        ManagerPosition.Set(context, resolution?.ManagerPosition);
+        context.SetResult(ChainOfCommandActivityHelper.SerializeNullableJson(resolution));
+        ManagerPosition.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(resolution?.ManagerPosition));
         ResolvedOrgUnitRefId.Set(context, resolution?.ResolvedOrgUnitRefId);
         ResolvedOrgUnitCode.Set(context, resolution?.ResolvedOrgUnitCode);
         ResolvedOrgUnitName.Set(context, resolution?.ResolvedOrgUnitName);

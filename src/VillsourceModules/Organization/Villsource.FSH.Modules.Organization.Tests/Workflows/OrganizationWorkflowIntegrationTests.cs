@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Activities.Flowchart.Activities;
 using Elsa.Workflows.Activities.Flowchart.Models;
@@ -28,6 +29,7 @@ namespace Villsource.FSH.Modules.Organization.Tests.Workflows;
 
 public sealed class OrganizationWorkflowIntegrationTests
 {
+    private static readonly JsonSerializerOptions WebJsonOptions = new(JsonSerializerDefaults.Web);
     [Fact]
     public async Task EndToEnd_Flowchart_Should_ResolveManager_SelectField_CompareValues_And_Branch()
     {
@@ -37,7 +39,7 @@ public sealed class OrganizationWorkflowIntegrationTests
 
         await using var sp = WorkflowTestHost.BuildServiceProvider(realService);
 
-        var resolvedManager = new Variable<ChainOfCommandPositionDto?>("resolvedManager", null);
+        var resolvedManager = new Variable<string?>("resolvedManager", null);
         var approvalLimit = new Variable<decimal?>("approvalLimit", null);
         var rankOrder = new Variable<int?>("rankOrder", null);
         var meetsLimit = new Variable<bool>("meetsLimit", false);
@@ -48,13 +50,13 @@ public sealed class OrganizationWorkflowIntegrationTests
             Id = "resolve-direct-manager",
             PositionRefId = new Input<string>(staffRefId),
             ClimbToFirstActive = new Input<bool>(false),
-            Result = new Output<ChainOfCommandPositionDto?>(resolvedManager)
+            Result = new Output<string?>(resolvedManager)
         };
 
         var selectFieldActivity = new ChainOfCommandPositionFieldSelector
         {
             Id = "select-limit-and-rank",
-            Position = new Input<ChainOfCommandPositionDto?>(resolvedManager),
+            Position = new Input<object?>(resolvedManager),
             ApprovalLimitAmount = new Output<decimal?>(approvalLimit),
             JobGradeRankOrder = new Output<int?>(rankOrder)
         };
@@ -125,7 +127,7 @@ public sealed class OrganizationWorkflowIntegrationTests
 
         await using var sp = WorkflowTestHost.BuildServiceProvider(realService);
 
-        var chainVar = new Variable<IReadOnlyList<ChainOfCommandPositionDto>>("chain", []);
+        var chainJsonVar = new Variable<string>("chainJson", "[]");
         var currentPosVar = new Variable<ChainOfCommandPositionDto?>("currentPos", null);
         var currentCodeVar = new Variable<string?>("currentCode", null);
         var collectedCodes = new List<string>();
@@ -133,12 +135,13 @@ public sealed class OrganizationWorkflowIntegrationTests
         var resolveChain = new ResolveReportingChain
         {
             PositionRefId = new Input<string>(staffRefId),
-            Result = new Output<IReadOnlyList<ChainOfCommandPositionDto>>(chainVar)
+            Result = new Output<string>(chainJsonVar)
         };
 
         var loop = new ForEach<ChainOfCommandPositionDto>
         {
-            Items = new Input<ICollection<ChainOfCommandPositionDto>>(ctx => chainVar.Get(ctx)!.ToList()),
+            Items = new Input<ICollection<ChainOfCommandPositionDto>>(ctx =>
+                JsonSerializer.Deserialize<List<ChainOfCommandPositionDto>>(chainJsonVar.Get(ctx) ?? "[]", WebJsonOptions) ?? []),
             CurrentValue = new Output<ChainOfCommandPositionDto>(currentPosVar),
             Body = new Sequence
             {
@@ -146,7 +149,7 @@ public sealed class OrganizationWorkflowIntegrationTests
                 {
                     new ChainOfCommandPositionFieldSelector
                     {
-                        Position = new Input<ChainOfCommandPositionDto?>(currentPosVar),
+                        Position = new Input<object?>(currentPosVar),
                         Code = new Output<string?>(currentCodeVar)
                     },
                     new Inline(ctx =>
@@ -164,7 +167,7 @@ public sealed class OrganizationWorkflowIntegrationTests
 
         var sequence = new Sequence
         {
-            Variables = { chainVar, currentPosVar, currentCodeVar },
+            Variables = { chainJsonVar, currentPosVar, currentCodeVar },
             Activities = { resolveChain, loop }
         };
 
@@ -173,7 +176,7 @@ public sealed class OrganizationWorkflowIntegrationTests
     }
 
     [Fact]
-    public async Task EndToEnd_NonGeneric_ForEach_Should_Accept_IReadOnlyList_Directly()
+    public async Task EndToEnd_NonGeneric_ForEach_Should_Accept_Deserialized_Json_List()
     {
         await using var db = CreateDbContext();
         var (staffRefId, _) = await SeedHierarchyAsync(db);
@@ -181,7 +184,7 @@ public sealed class OrganizationWorkflowIntegrationTests
 
         await using var sp = WorkflowTestHost.BuildServiceProvider(realService);
 
-        var chainVar = new Variable<IReadOnlyList<ChainOfCommandPositionDto>>("chain", []);
+        var chainJsonVar = new Variable<string>("chainJson", "[]");
         var currentItemVar = new Variable<object>("currentItem", new object());
         var selectedRankVar = new Variable<int?>("selectedRank", null);
         var collectedRanks = new List<int>();
@@ -189,12 +192,15 @@ public sealed class OrganizationWorkflowIntegrationTests
         var resolveChain = new ResolveReportingChain
         {
             PositionRefId = new Input<string>(staffRefId),
-            Result = new Output<IReadOnlyList<ChainOfCommandPositionDto>>(chainVar)
+            Result = new Output<string>(chainJsonVar)
         };
 
         var loop = new ForEach
         {
-            Items = new Input<ICollection<object>>(chainVar),
+            Items = new Input<ICollection<object>>(ctx =>
+                (JsonSerializer.Deserialize<List<JsonElement>>(chainJsonVar.Get(ctx) ?? "[]", WebJsonOptions) ?? [])
+                .Cast<object>()
+                .ToList()),
             CurrentValue = new Output<object>(currentItemVar),
             Body = new Sequence
             {
@@ -202,7 +208,7 @@ public sealed class OrganizationWorkflowIntegrationTests
                 {
                     new ChainOfCommandPositionFieldSelector
                     {
-                        Position = new Input<ChainOfCommandPositionDto?>(currentItemVar),
+                        Position = new Input<object?>(currentItemVar),
                         JobGradeRankOrder = new Output<int?>(selectedRankVar)
                     },
                     new Inline(ctx =>
@@ -219,7 +225,7 @@ public sealed class OrganizationWorkflowIntegrationTests
 
         var sequence = new Sequence
         {
-            Variables = { chainVar, currentItemVar, selectedRankVar },
+            Variables = { chainJsonVar, currentItemVar, selectedRankVar },
             Activities = { resolveChain, loop }
         };
 

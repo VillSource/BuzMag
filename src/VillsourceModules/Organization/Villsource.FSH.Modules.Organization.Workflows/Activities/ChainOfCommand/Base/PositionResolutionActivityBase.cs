@@ -7,9 +7,9 @@ using Villsource.FSH.Modules.Organization.Contracts.Services.Dtos;
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand.Base;
 
 /// <summary>
-/// Base activity for single-position chain of command resolvers returning <see cref="ChainOfCommandPositionDto"/>.
+/// Base activity for single-position chain of command resolvers returning <see cref="ChainOfCommandPositionDto"/> as JSON.
 /// </summary>
-public abstract class PositionResolutionActivityBase : CodeActivity<ChainOfCommandPositionDto?>
+public abstract class PositionResolutionActivityBase : CodeActivity<string?>
 {
     [Output(Description = "True when a matching position was resolved; otherwise false.")]
     public Output<bool> IsFound { get; set; } = default!;
@@ -18,7 +18,7 @@ public abstract class PositionResolutionActivityBase : CodeActivity<ChainOfComma
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        context.SetResult(position);
+        context.SetResult(ChainOfCommandActivityHelper.SerializeNullableJson(position));
         IsFound.Set(context, position is not null);
     }
 }

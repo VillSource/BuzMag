@@ -155,11 +155,13 @@ public sealed class ChainOfCommandService : IChainOfCommandService
                     preloadedPositions: positions,
                     cancellationToken).ConfigureAwait(false);
 
-                if (ouResolution is not null &&
-                    positions.Values.FirstOrDefault(p =>
-                        string.Equals(p.Dto.RefId, ouResolution.ManagerPosition.RefId, StringComparison.Ordinal))
-                    is { } ouManager)
+                if (ouResolution is not null)
                 {
+                    var ouManager = positions.Values.FirstOrDefault(p =>
+                            string.Equals(p.Dto.RefId, ouResolution.ManagerPosition.RefId, StringComparison.Ordinal))
+                        ?? await _store.GetPositionByRefIdAsync(ouResolution.ManagerPosition.RefId, cancellationToken)
+                            .ConfigureAwait(false);
+
                     candidate = new ManagerCandidate(
                         ManagerResolutionSource.OrganizationUnitHierarchy,
                         ouManager,

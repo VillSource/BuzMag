@@ -9,21 +9,21 @@ using Villsource.FSH.Modules.Organization.Workflows.Constants;
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand;
 
 /// <summary>
-/// Extracts fields from a <see cref="ChainOfCommandPositionDto"/> and exposes each field as an output.
+/// Parses a position JSON string (or <see cref="ChainOfCommandPositionDto"/>) and exposes each field as an output.
 /// </summary>
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Chain Of Command Position Field Selector",
-    Description = "Extracts fields from a resolved ChainOfCommandPositionDto and outputs each field."
+    Description = "Parses a position JSON string or DTO and outputs each field to variables or expressions."
 )]
 public class ChainOfCommandPositionFieldSelector : CodeActivity<IDictionary<string, object?>>
 {
     [Input(
         DisplayName = "Position",
-        Description = "The ChainOfCommandPositionDto value output by a resolver activity.",
-        UIHint = InputUIHints.VariablePicker
+        Description = "Position JSON string (or ChainOfCommandPositionDto) output by a resolver activity.",
+        UIHint = InputUIHints.SingleLine
     )]
-    public Input<ChainOfCommandPositionDto?> Position { get; set; } = default!;
+    public Input<object?> Position { get; set; } = default!;
 
     [Output(Description = "Position ReferenceId.")]
     public Output<string?> RefId { get; set; } = default!;
@@ -83,7 +83,7 @@ public class ChainOfCommandPositionFieldSelector : CodeActivity<IDictionary<stri
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        ChainOfCommandPositionDto? position = Position.GetOrDefault(context);
+        ChainOfCommandPositionDto? position = ChainOfCommandActivityHelper.ParsePosition(Position.GetOrDefault(context));
         IReadOnlyList<PositionFieldDefinition> definitions = ChainOfCommandPositionFields.All;
         Dictionary<string, object?> fieldValues = new(definitions.Count, StringComparer.Ordinal);
 

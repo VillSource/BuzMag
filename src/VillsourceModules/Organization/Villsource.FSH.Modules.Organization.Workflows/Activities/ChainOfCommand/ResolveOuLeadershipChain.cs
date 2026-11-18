@@ -14,7 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
     DisplayName = "Resolve OU Leadership Chain",
     Description = "Resolves the upward Organization Unit leadership chain from a starting OU up to the root OU."
 )]
-public class ResolveOuLeadershipChain : CodeActivity<IReadOnlyList<OuLeadershipStepDto>>
+public class ResolveOuLeadershipChain : CodeActivity<string>
 {
     [Input(
         DisplayName = "Org Unit Ref ID",
@@ -47,18 +47,18 @@ public class ResolveOuLeadershipChain : CodeActivity<IReadOnlyList<OuLeadershipS
     [Output(Description = "Number of OU leadership steps returned.")]
     public Output<int> Count { get; set; } = default!;
 
-    [Output(Description = "First step in the OU leadership chain, or null when empty.")]
-    public Output<OuLeadershipStepDto?> FirstStep { get; set; } = default!;
+    [Output(Description = "First step in the OU leadership chain as JSON, or null when empty.")]
+    public Output<string?> FirstStep { get; set; } = default!;
 
-    [Output(Description = "Manager position from the first step that has one assigned, or null if none.")]
-    public Output<ChainOfCommandPositionDto?> FirstManagerPosition { get; set; } = default!;
+    [Output(Description = "Manager position from the first step that has one assigned as JSON, or null if none.")]
+    public Output<string?> FirstManagerPosition { get; set; } = default!;
 
     protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string orgUnitRefId = OrgUnitRefId.Get(context);
+        string orgUnitRefId = ChainOfCommandActivityHelper.RequireNonEmpty(OrgUnitRefId.GetOrDefault(context), nameof(OrgUnitRefId));
         bool onlyUnitsWithManager = OnlyUnitsWithManager.GetOrDefault(context);
         bool includeInactiveOu = IncludeInactiveOu.GetOrDefault(context);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);
@@ -70,9 +70,9 @@ public class ResolveOuLeadershipChain : CodeActivity<IReadOnlyList<OuLeadershipS
             asOfUtc,
             context.CancellationToken).ConfigureAwait(false);
 
-        context.SetResult(result);
+        context.SetResult(ChainOfCommandActivityHelper.SerializeJson(result));
         Count.Set(context, result.Count);
-        FirstStep.Set(context, result.Count > 0 ? result[0] : null);
-        FirstManagerPosition.Set(context, result.Select(static s => s.ManagerPosition).FirstOrDefault(static m => m is not null));
+        FirstStep.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(result.Count > 0 ? result[0] : null));
+        FirstManagerPosition.Set(context, ChainOfCommandActivityHelper.SerializeNullableJson(result.Select(static s => s.ManagerPosition).FirstOrDefault(static m => m is not null)));
     }
 }

@@ -43,7 +43,7 @@ public class GetDirectReports : PositionListResolutionActivityBase
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string managerPositionRefId = ManagerPositionRefId.Get(context);
+        string managerPositionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(ManagerPositionRefId.GetOrDefault(context), nameof(ManagerPositionRefId));
         bool includeInactive = IncludeInactive.GetOrDefault(context);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);
 

@@ -1,4 +1,8 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Elsa.Workflows.Activities;
 using Elsa.Workflows.Management.Options;
+using Elsa.Workflows.Memory;
 using Elsa.Workflows.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -93,12 +97,7 @@ public sealed class ChainOfCommandActivitiesTests
 
         var managementOptions = sp.GetRequiredService<IOptions<ManagementOptions>>().Value;
         var registeredVarTypes = managementOptions.VariableDescriptors.Select(v => v.Type).ToHashSet();
-        registeredVarTypes.ShouldContain(typeof(ChainOfCommandPositionDto));
-        registeredVarTypes.ShouldContain(typeof(OuManagerResolutionDto));
-        registeredVarTypes.ShouldContain(typeof(EffectiveManagerResolutionDto));
-        registeredVarTypes.ShouldContain(typeof(ResolvedDelegationDto));
-        registeredVarTypes.ShouldContain(typeof(OuLeadershipStepDto));
-        registeredVarTypes.ShouldContain(typeof(ManagerResolutionSource));
+        registeredVarTypes.ShouldContain(typeof(string));
     }
 
     [Fact]
@@ -122,7 +121,7 @@ public sealed class ChainOfCommandActivitiesTests
             AsOfUtc = new(asOf)
         };
         var (res, result) = await WorkflowTestHost.RunCodeActivityAsync(sp, act);
-        result.ShouldBe(manager);
+        DeserializeJson<ChainOfCommandPositionDto>(result).ShouldBe(manager);
         WorkflowTestHost.GetOutput<bool>(res, act, nameof(ResolveDirectManager.IsFound)).ShouldBeTrue();
 
         var nullAct = new ResolveDirectManager
@@ -151,7 +150,7 @@ public sealed class ChainOfCommandActivitiesTests
 
         var (res, result) = await WorkflowTestHost.RunCodeActivityAsync(sp, act);
 
-        result.ShouldBe(dotted);
+        DeserializeJson<ChainOfCommandPositionDto>(result).ShouldBe(dotted);
         WorkflowTestHost.GetOutput<bool>(res, act, nameof(ResolveDottedLineManager.IsFound)).ShouldBeTrue();
     }
 
@@ -173,8 +172,8 @@ public sealed class ChainOfCommandActivitiesTests
         var actFromPos = new ResolveOuManagerFromPosition { PositionRefId = new("POS-1") };
         var (resFromPos, dtoFromPos) = await WorkflowTestHost.RunCodeActivityAsync(sp, actFromPos);
 
-        dtoFromPos.ShouldBe(ouDto);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(resFromPos, actFromPos, nameof(ResolveOuManagerFromPosition.ManagerPosition)).ShouldBe(mgr);
+        DeserializeJson<OuManagerResolutionDto>(dtoFromPos).ShouldBe(ouDto);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(resFromPos, actFromPos, nameof(ResolveOuManagerFromPosition.ManagerPosition))).ShouldBe(mgr);
         WorkflowTestHost.GetOutput<string?>(resFromPos, actFromPos, nameof(ResolveOuManagerFromPosition.ResolvedOrgUnitRefId)).ShouldBe("OU-0");
         WorkflowTestHost.GetOutput<string?>(resFromPos, actFromPos, nameof(ResolveOuManagerFromPosition.ResolvedOrgUnitCode)).ShouldBe("DEPT");
         WorkflowTestHost.GetOutput<string?>(resFromPos, actFromPos, nameof(ResolveOuManagerFromPosition.ResolvedOrgUnitName)).ShouldBe("Department");
@@ -189,13 +188,13 @@ public sealed class ChainOfCommandActivitiesTests
             IncludeInactiveOu = new(true)
         };
         var (resFromOu, _) = await WorkflowTestHost.RunCodeActivityAsync(sp, actFromOu);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(resFromOu, actFromOu, nameof(ResolveOuManagerFromOrgUnit.ManagerPosition)).ShouldBe(mgr);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(resFromOu, actFromOu, nameof(ResolveOuManagerFromOrgUnit.ManagerPosition))).ShouldBe(mgr);
 
         var emptyAct = new ResolveOuManagerFromOrgUnit { OrgUnitRefId = new("OU-EMPTY") };
         var (resEmpty, emptyDto) = await WorkflowTestHost.RunCodeActivityAsync(sp, emptyAct);
         emptyDto.ShouldBeNull();
         WorkflowTestHost.GetOutput<bool>(resEmpty, emptyAct, nameof(ResolveOuManagerFromOrgUnit.IsFound)).ShouldBeFalse();
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(resEmpty, emptyAct, nameof(ResolveOuManagerFromOrgUnit.ManagerPosition)).ShouldBeNull();
+        WorkflowTestHost.GetOutput<string?>(resEmpty, emptyAct, nameof(ResolveOuManagerFromOrgUnit.ManagerPosition)).ShouldBeNull();
     }
 
     [Fact]
@@ -228,10 +227,10 @@ public sealed class ChainOfCommandActivitiesTests
             DelegationTypeKey = new(string.Empty)
         };
         var (effRes, effList) = await WorkflowTestHost.RunCodeActivityAsync(sp, effAct);
-        effList.ShouldNotBeNull().Count.ShouldBe(1);
+        DeserializeJson<IReadOnlyList<ResolvedDelegationDto>>(effList).ShouldNotBeNull().Count.ShouldBe(1);
         WorkflowTestHost.GetOutput<int>(effRes, effAct, nameof(ResolveEffectiveDelegates.Count)).ShouldBe(1);
-        WorkflowTestHost.GetOutput<ResolvedDelegationDto?>(effRes, effAct, nameof(ResolveEffectiveDelegates.FirstDelegation)).ShouldBe(delegation);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(effRes, effAct, nameof(ResolveEffectiveDelegates.FirstDelegatePosition)).ShouldBe(delegatePos);
+        DeserializeJson<ResolvedDelegationDto>(WorkflowTestHost.GetOutput<string?>(effRes, effAct, nameof(ResolveEffectiveDelegates.FirstDelegation))).ShouldBe(delegation);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(effRes, effAct, nameof(ResolveEffectiveDelegates.FirstDelegatePosition))).ShouldBe(delegatePos);
 
         var actAct = new ResolveActiveDelegators
         {
@@ -240,7 +239,7 @@ public sealed class ChainOfCommandActivitiesTests
             DelegationTypeKey = new(OrganizationActivityConstants.DelegationSpecificDocuments)
         };
         var (actRes, _) = await WorkflowTestHost.RunCodeActivityAsync(sp, actAct);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(actRes, actAct, nameof(ResolveActiveDelegators.FirstDelegatorPosition)).ShouldBe(delegator);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(actRes, actAct, nameof(ResolveActiveDelegators.FirstDelegatorPosition))).ShouldBe(delegator);
     }
 
     [Fact]
@@ -272,12 +271,12 @@ public sealed class ChainOfCommandActivitiesTests
         };
         var (res1, effDto) = await WorkflowTestHost.RunCodeActivityAsync(sp, act1);
 
-        effDto.ShouldBe(resolution);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(res1, act1, nameof(ResolveEffectiveManager.EffectiveApproverPosition)).ShouldBe(acting);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(res1, act1, nameof(ResolveEffectiveManager.NominalManagerPosition)).ShouldBe(nominal);
+        DeserializeJson<EffectiveManagerResolutionDto>(effDto).ShouldBe(resolution);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(res1, act1, nameof(ResolveEffectiveManager.EffectiveApproverPosition))).ShouldBe(acting);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(res1, act1, nameof(ResolveEffectiveManager.NominalManagerPosition))).ShouldBe(nominal);
         WorkflowTestHost.GetOutput<bool>(res1, act1, nameof(ResolveEffectiveManager.IsDelegated)).ShouldBeTrue();
-        WorkflowTestHost.GetOutput<ManagerResolutionSource?>(res1, act1, nameof(ResolveEffectiveManager.ResolutionSource)).ShouldBe(ManagerResolutionSource.OrganizationUnitHierarchy);
-        WorkflowTestHost.GetOutput<ResolvedDelegationDto?>(res1, act1, nameof(ResolveEffectiveManager.ActiveDelegation)).ShouldBe(delegation);
+        WorkflowTestHost.GetOutput<string?>(res1, act1, nameof(ResolveEffectiveManager.ResolutionSource)).ShouldBe(ManagerResolutionSource.OrganizationUnitHierarchy.ToString());
+        DeserializeJson<ResolvedDelegationDto>(WorkflowTestHost.GetOutput<string?>(res1, act1, nameof(ResolveEffectiveManager.ActiveDelegation))).ShouldBe(delegation);
         WorkflowTestHost.GetOutput<string?>(res1, act1, nameof(ResolveEffectiveManager.ResolvedFromOrgUnitRefId)).ShouldBe("OU-DEPT");
         WorkflowTestHost.GetOutput<bool>(res1, act1, nameof(ResolveEffectiveManager.IsFound)).ShouldBeTrue();
 
@@ -288,7 +287,7 @@ public sealed class ChainOfCommandActivitiesTests
             Currency = new("THB")
         };
         var (res2, _) = await WorkflowTestHost.RunCodeActivityAsync(sp, act2);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(res2, act2, nameof(ResolveManagerByApprovalLimit.EffectiveApproverPosition)).ShouldBe(acting);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(res2, act2, nameof(ResolveManagerByApprovalLimit.EffectiveApproverPosition))).ShouldBe(acting);
 
         var act3 = new ResolveManagerByMinJobGrade
         {
@@ -297,7 +296,7 @@ public sealed class ChainOfCommandActivitiesTests
             MinJobLevelCategory = new(JobLevelCategory.Management.Key)
         };
         var (res3, _) = await WorkflowTestHost.RunCodeActivityAsync(sp, act3);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(res3, act3, nameof(ResolveManagerByMinJobGrade.EffectiveApproverPosition)).ShouldBe(acting);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(res3, act3, nameof(ResolveManagerByMinJobGrade.EffectiveApproverPosition))).ShouldBe(acting);
     }
 
     [Fact]
@@ -326,9 +325,9 @@ public sealed class ChainOfCommandActivitiesTests
 
         var reportingAct = new ResolveReportingChain { PositionRefId = new("POS-EMP") };
         var (reportingRes, reportingList) = await WorkflowTestHost.RunCodeActivityAsync(sp, reportingAct);
-        reportingList.ShouldBe([pos1, pos2]);
+        DeserializeJson<IReadOnlyList<ChainOfCommandPositionDto>>(reportingList).ShouldBe([pos1, pos2]);
         WorkflowTestHost.GetOutput<int>(reportingRes, reportingAct, nameof(ResolveReportingChain.Count)).ShouldBe(2);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(reportingRes, reportingAct, nameof(ResolveReportingChain.FirstPosition)).ShouldBe(pos1);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(reportingRes, reportingAct, nameof(ResolveReportingChain.FirstPosition))).ShouldBe(pos1);
 
         var ouAct = new ResolveOuLeadershipChain
         {
@@ -337,24 +336,24 @@ public sealed class ChainOfCommandActivitiesTests
         };
         var (ouRes, _) = await WorkflowTestHost.RunCodeActivityAsync(sp, ouAct);
         WorkflowTestHost.GetOutput<int>(ouRes, ouAct, nameof(ResolveOuLeadershipChain.Count)).ShouldBe(1);
-        WorkflowTestHost.GetOutput<OuLeadershipStepDto?>(ouRes, ouAct, nameof(ResolveOuLeadershipChain.FirstStep)).ShouldBe(ouStep);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(ouRes, ouAct, nameof(ResolveOuLeadershipChain.FirstManagerPosition)).ShouldBe(pos1);
+        DeserializeJson<OuLeadershipStepDto>(WorkflowTestHost.GetOutput<string?>(ouRes, ouAct, nameof(ResolveOuLeadershipChain.FirstStep))).ShouldBe(ouStep);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(ouRes, ouAct, nameof(ResolveOuLeadershipChain.FirstManagerPosition))).ShouldBe(pos1);
 
         var appAct = new ResolveApprovalChain { PositionRefId = new("POS-EMP") };
         var (appRes, _) = await WorkflowTestHost.RunCodeActivityAsync(sp, appAct);
         WorkflowTestHost.GetOutput<int>(appRes, appAct, nameof(ResolveApprovalChain.Count)).ShouldBe(1);
-        WorkflowTestHost.GetOutput<EffectiveManagerResolutionDto?>(appRes, appAct, nameof(ResolveApprovalChain.FirstStep)).ShouldBe(approvalStep);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(appRes, appAct, nameof(ResolveApprovalChain.FirstApproverPosition)).ShouldBe(pos1);
+        DeserializeJson<EffectiveManagerResolutionDto>(WorkflowTestHost.GetOutput<string?>(appRes, appAct, nameof(ResolveApprovalChain.FirstStep))).ShouldBe(approvalStep);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(appRes, appAct, nameof(ResolveApprovalChain.FirstApproverPosition))).ShouldBe(pos1);
 
         var drAct = new GetDirectReports { ManagerPositionRefId = new("POS-MGR") };
         var (drRes, _) = await WorkflowTestHost.RunCodeActivityAsync(sp, drAct);
         WorkflowTestHost.GetOutput<int>(drRes, drAct, nameof(GetDirectReports.Count)).ShouldBe(1);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(drRes, drAct, nameof(GetDirectReports.FirstPosition)).ShouldBe(pos2);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(drRes, drAct, nameof(GetDirectReports.FirstPosition))).ShouldBe(pos2);
 
         var subAct = new GetSubordinateSubtree { ManagerPositionRefId = new("POS-MGR") };
         var (subRes, _) = await WorkflowTestHost.RunCodeActivityAsync(sp, subAct);
         WorkflowTestHost.GetOutput<int>(subRes, subAct, nameof(GetSubordinateSubtree.Count)).ShouldBe(2);
-        WorkflowTestHost.GetOutput<ChainOfCommandPositionDto?>(subRes, subAct, nameof(GetSubordinateSubtree.FirstPosition)).ShouldBe(pos1);
+        DeserializeJson<ChainOfCommandPositionDto>(WorkflowTestHost.GetOutput<string?>(subRes, subAct, nameof(GetSubordinateSubtree.FirstPosition))).ShouldBe(pos1);
 
         var (_, isInChain) = await WorkflowTestHost.RunCodeActivityAsync(
             sp,
@@ -364,5 +363,90 @@ public sealed class ChainOfCommandActivitiesTests
                 SubordinatePositionRefId = new("POS-EMP")
             });
         isInChain.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Activities_Should_Resolve_Inputs_From_Variables_And_Trim_Whitespace()
+    {
+        var manager = WorkflowTestHost.CreateSamplePosition(refId: "POS-MGR", code: "MGR-01");
+        var service = Substitute.For<IChainOfCommandService>();
+        service.ResolveDirectManagerAsync("POS-EMP", true, false, null, Arg.Any<CancellationToken>())
+            .Returns(manager);
+
+        await using var sp = WorkflowTestHost.BuildServiceProvider(service);
+
+        var posRefVar = new Variable<string>("posRef", "  POS-EMP  ");
+        var climbVar = new Variable<bool>("climb", true);
+        var resolvedMgrVar = new Variable<string?>("resolvedMgr", null);
+        var mgrCodeVar = new Variable<string?>("mgrCode", null);
+
+        string? capturedCode = null;
+
+        var sequence = new Sequence
+        {
+            Variables = { posRefVar, climbVar, resolvedMgrVar, mgrCodeVar },
+            Activities =
+            {
+                new ResolveDirectManager
+                {
+                    Id = "resolve-mgr",
+                    PositionRefId = new Input<string>(posRefVar),
+                    ClimbToFirstActive = new Input<bool>(climbVar),
+                    Result = new Output<string?>(resolvedMgrVar)
+                },
+                new ChainOfCommandPositionFieldSelector
+                {
+                    Id = "select-fields",
+                    Position = new Input<object?>(resolvedMgrVar),
+                    Code = new Output<string?>(mgrCodeVar)
+                },
+                new Inline(ctx =>
+                {
+                    capturedCode = mgrCodeVar.Get(ctx);
+                    return ValueTask.CompletedTask;
+                })
+            }
+        };
+
+        var runResult = await WorkflowTestHost.RunActivityAsync(sp, sequence);
+        runResult.WorkflowState.Incidents.ShouldBeEmpty();
+        capturedCode.ShouldBe("MGR-01");
+    }
+
+    [Fact]
+    public async Task Activities_Should_Fault_With_ArgumentException_When_Required_Input_Is_Whitespace()
+    {
+        await using var sp = WorkflowTestHost.BuildServiceProvider();
+
+        var act = new ResolveDirectManager
+        {
+            Id = "resolve-empty",
+            PositionRefId = new("   ")
+        };
+
+        var runResult = await WorkflowTestHost.RunActivityAsync(sp, act);
+        runResult.WorkflowState.Incidents.ShouldNotBeEmpty();
+    }
+
+    private static readonly JsonSerializerOptions WebJsonOptions = CreateWebJsonOptions();
+
+    private static JsonSerializerOptions CreateWebJsonOptions()
+    {
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        options.Converters.Add(new JsonStringEnumConverter());
+        return options;
+    }
+
+    private static T? DeserializeJson<T>(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return default;
+        }
+
+        return JsonSerializer.Deserialize<T>(json, WebJsonOptions);
     }
 }

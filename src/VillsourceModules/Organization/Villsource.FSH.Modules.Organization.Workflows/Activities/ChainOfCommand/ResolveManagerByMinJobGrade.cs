@@ -67,7 +67,7 @@ public class ResolveManagerByMinJobGrade : EffectiveManagerResolutionActivityBas
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string positionRefId = PositionRefId.Get(context);
+        string positionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
         int? minRankOrder = MinRankOrder.GetOrDefault(context);
         string? minJobLevelCategory = ChainOfCommandActivityHelper.NormalizeOptional(MinJobLevelCategory.GetOrDefault(context));
         string? documentTypeCode = ChainOfCommandActivityHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));

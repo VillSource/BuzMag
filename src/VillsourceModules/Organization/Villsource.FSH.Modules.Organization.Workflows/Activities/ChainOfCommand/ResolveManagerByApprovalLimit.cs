@@ -64,9 +64,9 @@ public class ResolveManagerByApprovalLimit : EffectiveManagerResolutionActivityB
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string positionRefId = PositionRefId.Get(context);
+        string positionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(PositionRefId.GetOrDefault(context), nameof(PositionRefId));
         decimal requiredAmount = RequiredAmount.Get(context);
-        string currency = Currency.Get(context);
+        string currency = ChainOfCommandActivityHelper.RequireNonEmpty(Currency.GetOrDefault(context), nameof(Currency));
         string? documentTypeCode = ChainOfCommandActivityHelper.NormalizeOptional(DocumentTypeCode.GetOrDefault(context));
         bool fallbackToOuManager = FallbackToOuManager.GetOrDefault(context, static () => true);
         DateTimeOffset? asOfUtc = AsOfUtc.GetOrDefault(context);

@@ -62,8 +62,8 @@ public class IsInChainOfCommand : CodeActivity<bool>
         ArgumentNullException.ThrowIfNull(context);
 
         IChainOfCommandService service = context.GetRequiredService<IChainOfCommandService>();
-        string supervisorPositionRefId = SupervisorPositionRefId.Get(context);
-        string subordinatePositionRefId = SubordinatePositionRefId.Get(context);
+        string supervisorPositionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(SupervisorPositionRefId.GetOrDefault(context), nameof(SupervisorPositionRefId));
+        string subordinatePositionRefId = ChainOfCommandActivityHelper.RequireNonEmpty(SubordinatePositionRefId.GetOrDefault(context), nameof(SubordinatePositionRefId));
         bool includeDottedLine = IncludeDottedLine.GetOrDefault(context);
         bool includeOuHierarchy = IncludeOuHierarchy.GetOrDefault(context, static () => true);
         bool includeActiveDelegations = IncludeActiveDelegations.GetOrDefault(context, static () => true);
