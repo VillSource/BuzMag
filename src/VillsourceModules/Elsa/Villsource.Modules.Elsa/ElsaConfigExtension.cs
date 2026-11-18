@@ -1,4 +1,5 @@
-﻿using Elsa.Extensions;
+﻿using Asp.Versioning;
+using Elsa.Extensions;
 using Elsa.Common.Features;
 using Elsa.Common.Multitenancy;
 using Elsa.Persistence.EFCore.Extensions;
@@ -7,12 +8,15 @@ using Elsa.Persistence.EFCore.Modules.Management;
 using Elsa.Persistence.EFCore.Modules.Runtime;
 using Elsa.Tenants.Extensions;
 using Elsa.Tenants.Features;
+using Elsa.Workflows.Api;
 using Elsa.Workflows.Management.Features;
 using Finbuckle.MultiTenant.Abstractions;
 using FSH.Framework.Shared.Multitenancy;
+using Hangfire.Storage.SQLite.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi;
 using Villsource.Modules.Elsa.Core;
 using Villsource.Modules.HumanResource.Workflow;
 
@@ -23,13 +27,7 @@ public static class ElsaConfigExtension
     public static void ConfigElsa(this IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-
-#pragma warning disable S125
-        // DO NOT REMOVE
-        // global::Elsa.EndpointSecurityOptions.DisableSecurity();
-#pragma warning restore S125
-
-        // builder.Services.AddTransient<IClaimsTransformation, ElsaPermissionTransformer>();
+        
         builder.Services.AddScoped<AppTenantResolver>();
         builder.Services.AddElsa(elsa =>
         {
@@ -63,7 +61,9 @@ public static class ElsaConfigExtension
                     ef.RunMigrations = false;
                 }));
 
-            elsa.UseWorkflowsApi();
+            elsa.UseWorkflowsApi( c =>
+            {
+            });
             elsa.AddWorkflowsFrom<ElsaModule>();
             elsa.AddCoreWorkflowsModule();
             elsa.AddHrWorkflowsModule();
@@ -78,6 +78,22 @@ public static class ElsaConfigExtension
             elsa.UseScheduling(scheduling =>
             {
                 scheduling.UseHangfireScheduler();
+            });
+        });
+        
+        builder.Services.AddOpenApi(options =>
+        {
+            options.AddOperationTransformer((operation, context, _) =>
+            {
+                var path = context.Description.RelativePath?.TrimStart('/');
+                if (path != null && path.StartsWith("api/v1/elsa", StringComparison.OrdinalIgnoreCase))
+                {
+                    var tags = new HashSet<OpenApiTagReference>();
+                    tags.Add(new OpenApiTagReference("Elsa"));
+                    operation.Tags = tags;
+                }
+
+                return Task.CompletedTask;
             });
         });
     }

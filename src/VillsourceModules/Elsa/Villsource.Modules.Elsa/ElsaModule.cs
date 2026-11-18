@@ -75,6 +75,6 @@ public sealed class ElsaModule : IModule
             await next();
         });
         app.UseTenants();
-        app.UseWorkflowsApi();
+        app.UseWorkflowsApi("/api/v1/elsa");
     }
 }
