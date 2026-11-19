@@ -5,7 +5,7 @@ using Villsource.FSH.Modules.Organization.Contracts.v1.OrganizationUnits.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.OrganizationUnits.Queries;
 using Villsource.FSH.Modules.Organization.Domain.OrganizationUnits;
 
-namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
+namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits.Specifications;
 
 public sealed class SearchOrganizationUnitsSpec : Specification<OrganizationUnit, OrganizationUnitSummaryDto>
 {

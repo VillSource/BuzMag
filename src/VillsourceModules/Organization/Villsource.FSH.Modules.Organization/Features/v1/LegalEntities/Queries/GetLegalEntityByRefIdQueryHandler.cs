@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Villsource.FSH.Modules.Organization.Contracts.v1.LegalEntities.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.LegalEntities.Queries;
 using Villsource.FSH.Modules.Organization.Data;
+using Villsource.FSH.Modules.Organization.Features.v1.LegalEntities.Specifications;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.LegalEntities;
 

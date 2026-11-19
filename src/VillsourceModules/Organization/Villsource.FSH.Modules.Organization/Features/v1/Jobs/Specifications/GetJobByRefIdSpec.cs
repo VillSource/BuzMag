@@ -1,7 +1,7 @@
 ﻿using FSH.Framework.Persistence.Specifications;
 using Villsource.FSH.Modules.Organization.Domain.Jobs;
 
-namespace Villsource.FSH.Modules.Organization.Features.v1.Jobs;
+namespace Villsource.FSH.Modules.Organization.Features.v1.Jobs.Specifications;
 
 public sealed class GetJobByRefIdSpec : Specification<Job>
 {

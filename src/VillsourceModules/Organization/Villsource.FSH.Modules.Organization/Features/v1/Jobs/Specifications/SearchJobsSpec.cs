@@ -5,7 +5,7 @@ using Villsource.FSH.Modules.Organization.Contracts.v1.Jobs.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.Jobs.Queries;
 using Villsource.FSH.Modules.Organization.Domain.Jobs;
 
-namespace Villsource.FSH.Modules.Organization.Features.v1.Jobs;
+namespace Villsource.FSH.Modules.Organization.Features.v1.Jobs.Specifications;
 
 public sealed class SearchJobsSpec : Specification<Job, JobSummaryDto>
 {

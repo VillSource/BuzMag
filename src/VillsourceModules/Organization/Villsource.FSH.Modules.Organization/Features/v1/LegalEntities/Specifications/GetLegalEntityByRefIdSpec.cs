@@ -1,7 +1,7 @@
 ﻿using FSH.Framework.Persistence.Specifications;
 using Villsource.FSH.Modules.Organization.Domain.LegalEntities;
 
-namespace Villsource.FSH.Modules.Organization.Features.v1.LegalEntities;
+namespace Villsource.FSH.Modules.Organization.Features.v1.LegalEntities.Specifications;
 
 public sealed class GetLegalEntityByRefIdSpec : Specification<LegalEntity>
 {

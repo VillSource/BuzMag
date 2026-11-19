@@ -4,6 +4,7 @@ using Mediator;
 using Villsource.FSH.Modules.Organization.Contracts.v1.Jobs.Dtos;
 using Villsource.FSH.Modules.Organization.Contracts.v1.Jobs.Queries;
 using Villsource.FSH.Modules.Organization.Data;
+using Villsource.FSH.Modules.Organization.Features.v1.Jobs.Specifications;
 
 namespace Villsource.FSH.Modules.Organization.Features.v1.Jobs;
 

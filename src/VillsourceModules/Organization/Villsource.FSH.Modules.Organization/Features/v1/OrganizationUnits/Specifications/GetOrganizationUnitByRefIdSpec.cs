@@ -1,7 +1,7 @@
 ﻿using FSH.Framework.Persistence.Specifications;
 using Villsource.FSH.Modules.Organization.Domain.OrganizationUnits;
 
-namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits;
+namespace Villsource.FSH.Modules.Organization.Features.v1.OrganizationUnits.Specifications;
 
 public sealed class GetOrganizationUnitByRefIdSpec : Specification<OrganizationUnit>
 {
