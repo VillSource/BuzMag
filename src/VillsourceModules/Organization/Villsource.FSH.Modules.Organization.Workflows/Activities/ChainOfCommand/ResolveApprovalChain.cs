@@ -13,6 +13,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 
 [Activity(
     Category = OrganizationActivityConstants.Category,
+    Version = 1,
     DisplayName = "Resolve Approval Chain",
     Description = "Resolves the multi-step upward approval chain for a position with automatic delegation evaluation (returns IReadOnlyList<EffectiveManagerResolutionDto>)."
 )]

@@ -13,6 +13,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 
 [Activity(
     Category = OrganizationActivityConstants.Category,
+    Version = 1,
     DisplayName = "Resolve Direct Manager",
     Description = "Resolves the direct (solid-line) reporting manager position for a given position (returns ChainOfCommandPositionDto?)."
 )]

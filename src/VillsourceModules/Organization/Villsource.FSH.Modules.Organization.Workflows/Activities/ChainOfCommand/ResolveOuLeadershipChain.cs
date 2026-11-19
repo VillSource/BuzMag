@@ -13,6 +13,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 
 [Activity(
     Category = OrganizationActivityConstants.Category,
+    Version = 1,
     DisplayName = "Resolve OU Leadership Chain",
     Description = "Resolves the upward Organization Unit leadership chain from a starting OU up to the root OU (returns IReadOnlyList<OuLeadershipStepDto>)."
 )]

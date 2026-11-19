@@ -14,6 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 /// </summary>
 [Activity(
     Category = OrganizationActivityConstants.Category,
+    Version = 1,
     DisplayName = "Chain Of Command Position Field Selector",
     Description = "Extracts typed fields from a ChainOfCommandPositionDto (or JSON) and outputs each field to variables or expressions (returns ChainOfCommandPositionDto?)."
 )]

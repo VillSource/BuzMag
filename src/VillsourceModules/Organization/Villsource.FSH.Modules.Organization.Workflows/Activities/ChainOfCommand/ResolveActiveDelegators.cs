@@ -14,6 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 
 [Activity(
     Category = OrganizationActivityConstants.Category,
+    Version = 1,
     DisplayName = "Resolve Active Delegators",
     Description = "Resolves all active delegator (principal) positions whose authority is currently held by a delegate position (returns IReadOnlyList<ResolvedDelegationDto>)."
 )]

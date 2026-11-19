@@ -13,6 +13,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 
 [Activity(
     Category = OrganizationActivityConstants.Category,
+    Version = 1,
     DisplayName = "Get Subordinate Subtree",
     Description = "Retrieves the downward subordinate position subtree under a given manager position (returns IReadOnlyList<ChainOfCommandPositionDto>)."
 )]

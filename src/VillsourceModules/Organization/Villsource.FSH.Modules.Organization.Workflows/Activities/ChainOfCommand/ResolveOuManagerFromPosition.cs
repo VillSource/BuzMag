@@ -13,6 +13,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 
 [Activity(
     Category = OrganizationActivityConstants.Category,
+    Version = 1,
     DisplayName = "Resolve OU Manager From Position",
     Description = "Resolves the Organization Unit manager by starting at the position's OU and crawling up ancestor OUs (returns OuManagerResolutionDto?)."
 )]
