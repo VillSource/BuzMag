@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
@@ -50,8 +49,8 @@ public class ResolveEffectiveDelegates : DelegationListResolutionActivityBase
     )]
     public Input<DateTimeOffset?> AsOfUtc { get; set; } = default!;
 
-    [Output(Description = "The highest-priority delegate position as a JsonObject, or null when no effective delegation exists.")]
-    public Output<JsonObject?> FirstDelegatePosition { get; set; } = default!;
+    [Output(Description = "The highest-priority delegate position (ChainOfCommandPositionDto?), or null when no effective delegation exists.")]
+    public Output<ChainOfCommandPositionDto?> FirstDelegatePosition { get; set; } = default!;
 
     protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
     {
@@ -71,6 +70,6 @@ public class ResolveEffectiveDelegates : DelegationListResolutionActivityBase
             context.CancellationToken).ConfigureAwait(false);
 
         SetOutputs(context, result);
-        FirstDelegatePosition.Set(context, WorkflowJsonHelper.ToJsonObject(result.Count > 0 ? result[0].DelegatePosition : null));
+        FirstDelegatePosition.Set(context, result.Count > 0 ? result[0].DelegatePosition : null);
     }
 }

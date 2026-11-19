@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
@@ -15,9 +14,9 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Resolve OU Leadership Chain",
-    Description = "Resolves the upward Organization Unit leadership chain from a starting OU up to the root OU."
+    Description = "Resolves the upward Organization Unit leadership chain from a starting OU up to the root OU (returns IReadOnlyList<OuLeadershipStepDto>)."
 )]
-public class ResolveOuLeadershipChain : JsonListActivityBase
+public class ResolveOuLeadershipChain : ListActivityBase<OuLeadershipStepDto>
 {
     [Input(
         DisplayName = "Org Unit Ref ID",
@@ -47,11 +46,11 @@ public class ResolveOuLeadershipChain : JsonListActivityBase
     )]
     public Input<DateTimeOffset?> AsOfUtc { get; set; } = default!;
 
-    [Output(Description = "First step in the OU leadership chain as a JsonObject, or null when empty.")]
-    public Output<JsonObject?> FirstStep { get; set; } = default!;
+    [Output(Description = "First step in the OU leadership chain (OuLeadershipStepDto?), or null when empty.")]
+    public Output<OuLeadershipStepDto?> FirstStep { get; set; } = default!;
 
-    [Output(Description = "Manager position from the first step that has one assigned as a JsonObject, or null if none.")]
-    public Output<JsonObject?> FirstManagerPosition { get; set; } = default!;
+    [Output(Description = "Manager position from the first step that has one assigned (ChainOfCommandPositionDto?), or null if none.")]
+    public Output<ChainOfCommandPositionDto?> FirstManagerPosition { get; set; } = default!;
 
     protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
     {
@@ -70,8 +69,8 @@ public class ResolveOuLeadershipChain : JsonListActivityBase
             asOfUtc,
             context.CancellationToken).ConfigureAwait(false);
 
-        SetJsonListResult(context, result);
-        FirstStep.Set(context, WorkflowJsonHelper.ToJsonObject(result.Count > 0 ? result[0] : null));
-        FirstManagerPosition.Set(context, WorkflowJsonHelper.ToJsonObject(result.Select(static s => s.ManagerPosition).FirstOrDefault(static m => m is not null)));
+        SetListResult(context, result);
+        FirstStep.Set(context, result.Count > 0 ? result[0] : null);
+        FirstManagerPosition.Set(context, result.Select(static s => s.ManagerPosition).FirstOrDefault(static m => m is not null));
     }
 }

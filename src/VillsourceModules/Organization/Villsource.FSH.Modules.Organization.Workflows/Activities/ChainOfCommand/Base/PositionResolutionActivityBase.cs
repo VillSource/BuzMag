@@ -5,12 +5,12 @@ using Villsource.Modules.Elsa.Core.Activities.Base;
 namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfCommand.Base;
 
 /// <summary>
-/// Base activity for single-position chain of command resolvers returning <see cref="ChainOfCommandPositionDto"/> as a <see cref="System.Text.Json.Nodes.JsonObject"/>.
+/// Base activity for single-position chain of command resolvers returning <see cref="ChainOfCommandPositionDto"/>.
 /// </summary>
-public abstract class PositionResolutionActivityBase : JsonObjectActivityBase
+public abstract class PositionResolutionActivityBase : ObjectActivityBase<ChainOfCommandPositionDto>
 {
     protected void SetOutputs(ActivityExecutionContext context, ChainOfCommandPositionDto? position)
     {
-        SetJsonResult(context, position);
+        SetObjectResult(context, position);
     }
 }

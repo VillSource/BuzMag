@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
@@ -15,9 +14,9 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Resolve Approval Chain",
-    Description = "Resolves the multi-step upward approval chain for a position with automatic delegation evaluation."
+    Description = "Resolves the multi-step upward approval chain for a position with automatic delegation evaluation (returns IReadOnlyList<EffectiveManagerResolutionDto>)."
 )]
-public class ResolveApprovalChain : JsonListActivityBase
+public class ResolveApprovalChain : ListActivityBase<EffectiveManagerResolutionDto>
 {
     [Input(
         DisplayName = "Position Ref ID",
@@ -55,11 +54,11 @@ public class ResolveApprovalChain : JsonListActivityBase
     )]
     public Input<DateTimeOffset?> AsOfUtc { get; set; } = default!;
 
-    [Output(Description = "First step in the approval chain as a JsonObject, or null when empty.")]
-    public Output<JsonObject?> FirstStep { get; set; } = default!;
+    [Output(Description = "First step in the approval chain (EffectiveManagerResolutionDto?), or null when empty.")]
+    public Output<EffectiveManagerResolutionDto?> FirstStep { get; set; } = default!;
 
-    [Output(Description = "Effective approver position for the first step as a JsonObject, or null when empty.")]
-    public Output<JsonObject?> FirstApproverPosition { get; set; } = default!;
+    [Output(Description = "Effective approver position for the first step (ChainOfCommandPositionDto?), or null when empty.")]
+    public Output<ChainOfCommandPositionDto?> FirstApproverPosition { get; set; } = default!;
 
     protected override async ValueTask ExecuteAsync(ActivityExecutionContext context)
     {
@@ -80,8 +79,8 @@ public class ResolveApprovalChain : JsonListActivityBase
             asOfUtc,
             context.CancellationToken).ConfigureAwait(false);
 
-        SetJsonListResult(context, result);
-        FirstStep.Set(context, WorkflowJsonHelper.ToJsonObject(result.Count > 0 ? result[0] : null));
-        FirstApproverPosition.Set(context, WorkflowJsonHelper.ToJsonObject(result.Count > 0 ? result[0].EffectiveApproverPosition : null));
+        SetListResult(context, result);
+        FirstStep.Set(context, result.Count > 0 ? result[0] : null);
+        FirstApproverPosition.Set(context, result.Count > 0 ? result[0].EffectiveApproverPosition : null);
     }
 }
