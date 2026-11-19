@@ -15,7 +15,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Resolve Manager By Min Job Grade",
-    Description = "Finds the first active manager in the chain of command meeting the minimum job grade rank order and/or job level category."
+    Description = "Finds the first active manager in the chain of command meeting the minimum job grade rank order and/or job level category (returns EffectiveManagerResolutionDto?)."
 )]
 public class ResolveManagerByMinJobGrade : EffectiveManagerResolutionActivityBase
 {

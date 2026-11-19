@@ -15,7 +15,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Resolve Effective Delegates",
-    Description = "Resolves all currently effective delegate positions granted authority on behalf of a delegator position."
+    Description = "Resolves all currently effective delegate positions granted authority on behalf of a delegator position (returns IReadOnlyList<ResolvedDelegationDto>)."
 )]
 public class ResolveEffectiveDelegates : DelegationListResolutionActivityBase
 {

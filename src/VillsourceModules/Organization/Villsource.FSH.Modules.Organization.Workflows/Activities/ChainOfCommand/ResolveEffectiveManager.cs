@@ -14,7 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Resolve Effective Manager",
-    Description = "Resolves the single effective manager/approver for a position with optional OU fallback and delegation substitution."
+    Description = "Resolves the single effective manager/approver for a position with optional OU fallback and delegation substitution (returns EffectiveManagerResolutionDto?)."
 )]
 public class ResolveEffectiveManager : EffectiveManagerResolutionActivityBase
 {

@@ -13,7 +13,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Is In Chain Of Command",
-    Description = "Determines whether a candidate supervisor position holds supervisory authority over a subordinate position."
+    Description = "Determines whether a candidate supervisor position holds supervisory authority over a subordinate position (returns bool)."
 )]
 public class IsInChainOfCommand : ConditionActivityBase
 {

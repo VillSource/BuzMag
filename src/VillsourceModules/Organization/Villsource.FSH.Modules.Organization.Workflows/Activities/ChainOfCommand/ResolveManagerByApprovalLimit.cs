@@ -14,7 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Resolve Manager By Approval Limit",
-    Description = "Finds the first active manager in the chain of command whose approval limit meets the required amount and currency."
+    Description = "Finds the first active manager in the chain of command whose approval limit meets the required amount and currency (returns EffectiveManagerResolutionDto?)."
 )]
 public class ResolveManagerByApprovalLimit : EffectiveManagerResolutionActivityBase
 {

@@ -14,7 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Resolve Dotted-Line Manager",
-    Description = "Resolves the dotted-line (matrix / functional) manager position for a given position."
+    Description = "Resolves the dotted-line (matrix / functional) manager position for a given position (returns ChainOfCommandPositionDto?)."
 )]
 public class ResolveDottedLineManager : PositionResolutionActivityBase
 {

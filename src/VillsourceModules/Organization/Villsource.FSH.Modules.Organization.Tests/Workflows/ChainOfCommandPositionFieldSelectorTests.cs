@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Memory;
 using Elsa.Workflows.Models;
@@ -133,9 +132,9 @@ public sealed class ChainOfCommandPositionFieldSelectorTests
             Position = new Input<object?>(position)
         };
 
-        var (runResult, resultJson) = await WorkflowTestHost.RunCodeActivityAsync(sp, selector);
-        resultJson.ShouldNotBeNull();
-        resultJson["refId"]?.GetValue<string>().ShouldBe(position.RefId);
+        var (runResult, resultDto) = await WorkflowTestHost.RunCodeActivityAsync(sp, selector);
+        resultDto.ShouldNotBeNull();
+        resultDto.RefId.ShouldBe(position.RefId);
 
         foreach (var (fieldName, expectedValue) in expectedByField)
         {

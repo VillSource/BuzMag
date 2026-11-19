@@ -14,7 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Resolve Reporting Chain",
-    Description = "Resolves the upward direct reporting chain of command from a starting position up to the top of the reporting tree."
+    Description = "Resolves the upward direct reporting chain of command from a starting position up to the top of the reporting tree (returns IReadOnlyList<ChainOfCommandPositionDto>)."
 )]
 public class ResolveReportingChain : PositionListResolutionActivityBase
 {

@@ -14,7 +14,7 @@ namespace Villsource.FSH.Modules.Organization.Workflows.Activities.ChainOfComman
 [Activity(
     Category = OrganizationActivityConstants.Category,
     DisplayName = "Get Direct Reports",
-    Description = "Retrieves all immediate direct report positions for a given manager position."
+    Description = "Retrieves all immediate direct report positions for a given manager position (returns IReadOnlyList<ChainOfCommandPositionDto>)."
 )]
 public class GetDirectReports : PositionListResolutionActivityBase
 {
